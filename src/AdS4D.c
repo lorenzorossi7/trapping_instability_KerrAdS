@@ -21832,13 +21832,6 @@ void AdS4D_evolve(int iter)
 //			      }
 //			   }
         }  
-        if (output_sqrth1normdensity)
-        {
-            sqrth1normdensity_(sqrth1normdensity_np1,
-                    phi1_np1,phi1_n,phi1_nm1,
-                    x,y,z,&dt,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
-                    &ief_bh_r0,&a_rot0);
-        }
     }
     else
     {
@@ -21864,6 +21857,13 @@ void AdS4D_evolve(int iter)
                 &interptype,&i_shift,&regtype,
                 &diss_kmax,tfunction,
                 &ief_bh_r0,&a_rot0,&kerrads_background);  
+        if (output_sqrth1normdensity)
+        {
+            sqrth1normdensity_(sqrth1normdensity_np1,
+                    phi1_np1,phi1_n,phi1_nm1,
+                    x,y,z,&dt,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+                    &ief_bh_r0,&a_rot0);
+        }
     }
 
     return;
