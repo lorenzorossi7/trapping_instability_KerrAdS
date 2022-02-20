@@ -351,7 +351,7 @@ c-----------------------------------------------------------------------
      &          *dRad_drho
 
 !TEST logarithm dependence
-        h1normdensity0=log(ct)
+!        h1normdensity0=log(ct)
 
 
                 sqrth1normdensity_n(i,j,k)=
