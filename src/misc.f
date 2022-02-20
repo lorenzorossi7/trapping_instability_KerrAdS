@@ -2904,6 +2904,137 @@ c----------------------------------------------------------------------
         return
         end
 
+c--------------------------------------------------------------------------
+c derivative w.r.t. rho=sqrt(x**2+y**2+z**2)
+c--------------------------------------------------------------------------
+        real*8 function df_drho(f,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        implicit none
+
+        integer Nx,Ny,Nz,i,j,k
+        real*8 f(Nx,Ny,Nz),chr(Nx,Ny,Nz),ex,x(Nx),y(Ny),z(Nz)
+        real*8 f_x,f_y,f_z
+        real*8 dxdrho,dydrho,dzdrho
+        real*8 x0,y0,z0,rho0,q,theta0,phi0
+
+        real*8 PI
+        parameter (PI=3.141592653589793d0)
+
+!--------------------------------------------------------------------
+
+        call df1_int_x(f,f_x,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df1_int_y(f,f_y,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df1_int_z(f,f_z,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
+             x0=x(i)
+             y0=y(j)
+             z0=z(k)
+             rho0=sqrt(x0**2+y0**2+z0**2)
+             q=1-rho0
+             theta0=acos(x0/rho0)
+             if (z0.lt.0) then
+                phi0=atan2(z0,y0)+2*PI
+             else
+                phi0=atan2(z0,y0)
+             end if
+
+        dxdrho=cos(theta0)
+        dydrho=sin(theta0)*cos(phi0)
+        dzdrho=sin(theta0)*sin(phi0)
+
+        df_drho=dxdrho*f_x+dydrho*f_y+dzdrho*f_z
+
+        return
+        end
+c--------------------------------------------------------------------------------------
+
+c--------------------------------------------------------------------------
+c derivative w.r.t. theta=acos(x/rho)
+c--------------------------------------------------------------------------
+        real*8 function df_dtheta(f,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        implicit none
+
+        integer Nx,Ny,Nz,i,j,k
+        real*8 f(Nx,Ny,Nz),chr(Nx,Ny,Nz),ex,x(Nx),y(Ny),z(Nz)
+        real*8 f_x,f_y,f_z
+        real*8 dxdtheta,dydtheta,dzdtheta
+        real*8 x0,y0,z0,rho0,q,theta0,phi0
+
+        real*8 PI
+        parameter (PI=3.141592653589793d0)
+
+!--------------------------------------------------------------------
+
+        call df1_int_x(f,f_x,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df1_int_y(f,f_y,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df1_int_z(f,f_z,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
+             x0=x(i)
+             y0=y(j)
+             z0=z(k)
+             rho0=sqrt(x0**2+y0**2+z0**2)
+             q=1-rho0
+             theta0=acos(x0/rho0)
+             if (z0.lt.0) then
+                phi0=atan2(z0,y0)+2*PI
+             else
+                phi0=atan2(z0,y0)
+             end if
+
+        dxdtheta=-rho0*sin(theta0)
+        dydtheta=rho0*cos(theta0)*cos(phi0)
+        dzdtheta=rho0*cos(theta0)*sin(phi0)
+
+        df_dtheta=dxdtheta*f_x+dydtheta*f_y+dzdtheta*f_z
+
+        return
+        end
+c--------------------------------------------------------------------------------------
+
+c--------------------------------------------------------------------------
+c derivative w.r.t. phi defined as 
+c if z<0, phi=atan2(z,y)+2*PI
+c else    phi=atan2(z,y)
+c--------------------------------------------------------------------------
+        real*8 function df_dphi(f,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        implicit none
+
+        integer Nx,Ny,Nz,i,j,k
+        real*8 f(Nx,Ny,Nz),chr(Nx,Ny,Nz),ex,x(Nx),y(Ny),z(Nz)
+        real*8 f_x,f_y,f_z
+        real*8 dxdphi,dydphi,dzdphi
+        real*8 x0,y0,z0,rho0,q,theta0,phi0
+
+        real*8 PI
+        parameter (PI=3.141592653589793d0)
+
+!--------------------------------------------------------------------
+
+        call df1_int_x(f,f_x,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df1_int_y(f,f_y,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df1_int_z(f,f_z,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
+             x0=x(i)
+             y0=y(j)
+             z0=z(k)
+             rho0=sqrt(x0**2+y0**2+z0**2)
+             q=1-rho0
+             theta0=acos(x0/rho0)
+             if (z0.lt.0) then
+                phi0=atan2(z0,y0)+2*PI
+             else
+                phi0=atan2(z0,y0)
+             end if
+
+        dxdphi=0
+        dydphi=-rho0*sin(theta0)*sin(phi0)
+        dzdphi=rho0*sin(theta0)*cos(phi0)
+
+        df_dphi=dxdphi*f_x+dydphi*f_y+dzdphi*f_z
+
+        return
+        end
+c--------------------------------------------------------------------------------------
+
 c----------------------------------------------------------------------
 c Background values (either AdS, if kerrads_background=0, or Kerr-AdS, if kerrads_background=1) ... 
 c with these new variables
