@@ -12,7 +12,8 @@ c-----------------------------------------------------------------------
         subroutine sqrth1normdensity(
      &                  sqrth1normdensity_n,
      &                  phi1_np1,phi1_n,phi1_nm1,
-     &                  x,y,z,dt,chr,L,ex,Nx,Ny,Nz,phys_bdy,ghost_width,
+     &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
+     &                  phys_bdy,ghost_width,
      &                  ief_bh_r0,a_rot)
 
         implicit none
@@ -26,7 +27,7 @@ c-----------------------------------------------------------------------
         integer i,j,k
         integer phys_bdy(6),ghost_width(6)
         real*8 chr(Nx,Ny,Nz),ex
-        real*8 x(Nx),y(Ny),z(Nz),dt,L
+        real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
         real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
         real*8 sqrth1normdensity_np1(Nx,Ny,Nz)
@@ -348,6 +349,9 @@ c-----------------------------------------------------------------------
      &        +((1-rho0**2)**2*phi10)**2)
      &          *Rad0**2/rho0**2
      &          *dRad_drho
+
+!TEST logarithm dependence
+        h1normdensity0=log(ct)
 
 
                 sqrth1normdensity_n(i,j,k)=

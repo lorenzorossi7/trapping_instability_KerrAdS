@@ -3244,7 +3244,7 @@ void AdS4D_t0_cnst_data(void)
         {
             sqrth1normdensity_(sqrth1normdensity_n,
                     phi1_np1,phi1_n,phi1_nm1,
-                    x,y,z,&dt,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0);
         }
     }     
@@ -21861,7 +21861,7 @@ void AdS4D_evolve(int iter)
         {
             sqrth1normdensity_(sqrth1normdensity_np1,
                     phi1_np1,phi1_n,phi1_nm1,
-                    x,y,z,&dt,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0);
         }
     }
