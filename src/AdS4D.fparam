@@ -24,7 +24,7 @@ do_ex :=1
 #==============================================================================
 
 num_hyperbolic_vars := 33
-hyperbolic_vars := [ "phi1" "gb_tt" "gb_tx" "gb_ty" "gb_tz" "gb_xx" "gb_xy" "gb_xz" "gb_yy" "gb_yz" "gb_zz" "Hb_t" "Hb_x" "Hb_y" "Hb_z" "phi1_t" "gb_tt_t" "gb_tx_t" "gb_ty_t" "gb_tz_t" "gb_xx_t" "gb_xy_t" "gb_xz_t" "gb_yy_t" "gb_yz_t" "gb_zz_t" "Hb_t_t" "Hb_x_t" "Hb_y_t" "Hb_z_t" "kretsch" "riemanncube" "sqrth1normdensity"]
+hyperbolic_vars := [ "phi1" "gb_tt" "gb_tx" "gb_ty" "gb_tz" "gb_xx" "gb_xy" "gb_xz" "gb_yy" "gb_yz" "gb_zz" "Hb_t" "Hb_x" "Hb_y" "Hb_z" "phi1_t" "gb_tt_t" "gb_tx_t" "gb_ty_t" "gb_tz_t" "gb_xx_t" "gb_xy_t" "gb_xz_t" "gb_yy_t" "gb_yz_t" "gb_zz_t" "Hb_t_t" "Hb_x_t" "Hb_y_t" "Hb_z_t" "kretsch" "riemanncube" "sqrth10normdensity"]
 
 #==============================================================================
 # For now only time-symmetric initial data ... 'conformal' to AdS space
@@ -32,7 +32,7 @@ hyperbolic_vars := [ "phi1" "gb_tt" "gb_tx" "gb_ty" "gb_tz" "gb_xx" "gb_xy" "gb_
 #==============================================================================
 
 num_elliptic_vars_t0 := 1
-elliptic_vars_t0 := ["zeta"]
+elliptic_vars_t0 := [ "zeta" ]
 
 #==============================================================================
 # "work" variables ... residuals, inverse metric components, etc.
@@ -51,7 +51,7 @@ num_amr_inject   := 30
 amr_inject       := [ "phi1" "gb_tt" "gb_tx" "gb_ty" "gb_tz" "gb_xx" "gb_xy" "gb_xz" "gb_yy" "gb_yz" "gb_zz" "Hb_t" "Hb_x" "Hb_y" "Hb_z" "phi1_t" "gb_tt_t" "gb_tx_t" "gb_ty_t" "gb_tz_t" "gb_xx_t" "gb_xy_t" "gb_xz_t" "gb_yy_t" "gb_yz_t" "gb_zz_t" "Hb_t_t" "Hb_x_t" "Hb_y_t" "Hb_z_t" ]
 
 num_amr_sync     := 33
-amr_sync         := [ "phi1" "gb_tt" "gb_tx" "gb_ty" "gb_tz" "gb_xx" "gb_xy" "gb_xz" "gb_yy" "gb_yz" "gb_zz" "Hb_t" "Hb_x" "Hb_y" "Hb_z" "phi1_t" "gb_tt_t" "gb_tx_t" "gb_ty_t" "gb_tz_t" "gb_xx_t" "gb_xy_t" "gb_xz_t" "gb_yy_t" "gb_yz_t" "gb_zz_t" "Hb_t_t" "Hb_x_t" "Hb_y_t" "Hb_z_t" "kretsch" "riemanncube" "sqrth1normdensity"]
+amr_sync         := [ "phi1" "gb_tt" "gb_tx" "gb_ty" "gb_tz" "gb_xx" "gb_xy" "gb_xz" "gb_yy" "gb_yz" "gb_zz" "Hb_t" "Hb_x" "Hb_y" "Hb_z" "phi1_t" "gb_tt_t" "gb_tx_t" "gb_ty_t" "gb_tz_t" "gb_xx_t" "gb_xy_t" "gb_xz_t" "gb_yy_t" "gb_yz_t" "gb_zz_t" "Hb_t_t" "Hb_x_t" "Hb_y_t" "Hb_z_t" "kretsch" "riemanncube" "sqrth10normdensity"]
 
 num_amr_interp4  := 30
 amr_interp4      := [ "phi1" "gb_tt" "gb_tx" "gb_ty" "gb_tz" "gb_xx" "gb_xy" "gb_xz" "gb_yy" "gb_yz" "gb_zz" "Hb_t" "Hb_x" "Hb_y" "Hb_z" "phi1_t" "gb_tt_t" "gb_tx_t" "gb_ty_t" "gb_tz_t" "gb_xx_t" "gb_xy_t" "gb_xz_t" "gb_yy_t" "gb_yz_t" "gb_zz_t" "Hb_t_t" "Hb_x_t" "Hb_y_t" "Hb_z_t" ]

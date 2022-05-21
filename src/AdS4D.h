@@ -688,7 +688,7 @@ void init_kerrads4d_bh_(real *ief_bh_r0, real *a_rot, real *AdS_L,
                             int *phys_bdy,
                             real *x, real *y, real *z, real *dt,real *chr_mg,real *ex,int *Nx,int *Ny,int *Nz,int *regtype, int *kerrads_background);
 
-void sqrth1normdensity_(real *sqrth1normdensity_n,
+void sqrth10normdensity_(real *sqrth10normdensity_n,
            real *phi1_np1, real *phi1_n, real *phi1_nm1,
            real *x, real *y, real *z, real *dt, real *ct, real *chr,
            real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,

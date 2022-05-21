@@ -339,15 +339,16 @@ c----------------------------------------------------------------------
      &   + (12*a_rot**2)/L**2) - a_rot**2/L**2))/(3.*Sqrt(6.))
 
         if (a_rot.ge.L) then
-         write (*,*) "ERROR in choice of Kerr-AdS initial parameters: 
+         write (*,*) "et_kerrads4d_ahr: ERROR in choice of Kerr-AdS initial parameters: 
      &   the rotation parameter a must be smaller than the AdS radius L"
           write (*,*) "a_rot,L=",a_rot,L
           stop
         end if
 
-        if (M0.le.M0_min) then
-          write (*,*) "ERROR in choice of Kerr-AdS initial parameters: 
-     &      the black hole mass M0=2*r0 must be larger or equal 
+        if ((abs(M0).gt.10.0d0**(-10))
+     &     .and.(M0.le.M0_min)) then
+          write (*,*) "set_kerrads4d_ahr: ERROR in choice of Kerr-AdS initial parameters: 
+     &      the black hole mass M0=2*r0 must be larger
      &      than the M0_min value"
           write (*,*) "M0,M0_min=",M0,M0_min
           stop
@@ -567,15 +568,16 @@ c----------------------------------------------------------------------
      &       + (12*a_rot**2)/L**2) - a_rot**2/L**2))/(3.*Sqrt(6.))
 
         if (a_rot.ge.L) then
-         write (*,*) "ERROR in choice of Kerr-AdS initial parameters: 
+         write (*,*) "init_kerrads4d_bh: ERROR in choice of Kerr-AdS initial parameters: 
      &   the rotation parameter a must be smaller than the AdS radius L"
           write (*,*) "a_rot,L=",a_rot,L
           stop
         end if
 
-        if (M0.le.M0_min) then
-          write (*,*) "ERROR in choice of Kerr-AdS initial parameters: 
-     &      the black hole mass M0=2*r0 must be larger or equal 
+        if ((abs(M0).gt.10.0d0**(-10))
+     &     .and.(M0.le.M0_min)) then
+          write (*,*) "init_kerrads4d_bh: ERROR in choice of Kerr-AdS initial parameters: 
+     &      the black hole mass M0=2*r0 must be larger 
      &      than the M0_min value"
           write (*,*) "M0,M0_min=",M0,M0_min
           stop

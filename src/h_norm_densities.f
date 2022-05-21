@@ -3,14 +3,14 @@ c calculate square root of the integrand of the H_AdS^(1,0) norm (defined in arx
 c where we substitute the coordinates of arxiv:1110.6794v2 by uncompactified quasi-spherical Kerr-Schild coords.
 c We write the (Euclidean) volume measure dV=R^2sin(theta)dRdthetadphi as 
 c R^2/rho^2dR_drho rho^2 sin(theta)drhodthetadphi=R^2/rho^2 dR_drho dxdydz.
-c In the definition of sqrth1normdensity_n we only include the factors R^2/rho^2 dR_drho. Therefore, in order
+c In the definition of sqrth10normdensity_n we only include the factors R^2/rho^2 dR_drho. Therefore, in order
 c to obtain the H_AdS^(1,0) norm for quasi-spherical coordinates, 
-c sqrth1normdensity_n needs to be squared and integrated in dxdydz to obtain the H_AdS^(1,0) norm.
+c sqrth10normdensity_n needs to be squared and integrated in dxdydz to obtain the H_AdS^(1,0) norm.
 c This can be done (up to a numerical factor coming from the integral over the entire space), for example, 
 c by using the L^2-norm calculation in DV and then squaring the result.
 c-----------------------------------------------------------------------
-        subroutine sqrth1normdensity(
-     &                  sqrth1normdensity_n,
+        subroutine sqrth10normdensity(
+     &                  sqrth10normdensity_n,
      &                  phi1_np1,phi1_n,phi1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
@@ -30,9 +30,9 @@ c-----------------------------------------------------------------------
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
         real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
-        real*8 sqrth1normdensity_np1(Nx,Ny,Nz)
-        real*8 sqrth1normdensity_n(Nx,Ny,Nz)
-        real*8 sqrth1normdensity_nm1(Nx,Ny,Nz)
+        real*8 sqrth10normdensity_np1(Nx,Ny,Nz)
+        real*8 sqrth10normdensity_n(Nx,Ny,Nz)
+        real*8 sqrth10normdensity_nm1(Nx,Ny,Nz)
         real*8 phi10,h1normdensity0
         real*8 df_drho,df_dtheta,df_dphi
         real*8 dphi1_drho_n,dphi1_dtheta_n,dphi1_dphi_n
@@ -111,15 +111,16 @@ c-----------------------------------------------------------------------
      &   + (12*a_rot**2)/L**2) - a_rot**2/L**2))/(3.*Sqrt(6.))
 
         if (a_rot.ge.L) then
-         write (*,*) "ERROR in choice of Kerr-AdS initial parameters: 
+         write (*,*) "sqrth10normdensity: ERROR in choice of Kerr-AdS initial parameters: 
      &   the rotation parameter a must be smaller than the AdS radius L"
           write (*,*) "a_rot,L=",a_rot,L
           stop
         end if
 
-        if (M0.le.M0_min) then
-          write (*,*) "ERROR in choice of Kerr-AdS initial parameters: 
-     &      the black hole mass M0=2*r0 must be larger or equal 
+        if ((abs(M0).gt.10.0d0**(-10))
+     &     .and.(M0.le.M0_min)) then
+          write (*,*) "sqrth10normdensity: ERROR in choice of Kerr-AdS initial parameters: 
+     &      the black hole mass M0=2*r0 must be larger
      &      than the M0_min value"
           write (*,*) "M0,M0_min=",M0,M0_min
           stop
@@ -354,21 +355,21 @@ c-----------------------------------------------------------------------
 !        h1normdensity0=1/abs(log(ct+dt))
 
 
-                sqrth1normdensity_n(i,j,k)=
+                sqrth10normdensity_n(i,j,k)=
      &             sqrt(h1normdensity0)
 
                  !the phi coordinate is not defined at y=z=0, i.e., theta=0,PI 
                 !(not surprising since spherical coordinates are not valid everywhere on the sphere), 
-                !hence we set sqrth1normdensity_n(i,j,k) to 0 at these points
+                !hence we set sqrth10normdensity_n(i,j,k) to 0 at these points
 
                 if ((abs(y0).lt.10.0d0**(-10)).and.
      &          (abs(z0).lt.10.0d0**(-10))) then
-                    sqrth1normdensity_n(i,j,k)=0.0d0
+                    sqrth10normdensity_n(i,j,k)=0.0d0
                 end if
 
 
             else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
-               sqrth1normdensity_n(i,j,k)=0.0d0
+               sqrth10normdensity_n(i,j,k)=0.0d0
             end if
 
            end do

@@ -81,7 +81,7 @@ real ex_r[MAX_BHS][3],ex_xc[MAX_BHS][3];
 int background,skip_constraints;
 int output_ires,output_kretschcentregrid;
 int output_kretsch,output_riemanncube;
-int output_sqrth1normdensity;
+int output_sqrth10normdensity;
 int output_moreAHquant_sdf,output_metricAH_cart_sdf,output_metricAH_sph_sdf;
 int output_kretschAH_sdf,output_riemanncubeAH_sdf;
 int output_moreAHquant_ascii,output_AHtheta_ascii,output_metricAH_cart_ascii,output_metricAH_sph_ascii,output_kretschAH_ascii,output_riemanncubeAH_ascii,output_diagnosticAH_ascii;
@@ -184,7 +184,7 @@ real *Hb_z_t,*Hb_z_t_n;
 //variables that are defined in hyperbolic_vars but just because we want them to be synchronized (synchronization only affects the current time level)
 real *kretsch,*kretsch_n,*kretsch_np1,*kretsch_nm1;
 real *riemanncube,*riemanncube_n,*riemanncube_np1,*riemanncube_nm1;
-real *sqrth1normdensity,*sqrth1normdensity_n,*sqrth1normdensity_np1,*sqrth1normdensity_nm1;
+real *sqrth10normdensity,*sqrth10normdensity_n,*sqrth10normdensity_np1,*sqrth10normdensity_nm1;
 
 real *w1,*mg_w1;
 real *w2,*mg_w2;
@@ -632,7 +632,7 @@ int Hb_z_t_gfn,Hb_z_t_n_gfn;
 //variables that are defined in hyperbolic_vars but just because we want them to be synchronized (synchronization only affects the current time level)
 int kretsch_gfn,kretsch_n_gfn,kretsch_np1_gfn,kretsch_nm1_gfn;
 int riemanncube_gfn,riemanncube_n_gfn,riemanncube_np1_gfn,riemanncube_nm1_gfn;
-int sqrth1normdensity_gfn,sqrth1normdensity_n_gfn,sqrth1normdensity_np1_gfn,sqrth1normdensity_nm1_gfn;
+int sqrth10normdensity_gfn,sqrth10normdensity_n_gfn,sqrth10normdensity_np1_gfn,sqrth10normdensity_nm1_gfn;
 
 int mask_gfn,mask_mg_gfn,chr_gfn,chr_mg_gfn;
 
@@ -1704,10 +1704,10 @@ void set_gfns(void)
     if ((riemanncube_nm1_gfn   = PAMR_get_gfn("riemanncube",PAMR_AMRH,3))<0) AMRD_stop("set_gnfs error",0);
     if ((riemanncube_n_gfn   = PAMR_get_gfn("riemanncube",PAMR_AMRH,2))<0) AMRD_stop("set_gnfs error",0);
     if ((riemanncube_np1_gfn   = PAMR_get_gfn("riemanncube",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((sqrth1normdensity_gfn      = PAMR_get_gfn("sqrth1normdensity",PAMR_MGH, 0))<0) AMRD_stop("set_gnfs error",0);
-    if ((sqrth1normdensity_nm1_gfn   = PAMR_get_gfn("sqrth1normdensity",PAMR_AMRH,3))<0) AMRD_stop("set_gnfs error",0);
-    if ((sqrth1normdensity_n_gfn   = PAMR_get_gfn("sqrth1normdensity",PAMR_AMRH,2))<0) AMRD_stop("set_gnfs error",0);
-    if ((sqrth1normdensity_np1_gfn   = PAMR_get_gfn("sqrth1normdensity",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrth10normdensity_gfn      = PAMR_get_gfn("sqrth10normdensity",PAMR_MGH, 0))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrth10normdensity_nm1_gfn   = PAMR_get_gfn("sqrth10normdensity",PAMR_AMRH,3))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrth10normdensity_n_gfn   = PAMR_get_gfn("sqrth10normdensity",PAMR_AMRH,2))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrth10normdensity_np1_gfn   = PAMR_get_gfn("sqrth10normdensity",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
 
 
     if ((zeta_gfn     = PAMR_get_gfn("zeta",PAMR_MGH,0))<0) AMRD_stop("set_gnfs error",0);
@@ -1972,10 +1972,10 @@ void ldptr(void)
     riemanncube_n   = gfs[riemanncube_n_gfn-1];
     riemanncube_nm1   = gfs[riemanncube_nm1_gfn-1];
     riemanncube_np1   = gfs[riemanncube_np1_gfn-1];  
-    sqrth1normdensity     = gfs[sqrth1normdensity_gfn-1];
-    sqrth1normdensity_n   = gfs[sqrth1normdensity_n_gfn-1];
-    sqrth1normdensity_nm1   = gfs[sqrth1normdensity_nm1_gfn-1];
-    sqrth1normdensity_np1   = gfs[sqrth1normdensity_np1_gfn-1];  
+    sqrth10normdensity     = gfs[sqrth10normdensity_gfn-1];
+    sqrth10normdensity_n   = gfs[sqrth10normdensity_n_gfn-1];
+    sqrth10normdensity_nm1   = gfs[sqrth10normdensity_nm1_gfn-1];
+    sqrth10normdensity_np1   = gfs[sqrth10normdensity_np1_gfn-1];  
 
     zeta     = gfs[zeta_gfn-1];
     zeta_lop = gfs[zeta_lop_gfn-1];
@@ -2368,7 +2368,7 @@ void AdS4D_var_post_init(char *pfile)
     output_kretschcentregrid=0; AMRD_int_param(pfile,"output_kretschcentregrid",&output_kretschcentregrid,1);
     output_kretsch=0; AMRD_int_param(pfile,"output_kretsch",&output_kretsch,1);
     output_riemanncube=0; AMRD_int_param(pfile,"output_riemanncube",&output_riemanncube,1);
-    output_sqrth1normdensity=0; AMRD_int_param(pfile,"output_sqrth1normdensity",&output_sqrth1normdensity,1);
+    output_sqrth10normdensity=0; AMRD_int_param(pfile,"output_sqrth10normdensity",&output_sqrth10normdensity,1);
 	output_moreAHquant_sdf=0; AMRD_int_param(pfile,"output_moreAHquant_sdf",&output_moreAHquant_sdf,1);
 	output_metricAH_cart_sdf=0; AMRD_int_param(pfile,"output_metricAH_cart_sdf",&output_metricAH_cart_sdf,1);
 	output_metricAH_sph_sdf=0; AMRD_int_param(pfile,"output_metricAH_sph_sdf",&output_metricAH_sph_sdf,1);
@@ -2644,7 +2644,7 @@ void AdS4D_var_post_init(char *pfile)
             }  
         }   
     }
-    else if ((ief_bh_r0>0)&&(a_rot0>0))
+    else if ((ief_bh_r0>pow(10,-10))&&(a_rot0>pow(10,-10)))
     {
     	M0=ief_bh_r0/2;
     	Xi=1-pow(a_rot0,2)/pow(AdS_L,2);
@@ -3240,9 +3240,9 @@ void AdS4D_t0_cnst_data(void)
 			//			   } 
         }
 
-        if (output_sqrth1normdensity)
+        if (output_sqrth10normdensity)
         {
-            sqrth1normdensity_(sqrth1normdensity_n,
+            sqrth10normdensity_(sqrth10normdensity_n,
                     phi1_np1,phi1_n,phi1_nm1,
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0);
@@ -21857,9 +21857,9 @@ void AdS4D_evolve(int iter)
                 &interptype,&i_shift,&regtype,
                 &diss_kmax,tfunction,
                 &ief_bh_r0,&a_rot0,&kerrads_background);  
-        if (output_sqrth1normdensity)
+        if (output_sqrth10normdensity)
         {
-            sqrth1normdensity_(sqrth1normdensity_np1,
+            sqrth10normdensity_(sqrth10normdensity_np1,
                     phi1_np1,phi1_n,phi1_nm1,
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0);
