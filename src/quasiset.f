@@ -1391,7 +1391,7 @@ c----------------------------------------------------------------------
         logical no_derivatives
         data no_derivatives/.false./
 
-        real*8 df_drho
+        real*8 dphi1_drho
 
         real*8 test1(Nx,Ny,Nz)
         real*8 dtest1_drho
@@ -1454,8 +1454,11 @@ c----------------------------------------------------------------------
      &                (abs(z0).ge.10.0d0**(-10))
      &               )
      &         ) then
+
+               call df_drho(phi1_n,dphi1_drho,
+     &          x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
                leadordcoeff_phi1(i,j,k)=
-     &                  -df_drho(phi1_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+     &                  -dphi1_drho
             else
                leadordcoeff_phi1(i,j,k)=0
             end if
@@ -2381,7 +2384,6 @@ c----------------------------------------------------------------------
         logical no_derivatives
         data no_derivatives/.false./
  
-        real*8 df_drho
         real*8 gbqssph_tt_n(Nx,Ny,Nz),gbqssph_trho_n(Nx,Ny,Nz)
         real*8 gbqssph_tchi_n(Nx,Ny,Nz),gbqssph_txi_n(Nx,Ny,Nz)
         real*8 gbqssph_rhorho_n(Nx,Ny,Nz),gbqssph_rhochi_n(Nx,Ny,Nz)
@@ -2795,26 +2797,27 @@ c----------------------------------------------------------------------
      &                (abs(z0).ge.10.0d0**(-10))
      &               )
      &         ) then
-              dgbqssph_tt_drho_n    =
-     &             df_drho(gbqssph_tt_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_trho_drho_n  =
-     &             df_drho(gbqssph_trho_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_tchi_drho_n  =
-     &             df_drho(gbqssph_tchi_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_txi_drho_n   =
-     &             df_drho(gbqssph_txi_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_rhorho_drho_n=
-     &             df_drho(gbqssph_rhorho_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_rhochi_drho_n=
-     &             df_drho(gbqssph_rhochi_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_rhoxi_drho_n =
-     &             df_drho(gbqssph_rhoxi_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_chichi_drho_n=
-     &             df_drho(gbqssph_chichi_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_chixi_drho_n =
-     &             df_drho(gbqssph_chixi_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
-              dgbqssph_xixi_drho_n  =
-     &             df_drho(gbqssph_xixi_n,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
+              call df_drho(gbqssph_tt_n,    dgbqssph_tt_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_trho_n,  dgbqssph_trho_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_tchi_n,  dgbqssph_tchi_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_txi_n,   dgbqssph_txi_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_rhorho_n,dgbqssph_rhorho_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_rhochi_n,dgbqssph_rhochi_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_rhoxi_n, dgbqssph_rhoxi_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_chichi_n,dgbqssph_chichi_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_chixi_n, dgbqssph_chixi_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+              call df_drho(gbqssph_xixi_n,  dgbqssph_xixi_drho_n,
+     &              x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
 
                quasiset_tt_ll(i,j,k)=
      &                         (12*(-dgbqssph_chichi_drho_n)

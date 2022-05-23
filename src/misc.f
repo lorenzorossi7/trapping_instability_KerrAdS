@@ -1187,7 +1187,7 @@ c-----------------------------------------------------------------------
 
 c----------------------------------------------------------------------
 c the following computes all first derivatives of f,
-c at a point i,j, at time level n.
+c at a point i,j,k, at time level n.
 c----------------------------------------------------------------------
         subroutine df1_int(f_np1,f_n,f_nm1,f_t,f_x,f_y,f_z,
      &                     x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,name)
@@ -2905,15 +2905,17 @@ c----------------------------------------------------------------------
         end
 
 c--------------------------------------------------------------------------
-c derivative w.r.t. rho=sqrt(x**2+y**2+z**2)
+c derivative w.r.t. rho=sqrt(x**2+y**2+z**2) at (i,j,k)
 c--------------------------------------------------------------------------
-        real*8 function df_drho(f,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        subroutine df_drho(f,f_rho,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
         implicit none
 
         integer Nx,Ny,Nz,i,j,k
         real*8 f(Nx,Ny,Nz),chr(Nx,Ny,Nz),ex,x(Nx),y(Ny),z(Nz)
+        real*8 f_rho
         real*8 f_x,f_y,f_z
-        real*8 dxdrho,dydrho,dzdrho
+        real*8 dxcar_dxsph(4,4)
         real*8 x0,y0,z0,rho0,q,theta0,phi0
 
         real*8 PI
@@ -2937,26 +2939,43 @@ c--------------------------------------------------------------------------
                 phi0=atan2(z0,y0)
              end if
 
-        dxdrho=cos(theta0)
-        dydrho=sin(theta0)*cos(phi0)
-        dzdrho=sin(theta0)*sin(phi0)
+             dxcar_dxsph(1,1)=1
+             dxcar_dxsph(1,2)=0
+             dxcar_dxsph(1,3)=0
+             dxcar_dxsph(1,4)=0
+             dxcar_dxsph(2,1)=0
+             dxcar_dxsph(2,2)=cos(theta0)
+             dxcar_dxsph(2,3)=-rho0*sin(theta0)
+             dxcar_dxsph(2,4)=0
+             dxcar_dxsph(3,1)=0
+             dxcar_dxsph(3,2)=sin(theta0)*cos(phi0)
+             dxcar_dxsph(3,3)=rho0*cos(theta0)*cos(phi0)
+             dxcar_dxsph(3,4)=-rho0*sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,1)=0
+             dxcar_dxsph(4,2)=sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,3)=rho0*cos(theta0)*sin(phi0)
+             dxcar_dxsph(4,4)=rho0*sin(theta0)*cos(phi0)
 
-        df_drho=dxdrho*f_x+dydrho*f_y+dzdrho*f_z
+             f_rho=  dxcar_dxsph(2,2)*f_x
+     &              +dxcar_dxsph(3,2)*f_y
+     &              +dxcar_dxsph(4,2)*f_z
 
         return
         end
 c--------------------------------------------------------------------------------------
 
 c--------------------------------------------------------------------------
-c derivative w.r.t. theta=acos(x/rho)
+c derivative w.r.t. theta=acos(x/rho) at (i,j,k)
 c--------------------------------------------------------------------------
-        real*8 function df_dtheta(f,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        subroutine df_dtheta(f,f_theta,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
         implicit none
 
         integer Nx,Ny,Nz,i,j,k
         real*8 f(Nx,Ny,Nz),chr(Nx,Ny,Nz),ex,x(Nx),y(Ny),z(Nz)
+        real*8 f_theta
         real*8 f_x,f_y,f_z
-        real*8 dxdtheta,dydtheta,dzdtheta
+        real*8 dxcar_dxsph(4,4)
         real*8 x0,y0,z0,rho0,q,theta0,phi0
 
         real*8 PI
@@ -2980,28 +2999,45 @@ c--------------------------------------------------------------------------
                 phi0=atan2(z0,y0)
              end if
 
-        dxdtheta=-rho0*sin(theta0)
-        dydtheta=rho0*cos(theta0)*cos(phi0)
-        dzdtheta=rho0*cos(theta0)*sin(phi0)
+             dxcar_dxsph(1,1)=1
+             dxcar_dxsph(1,2)=0
+             dxcar_dxsph(1,3)=0
+             dxcar_dxsph(1,4)=0
+             dxcar_dxsph(2,1)=0
+             dxcar_dxsph(2,2)=cos(theta0)
+             dxcar_dxsph(2,3)=-rho0*sin(theta0)
+             dxcar_dxsph(2,4)=0
+             dxcar_dxsph(3,1)=0
+             dxcar_dxsph(3,2)=sin(theta0)*cos(phi0)
+             dxcar_dxsph(3,3)=rho0*cos(theta0)*cos(phi0)
+             dxcar_dxsph(3,4)=-rho0*sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,1)=0
+             dxcar_dxsph(4,2)=sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,3)=rho0*cos(theta0)*sin(phi0)
+             dxcar_dxsph(4,4)=rho0*sin(theta0)*cos(phi0)
 
-        df_dtheta=dxdtheta*f_x+dydtheta*f_y+dzdtheta*f_z
+             f_theta=  dxcar_dxsph(2,3)*f_x
+     &                +dxcar_dxsph(3,3)*f_y
+     &                +dxcar_dxsph(4,3)*f_z
 
         return
         end
 c--------------------------------------------------------------------------------------
 
 c--------------------------------------------------------------------------
-c derivative w.r.t. phi defined as 
+c derivative w.r.t. phi at (i,j,k) defined as 
 c if z<0, phi=atan2(z,y)+2*PI
 c else    phi=atan2(z,y)
 c--------------------------------------------------------------------------
-        real*8 function df_dphi(f,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        subroutine df_dphi(f,f_phi,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
         implicit none
 
         integer Nx,Ny,Nz,i,j,k
         real*8 f(Nx,Ny,Nz),chr(Nx,Ny,Nz),ex,x(Nx),y(Ny),z(Nz)
+        real*8 f_phi
         real*8 f_x,f_y,f_z
-        real*8 dxdphi,dydphi,dzdphi
+        real*8 dxcar_dxsph(4,4)
         real*8 x0,y0,z0,rho0,q,theta0,phi0
 
         real*8 PI
@@ -3025,11 +3061,277 @@ c--------------------------------------------------------------------------
                 phi0=atan2(z0,y0)
              end if
 
-        dxdphi=0
-        dydphi=-rho0*sin(theta0)*sin(phi0)
-        dzdphi=rho0*sin(theta0)*cos(phi0)
+             dxcar_dxsph(1,1)=1
+             dxcar_dxsph(1,2)=0
+             dxcar_dxsph(1,3)=0
+             dxcar_dxsph(1,4)=0
+             dxcar_dxsph(2,1)=0
+             dxcar_dxsph(2,2)=cos(theta0)
+             dxcar_dxsph(2,3)=-rho0*sin(theta0)
+             dxcar_dxsph(2,4)=0
+             dxcar_dxsph(3,1)=0
+             dxcar_dxsph(3,2)=sin(theta0)*cos(phi0)
+             dxcar_dxsph(3,3)=rho0*cos(theta0)*cos(phi0)
+             dxcar_dxsph(3,4)=-rho0*sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,1)=0
+             dxcar_dxsph(4,2)=sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,3)=rho0*cos(theta0)*sin(phi0)
+             dxcar_dxsph(4,4)=rho0*sin(theta0)*cos(phi0)
 
-        df_dphi=dxdphi*f_x+dydphi*f_y+dzdphi*f_z
+             f_phi=  dxcar_dxsph(2,4)*f_x
+     &              +dxcar_dxsph(3,4)*f_y
+     &              +dxcar_dxsph(4,4)*f_z
+
+        return
+        end
+c--------------------------------------------------------------------------------------
+
+c----------------------------------------------------------------------
+c the following computes all first derivatives of f w.r.t to spherical coords,
+c at a point i,j,k.
+c No time derivatives!
+c----------------------------------------------------------------------
+        subroutine derf_dxsph(f_np1,f_n,f_nm1,
+     &                     f_t,f_rho,f_theta,f_phi,
+     &                     x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,name)
+
+        implicit none
+        integer Nx,Ny,Nz,i,j,k
+        real*8 f_np1(Nx,Ny,Nz),f_n(Nx,Ny,Nz),f_nm1(Nx,Ny,Nz)
+        real*8 f_t,f_rho,f_theta,f_phi
+        real*8 x(Nx),y(Ny),z(Nz),dt,ex,chr(Nx,Ny,Nz)
+        character*(*) name
+
+
+        logical ltrace
+        parameter (ltrace=.false.)
+
+        !--------------------------------------------------------------
+
+        f_t=(f_np1(i,j,k)-f_nm1(i,j,k))/2/dt
+  
+        call df_drho(f_n,f_rho,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df_dtheta(f_n,f_theta,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+        call df_dphi(f_n,f_phi,x,y,z,i,j,k,chr,ex,Nx,Ny,Nz)
+
+        if (ltrace) then
+           write(*,*) 'df_dxsph for ',name
+           write(*,*) 'at i,j,k= ', i,j,k
+           write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
+           write(*,*) ' f_t    = ',f_t
+           write(*,*) ' f_rho  = ',f_rho
+           write(*,*) ' f_theta= ',f_theta
+           write(*,*) ' f_phi  = ',f_phi
+        end if
+
+        return
+        end
+
+c--------------------------------------------------------------------------
+c calculate first and second derivatives w.r.t. spherical coords at (i,j,k)
+c No time derivatives!
+c--------------------------------------------------------------------------
+
+        subroutine der2f_dxsphdxsph(f_np1,f_n,f_nm1,
+     &                     df_dxsph,d2f_dxsphdxsph,
+     &                     x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,name)
+
+        implicit none
+
+        integer Nx,Ny,Nz,i,j,k
+        integer a,b,c,d
+        real*8 f_np1(Nx,Ny,Nz),f_n(Nx,Ny,Nz),f_nm1(Nx,Ny,Nz)
+        real*8 chr(Nx,Ny,Nz),ex,x(Nx),y(Ny),z(Nz),dt
+        real*8 f_t,f_x,f_y,f_z
+        real*8 f_tt,f_tx,f_ty,f_tz
+        real*8 f_xx,f_xy,f_xz
+        real*8 f_yy,f_yz
+        real*8 f_zz
+        real*8 f_rho,f_theta,f_phi
+        real*8 f_rhorho,f_rhotheta,f_rhophi
+        real*8 f_thetatheta,f_thetaphi
+        real*8 f_phiphi
+        real*8 dxcar_dxsph(4,4)
+        real*8 d2xcar_dxsphdxsph(4,4,4)
+        real*8 df_dxcar(4),d2f_dxcardxcar(4,4)
+        real*8 df_dxsph(4),d2f_dxsphdxsph(4,4)
+        real*8 x0,y0,z0,rho0,q,theta0,phi0
+        character*(*) name
+        logical ltrace
+        parameter (ltrace=.false.)
+
+        real*8 PI
+        parameter (PI=3.141592653589793d0)
+
+!--------------------------------------------------------------------
+
+        call derf_dxsph(f_np1,f_n,f_nm1,f_t,f_rho,f_theta,f_phi,
+     &              x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,name)
+
+        df_dxsph(1)=f_t
+        df_dxsph(2)=f_rho
+        df_dxsph(3)=f_theta
+        df_dxsph(4)=f_phi
+
+!compute 2nd derivatives of f at (i,j,k) w.r.t. to Cartesian (code) coords.
+        call df2_int(f_np1,f_n,f_nm1,f_t,
+     &       f_x,f_y,
+     &       f_z,
+     &       f_tt,f_tx,f_ty,
+     &       f_tz,
+     &       f_xx,f_xy,
+     &       f_xz,
+     &       f_yy,
+     &       f_yz,
+     &       f_zz,
+     &       x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f')
+
+             d2f_dxcardxcar(1,1)=f_tt
+             d2f_dxcardxcar(1,2)=f_tx
+             d2f_dxcardxcar(1,3)=f_ty
+             d2f_dxcardxcar(1,4)=f_tz
+             d2f_dxcardxcar(2,2)=f_xx
+             d2f_dxcardxcar(2,3)=f_xy
+             d2f_dxcardxcar(2,4)=f_xz
+             d2f_dxcardxcar(3,3)=f_yy
+             d2f_dxcardxcar(3,4)=f_yz
+             d2f_dxcardxcar(4,4)=f_zz
+
+             do a=1,3
+              do b=a+1,4
+               d2f_dxcardxcar(b,a)=d2f_dxcardxcar(a,b)
+              end do
+             end do
+
+
+             x0=x(i)
+             y0=y(j)
+             z0=z(k)
+             rho0=sqrt(x0**2+y0**2+z0**2)
+             q=1-rho0
+             theta0=acos(x0/rho0)
+             if (z0.lt.0) then
+                phi0=atan2(z0,y0)+2*PI
+             else
+                phi0=atan2(z0,y0)
+             end if
+
+             dxcar_dxsph(1,1)=1
+             dxcar_dxsph(1,2)=0
+             dxcar_dxsph(1,3)=0
+             dxcar_dxsph(1,4)=0
+             dxcar_dxsph(2,1)=0
+             dxcar_dxsph(2,2)=cos(theta0)
+             dxcar_dxsph(2,3)=-rho0*sin(theta0)
+             dxcar_dxsph(2,4)=0
+             dxcar_dxsph(3,1)=0
+             dxcar_dxsph(3,2)=sin(theta0)*cos(phi0)
+             dxcar_dxsph(3,3)=rho0*cos(theta0)*cos(phi0)
+             dxcar_dxsph(3,4)=-rho0*sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,1)=0
+             dxcar_dxsph(4,2)=sin(theta0)*sin(phi0)
+             dxcar_dxsph(4,3)=rho0*cos(theta0)*sin(phi0)
+             dxcar_dxsph(4,4)=rho0*sin(theta0)*cos(phi0)
+
+
+             d2xcar_dxsphdxsph(1,1,1)=0
+             d2xcar_dxsphdxsph(1,1,2)=0
+             d2xcar_dxsphdxsph(1,1,3)=0
+             d2xcar_dxsphdxsph(1,1,4)=0
+             d2xcar_dxsphdxsph(1,2,1)=0
+             d2xcar_dxsphdxsph(1,2,2)=0
+             d2xcar_dxsphdxsph(1,2,3)=0
+             d2xcar_dxsphdxsph(1,2,4)=0
+             d2xcar_dxsphdxsph(1,3,1)=0
+             d2xcar_dxsphdxsph(1,3,2)=0
+             d2xcar_dxsphdxsph(1,3,3)=0
+             d2xcar_dxsphdxsph(1,3,4)=0
+             d2xcar_dxsphdxsph(1,4,1)=0
+             d2xcar_dxsphdxsph(1,4,2)=0
+             d2xcar_dxsphdxsph(1,4,3)=0
+             d2xcar_dxsphdxsph(1,4,4)=0
+
+             d2xcar_dxsphdxsph(2,1,1)=0
+             d2xcar_dxsphdxsph(2,1,2)=0
+             d2xcar_dxsphdxsph(2,1,3)=0
+             d2xcar_dxsphdxsph(2,1,4)=0
+             d2xcar_dxsphdxsph(2,2,1)=0
+             d2xcar_dxsphdxsph(2,2,2)=0
+             d2xcar_dxsphdxsph(2,2,3)=-sin(theta0)
+             d2xcar_dxsphdxsph(2,2,4)=0
+             d2xcar_dxsphdxsph(2,3,1)=0
+             d2xcar_dxsphdxsph(2,3,2)=-sin(theta0)
+             d2xcar_dxsphdxsph(2,3,3)=-rho0*cos(theta0)
+             d2xcar_dxsphdxsph(2,3,4)=0
+             d2xcar_dxsphdxsph(2,4,1)=0
+             d2xcar_dxsphdxsph(2,4,2)=0
+             d2xcar_dxsphdxsph(2,4,3)=0
+             d2xcar_dxsphdxsph(2,4,4)=0
+
+             d2xcar_dxsphdxsph(3,1,1)=0
+             d2xcar_dxsphdxsph(3,1,2)=0
+             d2xcar_dxsphdxsph(3,1,3)=0
+             d2xcar_dxsphdxsph(3,1,4)=0
+             d2xcar_dxsphdxsph(3,2,1)=0
+             d2xcar_dxsphdxsph(3,2,2)=0
+             d2xcar_dxsphdxsph(3,2,3)=cos(theta0)*cos(phi0)
+             d2xcar_dxsphdxsph(3,2,4)=-sin(theta0)*sin(phi0)
+             d2xcar_dxsphdxsph(3,3,1)=0
+             d2xcar_dxsphdxsph(3,3,2)=cos(theta0)*cos(phi0)
+             d2xcar_dxsphdxsph(3,3,3)=-rho0*sin(theta0)*cos(phi0)
+             d2xcar_dxsphdxsph(3,3,4)=-rho0*cos(theta0)*sin(phi0)
+             d2xcar_dxsphdxsph(3,4,1)=0
+             d2xcar_dxsphdxsph(3,4,2)=-sin(theta0)*sin(phi0)
+             d2xcar_dxsphdxsph(3,4,3)=-rho0*cos(theta0)*sin(phi0)
+             d2xcar_dxsphdxsph(3,4,4)=-rho0*sin(theta0)*cos(phi0)
+
+             d2xcar_dxsphdxsph(4,1,1)=0
+             d2xcar_dxsphdxsph(4,1,2)=0
+             d2xcar_dxsphdxsph(4,1,3)=0
+             d2xcar_dxsphdxsph(4,1,4)=0
+             d2xcar_dxsphdxsph(4,2,1)=0
+             d2xcar_dxsphdxsph(4,2,2)=0
+             d2xcar_dxsphdxsph(4,2,3)=cos(theta0)*sin(phi0)
+             d2xcar_dxsphdxsph(4,2,4)=sin(theta0)*cos(phi0)
+             d2xcar_dxsphdxsph(4,3,1)=0
+             d2xcar_dxsphdxsph(4,3,2)=cos(theta0)*sin(phi0)
+             d2xcar_dxsphdxsph(4,3,3)=-rho0*sin(theta0)*sin(phi0)
+             d2xcar_dxsphdxsph(4,3,4)=rho0*cos(theta0)*cos(phi0)
+             d2xcar_dxsphdxsph(4,4,1)=0
+             d2xcar_dxsphdxsph(4,4,2)=sin(theta0)*cos(phi0)
+             d2xcar_dxsphdxsph(4,4,3)=rho0*cos(theta0)*cos(phi0)
+             d2xcar_dxsphdxsph(4,4,4)=-rho0*sin(theta0)*sin(phi0)
+
+             do a=1,4
+              do b=1,4
+               d2f_dxsphdxsph(a,b)=0
+               do c=1,4
+                d2f_dxsphdxsph(a,b)=d2f_dxsphdxsph(a,b)+
+     &              d2xcar_dxsphdxsph(c,a,b)*df_dxcar(c)
+                do d=1,4
+                 d2f_dxsphdxsph(a,b)=d2f_dxsphdxsph(a,b)+
+     &                  dxcar_dxsph(c,b)*dxcar_dxsph(d,a)
+     &                      *d2f_dxcardxcar(c,d)
+                end do
+               end do
+              end do
+             end do
+
+            if (ltrace) then
+                write(*,*) 'd2f_dxsphdxsph for ',name
+                write(*,*) 'at i,j,k= ', i,j,k
+                write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
+                write(*,*) ' f_tt        =',d2f_dxsphdxsph(1,1)
+                write(*,*) ' f_trho      =',d2f_dxsphdxsph(1,2)
+                write(*,*) ' f_ttheta    =',d2f_dxsphdxsph(1,3)
+                write(*,*) ' f_tphi      =',d2f_dxsphdxsph(1,4)
+                write(*,*) ' f_rhorho    =',d2f_dxsphdxsph(2,2)
+                write(*,*) ' f_rhotheta  =',d2f_dxsphdxsph(2,3)
+                write(*,*) ' f_rhophi    =',d2f_dxsphdxsph(2,4)
+                write(*,*) ' f_thetatheta=',d2f_dxsphdxsph(3,3)
+                write(*,*) ' f_thetaphi  =',d2f_dxsphdxsph(3,4)
+                write(*,*) ' f_phiphi    =',d2f_dxsphdxsph(4,4)
+            end if
 
         return
         end
