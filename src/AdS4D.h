@@ -688,8 +688,20 @@ void init_kerrads4d_bh_(real *ief_bh_r0, real *a_rot, real *AdS_L,
                             int *phys_bdy,
                             real *x, real *y, real *z, real *dt,real *chr_mg,real *ex,int *Nx,int *Ny,int *Nz,int *regtype, int *kerrads_background);
 
-void sqrth1spnormdensity_func_(real *sqrth10normdensity_phi_n, int *sp,
-           real *phi1_n,
+void sqrth0spnormdensity_func_(real *sqrth0spnormdensity_f, int *sp, int *hnorm_argtype,
+           real *f1_np1,real *f1_n,real *f1_nm1,
+           real *x, real *y, real *z, real *dt, real *ct, real *chr,
+           real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
+           real *ief_bh_r0,real *a_rot0);
+
+void sqrth1spnormdensity_func_(real *sqrth2spnormdensity_f, int *sp, int *hnorm_argtype,
+           real *f1_np1,real *f1_n,real *f1_nm1,
+           real *x, real *y, real *z, real *dt, real *ct, real *chr,
+           real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
+           real *ief_bh_r0,real *a_rot0);
+
+void sqrth2spnormdensity_func_(real *sqrth2spnormdensity_f, int *sp, int *hnorm_argtype,
+           real *f1_np1,real *f1_n,real *f1_nm1,
            real *x, real *y, real *z, real *dt, real *ct, real *chr,
            real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
            real *ief_bh_r0,real *a_rot0);
