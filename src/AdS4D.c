@@ -3255,26 +3255,45 @@ void AdS4D_t0_cnst_data(void)
 //			       	if (sqrt(x[i]*x[i]+y[j]*y[j]+z[k]*z[k])>0.7)
 //			        {   
 //			         ind=i+Nx*(j+Ny*k);
+//			         phi1_np1[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
 //			         phi1_n[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
+//			         phi1_nm1[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
 //			         				x[i]*y[j]*z[k]*z[k]*z[k]);
 //			        }
 //			       }
 //			      }
 //			   }
-        	sp=0;
+//        	sp=0;
+//        	hnorm_argtype=0;
 //			sqrth0spnormdensity_func_(sqrth10normdensity_phi_n,&sp,&hnorm_argtype,
 //                    phi1_np1,phi1_n,phi1_nm1,
 //                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
 //                    &ief_bh_r0,&a_rot0);
+			sp=0;
         	hnorm_argtype=0;
             sqrth1spnormdensity_func_(sqrth10normdensity_phi_n,&sp,&hnorm_argtype,
                     phi1_np1,phi1_n,phi1_nm1,
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
-                    &ief_bh_r0,&a_rot0);            
+                    &ief_bh_r0,&a_rot0);   
+//            sp=0;
+//        	hnorm_argtype=0;         
 //            sqrth2spnormdensity_func_(sqrth10normdensity_phi_n,&sp,&hnorm_argtype,
 //                    phi1_np1,phi1_n,phi1_nm1,
 //                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
 //                    &ief_bh_r0,&a_rot0);
+//
+//            sqrten1dens_func_(sqrth10normdensity_phi_n,
+//                    phi1_np1,phi1_n,phi1_nm1,
+//                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+//                    &ief_bh_r0,&a_rot0);
+//
+//            sqrten2dens_func_(sqrth10normdensity_phi_n,
+//                    phi1_np1,phi1_n,phi1_nm1,
+//                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+//                    &ief_bh_r0,&a_rot0);
+
         }
     }     
     return;

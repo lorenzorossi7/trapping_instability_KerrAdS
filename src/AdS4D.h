@@ -706,5 +706,17 @@ void sqrth2spnormdensity_func_(real *sqrth2spnormdensity_f, int *sp, int *hnorm_
            real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
            real *ief_bh_r0,real *a_rot0);
 
+void sqrten1dens_func_(real *sqrten1dens_f,
+           real *f1_np1,real *f1_n,real *f1_nm1,
+           real *x, real *y, real *z, real *dt, real *ct, real *chr,
+           real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
+           real *ief_bh_r0,real *a_rot0);
+
+void sqrten2dens_func_(real *sqrten2dens_f,
+           real *f1_np1,real *f1_n,real *f1_nm1,
+           real *x, real *y, real *z, real *dt, real *ct, real *chr,
+           real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
+           real *ief_bh_r0,real *a_rot0);
+
 
 #endif

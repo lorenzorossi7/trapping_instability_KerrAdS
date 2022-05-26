@@ -12,7 +12,16 @@ c by using the L^2-norm calculation in DV and then squaring the result.
 c We do not need to square the L^2-norm if we need ||f||_{H_AdS^(0/1/2,sp)} (instead of ||f||^2_{H_AdS^(0/1/2,sp)}).
 c The variable f1 represents the evoluton variable \barphi. 
 c The variable f represents, alternatively, the functions whose norm we want to compute. 
-c The exact function that f represents is determined by the value of hnorm_argtype. E.g., if argtype=0, then f=(1-rho^2)^2*f1.
+c The exact function that f represents is determined by the value of hnorm_argtype:
+c - hnorm_argtype=0 corresponds to f=(1-rho^2)^2*f1,
+c - hnorm_argtype=1 corresponds to f=(1-rho^2)^2*f1_t,
+c - hnorm_argtype=2 corresponds to f=(1-rho^2)^2*f1_tt,
+c - hnorm_argtype=3 corresponds to f=(1-rho^2)^2*m_1[f1], where m_1=d/dphi is 
+c the first generator of the asymptotic rotation symmetry group,
+c - hnorm_argtype=4 corresponds to f=(1-rho^2)^2*m_2[f1], where m_2=-sin(phi)d/dtheta-cot(theta)cos(phi)d/dphi is 
+c the second generator of the asymptotic rotation symmetry group,
+c - hnorm_argtype=5 corresponds to f=(1-rho^2)^2*m_3[f1], where m_3=cos(phi)d/dtheta-cot(theta)sin(phi)d/dphi is 
+c the third generator of the asymptotic rotation symmetry group,
 c-----------------------------------------------------------------------
 
 
@@ -141,7 +150,7 @@ c-----------------------------------------------------------------------
      -      (12*Sqrt(3.)*L**2*M0)/
      -       Sqrt(-2*a_rot**2 - 2*L**2 + 
      -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
+     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
      -             54*L**4*M0**2 + 
      -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
      -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
@@ -221,7 +230,6 @@ c-----------------------------------------------------------------------
                 !compute norm for f=(1-rho^2)^2*f1
 
                  f0=(1-rho0**2)**2*f10
-                 h0spnormdensity_f0=f0**2
 
                 else if (hnorm_argtype.eq.1) then
                 !compute norm for f=(1-rho^2)^2*f1_t
@@ -231,7 +239,6 @@ c-----------------------------------------------------------------------
      &                  x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f1')
 
                  f0=(1-rho0**2)**2*f1_t
-                 h0spnormdensity_f0=f0**2
 
                 else if (hnorm_argtype.eq.2) then
                 !compute norm for f=(1-rho^2)^2*f1_tt
@@ -244,7 +251,6 @@ c-----------------------------------------------------------------------
      &                      x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f1')
 
                  f0=(1-rho0**2)**2*f1_tt
-                 h0spnormdensity_f0=f0**2
 
                 else if (hnorm_argtype.eq.3) then
                 !compute norm for f=m_1[(1-rho^2)^2*f1]=(1-rho^2)^2*m1[f1], 
@@ -254,7 +260,6 @@ c-----------------------------------------------------------------------
      &              f1_t,f1_rho,f1_theta,f1_phi,
      &              x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f1')
                  f0=(1-rho0**2)**2*f1_phi
-                 h0spnormdensity_f0=f0**2
 
                 else if (hnorm_argtype.eq.4) then
                 !compute norm for f=m_2[(1-rho^2)^2*f1]=(1-rho^2)^2*m2[f1], 
@@ -267,7 +272,6 @@ c-----------------------------------------------------------------------
                  f0=(1-rho0**2)**2*
      &                  (-sin(phi0)*f1_theta
      &           -(cos(theta0)/sin(theta0))*cos(phi0)*f1_phi)
-                 h0spnormdensity_f0=f0**2
 
 
                 else if (hnorm_argtype.eq.5) then
@@ -282,14 +286,15 @@ c-----------------------------------------------------------------------
                  f0=(1-rho0**2)**2*
      &                  (cos(phi0)*f1_theta
      &           -(cos(theta0)/sin(theta0))*sin(phi0)*f1_phi)
-                 h0spnormdensity_f0=f0**2
 
                 else
                  write(*,*) " WARNING - sqrth0spnormdensity_func:"//
-     &            " invalid value of hnorm_argtype:"//
-     &            " hnorm_argtype can only be 0,1,2,3,4,5"
+     &  " invalid value of hnorm_argtype: hnorm_argtype=",hnorm_argtype
+                 write(*,*) " hnorm_argtype can only be 0,1,2,3,4,5"
                  return
                 end if
+
+                h0spnormdensity_f0=f0**2
 
                 h0spnormdensity_f0=
      &          (Rad0**sp)*h0spnormdensity_f0
@@ -317,11 +322,12 @@ c-----------------------------------------------------------------------
      &               (abs(z0).gt.10.0d0**(-1.0d0)).and.
      &                (rho0.lt.0.9)  ) then
                    write(*,*) 'sqrth0spnormdensity_func '
+                   write(*,*) 'sp,hnorm_argtype= ',sp,hnorm_argtype
                    write(*,*) 'at i,j,k= ', i,j,k
                    write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
                    write(*,*) ' sqrth0spnormdensity_f = ',
      &                  sqrth0spnormdensity_f(i,j,k)
-                   !return
+                   return
                  end if
                 end if
 
@@ -372,7 +378,7 @@ c-----------------------------------------------------------------------
         real*8 df1_dxqssph(4),d2f1_dxqssphdxqssph(4,4)
         real*8 f1_t,f1_x,f1_y,f1_z
         real*8 f1_rho,f1_theta,f1_phi
-        real*8 df_dRad
+        real*8 df_dRad,df_dtheta,df_dphi
 
         real*8 rblhor,Radhor,rhohor
 
@@ -491,7 +497,7 @@ c-----------------------------------------------------------------------
      -      (12*Sqrt(3.)*L**2*M0)/
      -       Sqrt(-2*a_rot**2 - 2*L**2 + 
      -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
+     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
      -             54*L**4*M0**2 + 
      -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
      -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
@@ -644,9 +650,9 @@ c-----------------------------------------------------------------------
 
             if (hnorm_argtype.eq.2) then
 
-             write(*,*) "WARNING - sqrth2spnormdensity_func:"//
-     &            " invalid value of hnorm_argtype:"//
-     &            " hnorm_argtype can only be 0,1,3,4,5."
+             write(*,*) "WARNING - sqrth1spnormdensity_func:"//
+     & " invalid value of hnorm_argtype: hnorm_argtype=", hnorm_argtype
+             write(*,*) " hnorm_argtype can only be 0,1,3,4,5"
              write(*,*) "H_AdS^(1,sp) norm density for "//
      &                      "f=(1-rho^2)^2*f1_tt not implemented"//
      &                      " (third derivatives needed)"
@@ -670,20 +676,9 @@ c-----------------------------------------------------------------------
 
              df_dRad=
      &        -(1-rho0**2)**3*(4*rho0*f10
-     &          -(1-rho0**2)*df1_dxqssph(2))/(2*(1+rho0**2))
-
-              h1spnormdensity_f0=
-     &             Rad0**2*df_dRad**2
-              do a=3,4
-               do b=3,4
-                h1spnormdensity_f0=h1spnormdensity_f0+
-     &            (1-rho0**2)**4*
-     &             (gkerrads_uu_qssph(a,b)*
-     &               df1_dxqssph(a)*df1_dxqssph(b) )
-               end do
-              end do
-              h1spnormdensity_f0=h1spnormdensity_f0+
-     &            f0**2
+     &          -(1-rho0**2)*f1_rho)/(2*(1+rho0**2))
+             df_dtheta=(1-rho0**2)**2*f1_theta
+             df_dphi  =(1-rho0**2)**2*f1_phi
 
             else if (hnorm_argtype.eq.1) then
             !compute norm for f=(1-rho^2)^2*f1_t
@@ -698,19 +693,8 @@ c-----------------------------------------------------------------------
              df_dRad=
      &        -(1-rho0**2)**3*(4*rho0*df1_dxqssph(1)
      &          -(1-rho0**2)*d2f1_dxqssphdxqssph(1,2))/(2*(1+rho0**2))
-
-              h1spnormdensity_f0=
-     &             Rad0**2*df_dRad**2
-              do a=3,4
-               do b=3,4
-                h1spnormdensity_f0=h1spnormdensity_f0+
-     &            (1-rho0**2)**4*
-     &             (gkerrads_uu_qssph(a,b)*
-     &               d2f1_dxqssphdxqssph(a,1)*d2f1_dxqssphdxqssph(b,1) )
-               end do
-              end do
-              h1spnormdensity_f0=h1spnormdensity_f0+
-     &            f0**2
+             df_dtheta=(1-rho0**2)**2*d2f1_dxqssphdxqssph(1,3)
+             df_dphi  =(1-rho0**2)**2*d2f1_dxqssphdxqssph(1,4)
 
             else if (hnorm_argtype.eq.3) then
             !compute norm for f=m_1[(1-rho^2)^2*f1]=(1-rho^2)^2*m1[f1], 
@@ -725,24 +709,13 @@ c-----------------------------------------------------------------------
              
              df_dRad=
      &        -(1-rho0**2)**3*(4*rho0*df1_dxqssph(4)
-     &          -(1-rho0**2)*d2f1_dxqssphdxqssph(2,4))/(2*(1+rho0**2))
-
-              h1spnormdensity_f0=
-     &             Rad0**2*df_dRad**2
-              do a=3,4
-               do b=3,4
-                h1spnormdensity_f0=h1spnormdensity_f0+
-     &            (1-rho0**2)**4*
-     &             (gkerrads_uu_qssph(a,b)*
-     &               d2f1_dxqssphdxqssph(a,4)*d2f1_dxqssphdxqssph(b,4) )
-               end do
-              end do
-              h1spnormdensity_f0=h1spnormdensity_f0+
-     &            f0**2
-
+     &          -(1-rho0**2)*d2f1_dxqssphdxqssph(2,4))
+     &          /(2*(1+rho0**2))
+             df_dtheta=(1-rho0**2)**2*d2f1_dxqssphdxqssph(3,4)
+             df_dphi  =(1-rho0**2)**2*d2f1_dxqssphdxqssph(4,4)
 
             else if (hnorm_argtype.eq.4) then
-            !compute norm for f=m_2[(1-rho^2)^2*f1]=(1-rho^2)^2*m2[f1], 
+            !compute norm for f=m_2[(1-rho^2)^2*f1]=(1-rho^2)^2*m_2[f1], 
             !where m_2=-sin(phi)d/dtheta-cot(theta)cos(phi)d/dphi is 
             !the second generator of the asymptotic rotation symmetry group
 
@@ -765,26 +738,22 @@ c-----------------------------------------------------------------------
      &          d2f1_dxqssphdxqssph(2,4)))
      &       /(2*(1+rho0**2))
 
-              h1spnormdensity_f0=
-     &             Rad0**2*df_dRad**2
-              do a=3,4
-               do b=3,4
-                h1spnormdensity_f0=h1spnormdensity_f0+
-     &            (1-rho0**2)**4*
-     &             (gkerrads_uu_qssph(a,b)*
-     &               (-sin(phi0)*d2f1_dxqssphdxqssph(a,3)
-     &      -(cos(theta0)/sin(theta0))*cos(phi0)*
-     &          d2f1_dxqssphdxqssph(a,4))*
-     &               (-sin(phi0)*d2f1_dxqssphdxqssph(b,3)
-     &      -(cos(theta0)/sin(theta0))*cos(phi0)*
-     &          d2f1_dxqssphdxqssph(b,4)) )
-               end do
-              end do
-              h1spnormdensity_f0=h1spnormdensity_f0+
-     &            f0**2
+             df_dtheta=(1-rho0**2)**2*
+     &          ((cos(phi0)/sin(theta0)**2)*df1_dxqssph(4)
+     &         -(cos(theta0)/sin(theta0))*cos(phi0)
+     &              *d2f1_dxqssphdxqssph(3,4)
+     &         -sin(phi0)*d2f1_dxqssphdxqssph(3,3) )
+             df_dphi=(1-rho0**2)**2*
+     &          ((cos(theta0)/sin(theta0))*sin(phi0)
+     &                      *df1_dxqssph(4)
+     &         -(cos(theta0)/sin(theta0))*cos(phi0)
+     &              *d2f1_dxqssphdxqssph(4,4)
+     &         -cos(phi0)*df1_dxqssph(3)
+     &         -sin(phi0)*d2f1_dxqssphdxqssph(3,4) )
+
 
             else if (hnorm_argtype.eq.5) then
-            !compute norm for f=m_3[(1-rho^2)^2*f1]=(1-rho^2)^2*m3[f1], 
+            !compute norm for f=m_3[(1-rho^2)^2*f1]=(1-rho^2)^2*m_3[f1], 
             !where m_3=cos(phi)d/dtheta-cot(theta)sin(phi)d/dphi is 
             !the third generator of the asymptotic rotation symmetry group
 
@@ -794,8 +763,8 @@ c-----------------------------------------------------------------------
      &                x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f1')
 
              f0=(1-rho0**2)**2*
-     &                  (cos(phi0)*df1_dxqssph(3)
-     &           -(cos(theta0)/sin(theta0))*sin(phi0)*df1_dxqssph(4))
+     &             (cos(phi0)*df1_dxqssph(3)
+     &         -(cos(theta0)/sin(theta0))*sin(phi0)*df1_dxqssph(4))
              
              df_dRad=
      &        -(1-rho0**2)**3*(4*rho0*(
@@ -806,31 +775,36 @@ c-----------------------------------------------------------------------
      &           -(cos(theta0)/sin(theta0))*sin(phi0)*
      &             d2f1_dxqssphdxqssph(2,4)))
      &          /(2*(1+rho0**2))
+             df_dtheta=(1-rho0**2)**2*
+     &          ((sin(phi0)/sin(theta0)**2)*df1_dxqssph(4)
+     &         -(cos(theta0)/sin(theta0))*sin(phi0)
+     &              *d2f1_dxqssphdxqssph(3,4)
+     &         +cos(phi0)*d2f1_dxqssphdxqssph(3,3) )
+             df_dphi  =(1-rho0**2)**2*
+     &           (-(cos(theta0)/sin(theta0))*cos(phi0)
+     &                      *df1_dxqssph(4)
+     &         -(cos(theta0)/sin(theta0))*sin(phi0)
+     &              *d2f1_dxqssphdxqssph(4,4)
+     &         -sin(phi0)*df1_dxqssph(3)
+     &         +cos(phi0)*d2f1_dxqssphdxqssph(3,4) )
 
-              h1spnormdensity_f0=
-     &             Rad0**2*df_dRad**2
-              do a=3,4
-               do b=3,4
-                h1spnormdensity_f0=h1spnormdensity_f0+
-     &            (1-rho0**2)**4*
-     &             (gkerrads_uu_qssph(a,b)*
-     &               (cos(phi0)**d2f1_dxqssphdxqssph(a,3)
-     &      -(cos(theta0)/sin(theta0))*sin(phi0)*
-     &          d2f1_dxqssphdxqssph(a,4))*
-     &               (cos(phi0)**d2f1_dxqssphdxqssph(b,3)
-     &      -(cos(theta0)/sin(theta0))*sin(phi0)*
-     &          d2f1_dxqssphdxqssph(b,4)) )
-               end do
-              end do
-              h1spnormdensity_f0=h1spnormdensity_f0+
-     &            f0**2
 
             else
              write(*,*) "WARNING - sqrth1spnormdensity_func:"//
-     &                  " invalid value of hnorm_argtype:"//
-     &            " hnorm_argtype can only be 0,1,3,4,5."
+     &  " invalid value of hnorm_argtype: hnorm_argtype=", hnorm_argtype
+             write(*,*) " hnorm_argtype can only be 0,1,3,4,5"
              return
             end if
+
+              h1spnormdensity_f0=
+     &             Rad0**2*df_dRad**2
+     &            +(gkerrads_uu_qssph(3,3)*
+     &               df_dtheta**2+ 
+     &             2*gkerrads_uu_qssph(3,4)*
+     &               df_dtheta*df_dphi+ 
+     &             gkerrads_uu_qssph(4,4)*
+     &               df_dphi**2)
+     &            +f0**2
 
             h1spnormdensity_f0=(Rad0**sp)*
      &            h1spnormdensity_f0*
@@ -863,8 +837,10 @@ c-----------------------------------------------------------------------
      &                     f1_t,f1_x,f1_y,f1_z,
      &                     x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f1')
                    write(*,*) 'sqrth1spnormdensity_func '
+                   write(*,*) 'sp,hnorm_argtype= ',sp,hnorm_argtype
                    write(*,*) 'at i,j,k= ', i,j,k
                    write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
+                   write(*,*) 'f10=', f10
                    write(*,*) 'f1_t=', f1_t
                    write(*,*) 'f1_x=', f1_x
                    write(*,*) 'f1_y=', f1_y
@@ -873,10 +849,26 @@ c-----------------------------------------------------------------------
                    write(*,*) 'f1_rho=', df1_dxqssph(2)
                    write(*,*) 'f1_theta=', df1_dxqssph(3)
                    write(*,*) 'f1_phi=', df1_dxqssph(4)
+            write(*,*) 'f1_rhorho=', d2f1_dxqssphdxqssph(2,2)
+            write(*,*) 'f1_rhotheta=', d2f1_dxqssphdxqssph(2,3)
+            write(*,*) 'f1_rhophi=', d2f1_dxqssphdxqssph(2,4)
+            write(*,*) 'f1_thetatheta=', d2f1_dxqssphdxqssph(3,3)
+            write(*,*) 'f1_thetaphi=', d2f1_dxqssphdxqssph(3,4)
+            write(*,*) 'f1_phiphi=', d2f1_dxqssphdxqssph(4,4)
+                   write(*,*) 'f0=', f0
                    write(*,*) 'df_dRad=',df_dRad
+                   write(*,*) 'df_dtheta=',df_dtheta
+                   write(*,*) 'df_dphi=',df_dphi
+                   write(*,*) 'nablafq=',
+     &              (gkerrads_uu_qssph(3,3)*
+     &               df_dtheta**2+ 
+     &             2*gkerrads_uu_qssph(3,4)*
+     &               df_dtheta*df_dphi+ 
+     &             gkerrads_uu_qssph(4,4)*
+     &               df_dphi**2)
                    write(*,*) ' sqrth1spnormdensity_f = ',
      &                  sqrth1spnormdensity_f(i,j,k)
-                   !return
+                   return
                  end if
                 end if
 
@@ -924,15 +916,16 @@ c-----------------------------------------------------------------------
         real*8 sqrth2spnormdensity_f(Nx,Ny,Nz)
         real*8 h2spnormdensity_f0
         integer sp,hnorm_argtype
-        real*8 f10
+        real*8 f10,f0
         real*8 df1_dxqssph(4),d2f1_dxqssphdxqssph(4,4)
         real*8 f1_t,f1_rho,f1_theta,f1_phi
         real*8 f1_tt,f1_trho,f1_ttheta,f1_tphi
         real*8 f1_rhorho,f1_rhotheta,f1_rhophi
         real*8 f1_thetatheta,f1_thetaphi
         real*8 f1_phiphi
-        real*8 df_dRad
+        real*8 df_dRad,df_dtheta,df_dphi
         real*8 d2f_dRaddRad,d2f_dRaddtheta,d2f_dRaddphi
+        real*8 gamma2dim_ull_qssph(2,2,2)
         real*8 nablanablaf_qssph_trhocons_xx(2,2)
 
         real*8 rblhor,Radhor,rhohor
@@ -997,6 +990,11 @@ c-----------------------------------------------------------------------
         data gkerrads_uu_qssph/16*0.0/
         data gkerrads_ll_qssph_x/64*0.0/
 
+        data df1_dxqssph,d2f1_dxqssphdxqssph/4*0.0,16*0.0/
+        data dxcar_dxqssph,d2xcar_dxqssphdxqssph/16*0.0,64*0.0/
+        data nablanablaf_qssph_trhocons_xx/4*0.0/
+        data gamma2dim_ull_qssph/8*0.0/
+
 
 
 !----------------------------------------------------------------------
@@ -1056,7 +1054,7 @@ c-----------------------------------------------------------------------
      -      (12*Sqrt(3.)*L**2*M0)/
      -       Sqrt(-2*a_rot**2 - 2*L**2 + 
      -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
+     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
      -             54*L**4*M0**2 + 
      -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
      -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
@@ -1289,8 +1287,8 @@ c-----------------------------------------------------------------------
 
         if (hnorm_argtype.ne.0) then
          write(*,*) "WARNING - sqrth2spnormdensity_func:"//
-     &            " invalid value of hnorm_argtype:"//
-     &            " hnorm_argtype can only be 0."
+     & " invalid value of hnorm_argtype: hnorm_argtype=", hnorm_argtype
+         write(*,*) " hnorm_argtype can only be 0"
          write(*,*) "H_AdS^(2,sp) norm density for "//
      &     "derivatives of f=(1-rho^2)^2*f1 not implemented "//
      &     "(third derivatives needed)"
@@ -1301,26 +1299,7 @@ c-----------------------------------------------------------------------
 
 !compute norm for f=(1-rho^2)^2*f1
 
-!compute second covariant derivative of f for surfaces of constant t,rho
-            do a=3,4
-             do b=3,4
-              as=a-2
-              bs=b-2
-              nablanablaf_qssph_trhocons_xx(as,bs)=
-     &          (1-rho0**2)**2*d2f1_dxqssphdxqssph(a,b)
-              do c=3,4
-               do d=3,4
-                nablanablaf_qssph_trhocons_xx(as,bs)=
-     &           nablanablaf_qssph_trhocons_xx(as,bs)
-     &                 -0.5d0*gkerrads_uu_qssph(c,d)
-     &                   *(gkerrads_ll_qssph_x(a,d,b)
-     &                    -gkerrads_ll_qssph_x(a,b,d)
-     &                    +gkerrads_ll_qssph_x(d,b,a))
-     &                 *(1-rho0**2)**2*df1_dxqssph(c)
-               end do
-              end do
-             end do
-            end do
+        f0=(1-rho0**2)**2*f10
 
         call der2f_dxsphdxsph(f1_np1,f1_n,f1_nm1,
      &                df1_dxqssph,d2f1_dxqssphdxqssph,
@@ -1343,6 +1322,8 @@ c-----------------------------------------------------------------------
             df_dRad=
      &       -(1-rho0**2)**3*(4*rho0*f10
      &        -(1-rho0**2)*f1_rho)/(2*(1+rho0**2))
+            df_dtheta=(1-rho0**2)**2*f1_theta
+             df_dphi  =(1-rho0**2)**2*f1_phi
             d2f_dRaddRad=   
      &       (((1-rho0**2)**4)/(4*(1+rho0**2)**3))
      &       *(4*(-1+8*rho0**2+5*rho0**4)*f10
@@ -1357,31 +1338,61 @@ c-----------------------------------------------------------------------
      &       -(1-rho0**2)**3*(4*rho0*f1_phi
      &        -(1-rho0**2)*f1_rhophi)/(2*(1+rho0**2))
 
+!compute second covariant derivative of f for surfaces of constant t,rho
+
+            do a=3,4
+             do b=3,4
+              do c=3,4
+               as=a-2
+               bs=b-2
+               cs=c-2
+               gamma2dim_ull_qssph(as,bs,cs)=0
+               do d=3,4
+                gamma2dim_ull_qssph(as,bs,cs)=
+     &            gamma2dim_ull_qssph(as,bs,cs)+
+     &              0.5d0*gkerrads_uu_qssph(a,d)
+     &                   *(gkerrads_ll_qssph_x(b,d,c)
+     &                    -gkerrads_ll_qssph_x(b,c,d)
+     &                    +gkerrads_ll_qssph_x(d,c,b))
+               end do
+              end do
+             end do
+            end do
+
+            do a=3,4
+             do b=3,4
+              as=a-2
+              bs=b-2
+              nablanablaf_qssph_trhocons_xx(as,bs)=
+     &          (1-rho0**2)**2*d2f1_dxqssphdxqssph(a,b)
+              do c=3,4
+                cs=c-2
+                nablanablaf_qssph_trhocons_xx(as,bs)=
+     &           nablanablaf_qssph_trhocons_xx(as,bs)
+     &              -gamma2dim_ull_qssph(cs,as,bs)
+     &              *(1-rho0**2)**2*df1_dxqssph(c)
+              end do
+             end do
+            end do
+
 !calculate R^s*[R^2*(df_dR)^2+|\barnabla f|^2+f^2
 !               +R^4*(d2f_dRdR)^2+R^2*|\barnabla df_dR|^2+|\barnabla\barnabla f|^2)]*(R/rho)^2*dR_drho
 !To be integrated in rho^2 sin(theta)drho dtheta dphi, or dx dy dz
 
-            h2spnormdensity_f0=
-     &           Rad0**2*df_dRad**2
-            do a=3,4
-             do b=3,4
               h2spnormdensity_f0=
-     &         h2spnormdensity_f0+
-     &          (1-rho0**2)**4*
-     &           (gkerrads_uu_qssph(a,b)*
-     &             df1_dxqssph(a)*df1_dxqssph(b) )
-             end do
-            end do
-            h2spnormdensity_f0=
-     &       h2spnormdensity_f0+
-     &          ((1-rho0**2)**2*f10)**2
+     &             Rad0**2*df_dRad**2
+     &            +(gkerrads_uu_qssph(3,3)*
+     &               df_dtheta**2+ 
+     &             2*gkerrads_uu_qssph(3,4)*
+     &               df_dtheta*df_dphi+ 
+     &             gkerrads_uu_qssph(4,4)*
+     &               df_dphi**2)
+     &            +f0**2
 
             h2spnormdensity_f0=
      &       h2spnormdensity_f0+
      &          Rad0**4*d2f_dRaddRad**2
-            h2spnormdensity_f0=
-     &       h2spnormdensity_f0+
-     &          Rad0**2*(
+     &          +Rad0**2*(
      &           gkerrads_uu_qssph(3,3)*d2f_dRaddtheta**2+
      &         2*gkerrads_uu_qssph(3,4)*d2f_dRaddtheta*d2f_dRaddphi+
      &           gkerrads_uu_qssph(4,4)*d2f_dRaddphi**2)
@@ -1433,16 +1444,51 @@ c-----------------------------------------------------------------------
      &               (abs(z0).gt.10.0d0**(-1.0d0)).and.
      &                (rho0.lt.0.9)  ) then
                    write(*,*) 'sqrth2spnormdensity_func '
+                   write(*,*) 'sp,hnorm_argtype= ',sp,hnorm_argtype
                    write(*,*) 'at i,j,k= ', i,j,k
                    write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
-                   write(*,*) 'f1_t=', f1_t
-                   write(*,*) 'f1_rho=', f1_rho
-                   write(*,*) 'f1_theta=', f1_theta
-                   write(*,*) 'f1_phi=', f1_phi
+                   write(*,*) 'f10=', f10
+                   write(*,*) 'f1_t=', df1_dxqssph(1)
+                   write(*,*) 'f1_rho=', df1_dxqssph(2)
+                   write(*,*) 'f1_theta=', df1_dxqssph(3)
+                   write(*,*) 'f1_phi=', df1_dxqssph(4)
+                   write(*,*) 'f0=', f0
                    write(*,*) 'df_dRad=',df_dRad
                    write(*,*) 'd2f_dRaddRad=',d2f_dRaddRad
                    write(*,*) 'd2f_dRaddtheta=',d2f_dRaddtheta
                    write(*,*) 'd2f_dRaddphi=',d2f_dRaddphi
+                   write(*,*) 'gkerrads_ll_qssph_x(3,3,3)=',
+     &                          gkerrads_ll_qssph_x(3,3,3)
+                   write(*,*) 'gkerrads_ll_qssph_x(3,3,4)=',
+     &                          gkerrads_ll_qssph_x(3,3,4)
+                   write(*,*) 'gkerrads_ll_qssph_x(3,4,3)=',
+     &                          gkerrads_ll_qssph_x(3,4,3)
+                   write(*,*) 'gkerrads_ll_qssph_x(3,4,4)=',
+     &                          gkerrads_ll_qssph_x(3,4,4)
+                   write(*,*) 'gkerrads_ll_qssph_x(4,3,3)=',
+     &                          gkerrads_ll_qssph_x(4,3,3)
+                   write(*,*) 'gkerrads_ll_qssph_x(4,3,4)=',
+     &                          gkerrads_ll_qssph_x(4,3,4)
+                   write(*,*) 'gkerrads_ll_qssph_x(4,4,3)=',
+     &                          gkerrads_ll_qssph_x(4,4,3)
+                   write(*,*) 'gkerrads_ll_qssph_x(4,4,4)=',
+     &                          gkerrads_ll_qssph_x(4,4,4)
+                   write(*,*) 'gamma2dim_ull_qssph(1,1,1)=',
+     &                          gamma2dim_ull_qssph(1,1,1)
+                   write(*,*) 'gamma2dim_ull_qssph(1,1,2)=',
+     &                          gamma2dim_ull_qssph(1,1,2)
+                   write(*,*) 'gamma2dim_ull_qssph(1,2,1)=',
+     &                          gamma2dim_ull_qssph(1,2,1)
+                   write(*,*) 'gamma2dim_ull_qssph(1,2,2)=',
+     &                          gamma2dim_ull_qssph(1,2,2)
+                   write(*,*) 'gamma2dim_ull_qssph(2,1,1)=',
+     &                          gamma2dim_ull_qssph(2,1,1)
+                   write(*,*) 'gamma2dim_ull_qssph(2,1,2)=',
+     &                          gamma2dim_ull_qssph(2,1,2)
+                   write(*,*) 'gamma2dim_ull_qssph(2,2,1)=',
+     &                          gamma2dim_ull_qssph(2,2,1)
+                   write(*,*) 'gamma2dim_ull_qssph(2,2,2)=',
+     &                          gamma2dim_ull_qssph(2,2,2)
                    write(*,*) 'nablanablaf_qssph_trhocons_xx(1,1)=',
      &                         nablanablaf_qssph_trhocons_xx(1,1)
                    write(*,*) 'nablanablaf_qssph_trhocons_xx(1,2)=',
@@ -1453,7 +1499,7 @@ c-----------------------------------------------------------------------
      &                         nablanablaf_qssph_trhocons_xx(2,2)
                    write(*,*) ' sqrth2spnormdensity_f = ',
      &                  sqrth2spnormdensity_f(i,j,k)
-                   !return
+                   return
                  end if
                 end if
 
@@ -1701,9 +1747,13 @@ c-----------------------------------------------------------------------
                    write(*,*) 'sqrten1dens_func '
                    write(*,*) 'at i,j,k= ', i,j,k
                    write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
+                   write(*,*) ' sqrth10normdensity_f = ',
+     &                  sqrth10normdensity_f(i,j,k)
+                   write(*,*) ' sqrth0m2normdensity_dfdt = ',
+     &                  sqrth0m2normdensity_dfdt(i,j,k)
                    write(*,*) ' sqrten1dens_f = ',
      &                  sqrten1dens_f(i,j,k)
-                   !return
+                   return
                  end if
                 end if
 
@@ -1841,7 +1891,7 @@ c-----------------------------------------------------------------------
      -      (12*Sqrt(3.)*L**2*M0)/
      -       Sqrt(-2*a_rot**2 - 2*L**2 + 
      -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
+     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
      -             54*L**4*M0**2 + 
      -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
      -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
@@ -1908,7 +1958,7 @@ c-----------------------------------------------------------------------
 
         sp=-2
         hnorm_argtype=2
-        call sqrth1spnormdensity_func(
+        call sqrth0spnormdensity_func(
      &          sqrth0m2normdensity_d2fdtdt,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
@@ -1996,12 +2046,25 @@ c-----------------------------------------------------------------------
      &               (abs(y0).gt.10.0d0**(-1.0d0)).and.
      &               (abs(z0).gt.10.0d0**(-1.0d0)).and.
      &                (rho0.lt.0.9)  ) then
-                   write(*,*) 'sqrten1dens_func '
+                   write(*,*) 'sqrten2dens_func '
                    write(*,*) 'at i,j,k= ', i,j,k
                    write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
+                   write(*,*) ' sqrth20normdensity_f = ',
+     &                  sqrth20normdensity_f(i,j,k)
+                   write(*,*) ' sqrth10normdensity_dfdt = ',
+     &                  sqrth10normdensity_dfdt(i,j,k)
+                   write(*,*) ' sqrth10normdensity_m1f = ',
+     &                  sqrth10normdensity_m1f(i,j,k)
+                   write(*,*) ' sqrth10normdensity_m2f = ',
+     &                  sqrth10normdensity_m2f(i,j,k)
+                   write(*,*) ' sqrth10normdensity_m3f = ',
+     &                  sqrth10normdensity_m3f(i,j,k)
+                   write(*,*) ' sqrth0m2normdensity_d2fdtdt = ',
+     &                  sqrth0m2normdensity_d2fdtdt(i,j,k)
                    write(*,*) ' sqrten2dens_f = ',
      &                  sqrten2dens_f(i,j,k)
                    !return
+                   stop
                  end if
                 end if
 
