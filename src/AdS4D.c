@@ -21927,6 +21927,7 @@ void AdS4D_evolve(int iter)
         if (output_sqrth10normdensity_phi)
         {
         	sp=0;
+        	hnorm_argtype=0;
             sqrth1spnormdensity_func_(sqrth10normdensity_phi_np1,&sp,&hnorm_argtype,
                     phi1_np1,phi1_n,phi1_nm1,
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
