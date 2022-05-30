@@ -688,7 +688,7 @@ c-----------------------------------------------------------------------
      &                df1_dxqssph,d2f1_dxqssphdxqssph,
      &                x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f1')
 
-             f0=(1-rho0**2)**2*f1_t
+             f0=(1-rho0**2)**2*df1_dxqssph(1)
              
              df_dRad=
      &        -(1-rho0**2)**3*(4*rho0*df1_dxqssph(1)
@@ -1521,8 +1521,8 @@ c-----------------------------------------------------------------------
 c Compute square root of density of the first energy functional, E_1[f], for f=(1-rho**2)**2*f1.
 c E_1[f] is defined in eq. 27 of arxiv:1110.6794v2
 c-----------------------------------------------------------------------
-        subroutine sqrten1dens_func(
-     &                  sqrten1dens_f,
+        subroutine sqrten1density_func(
+     &                  sqrten1density_f,
      &                  f1_np1,f1_n,f1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
@@ -1539,7 +1539,7 @@ c-----------------------------------------------------------------------
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
         real*8 f1_np1(Nx,Ny,Nz),f1_n(Nx,Ny,Nz),f1_nm1(Nx,Ny,Nz)
-        real*8 sqrten1dens_f(Nx,Ny,Nz)
+        real*8 sqrten1density_f(Nx,Ny,Nz)
         real*8 en1dens_f0
         integer sp,hnorm_argtype
         real*8 sqrth10normdensity_f(Nx,Ny,Nz)
@@ -1728,7 +1728,7 @@ c-----------------------------------------------------------------------
 
 
 !Take square root, so we can use DV calculation of L2-norm, and then square it, to compute the H_AdS(1,s) norm.
-                sqrten1dens_f(i,j,k)=sqrt(en1dens_f0)
+                sqrten1density_f(i,j,k)=sqrt(en1dens_f0)
 
                  !the phi coordinate is not defined at y=z=0, i.e., theta=0,PI 
                 !(not surprising since spherical coordinates are not valid everywhere on the sphere), 
@@ -1736,7 +1736,7 @@ c-----------------------------------------------------------------------
 
                 if ((abs(y0).lt.10.0d0**(-10)).and.
      &          (abs(z0).lt.10.0d0**(-10))) then
-                    sqrten1dens_f(i,j,k)=0.0d0
+                    sqrten1density_f(i,j,k)=0.0d0
                 end if
 
                 if (ltrace) then
@@ -1744,22 +1744,22 @@ c-----------------------------------------------------------------------
      &               (abs(y0).gt.10.0d0**(-1.0d0)).and.
      &               (abs(z0).gt.10.0d0**(-1.0d0)).and.
      &                (rho0.lt.0.9)  ) then
-                   write(*,*) 'sqrten1dens_func '
+                   write(*,*) 'sqrten1density_func '
                    write(*,*) 'at i,j,k= ', i,j,k
                    write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
                    write(*,*) ' sqrth10normdensity_f = ',
      &                  sqrth10normdensity_f(i,j,k)
                    write(*,*) ' sqrth0m2normdensity_dfdt = ',
      &                  sqrth0m2normdensity_dfdt(i,j,k)
-                   write(*,*) ' sqrten1dens_f = ',
-     &                  sqrten1dens_f(i,j,k)
+                   write(*,*) ' sqrten1density_f = ',
+     &                  sqrten1density_f(i,j,k)
                    return
                  end if
                 end if
 
 
             else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
-               sqrten1dens_f(i,j,k)=0.0d0
+               sqrten1density_f(i,j,k)=0.0d0
             end if
 
            end do
@@ -1775,8 +1775,8 @@ c-----------------------------------------------------------------------
 c Compute square root of density of the second energy functional, E_2[f], for f=(1-rho**2)**2*f1.
 c E_2[f] is defined in eq. 27 of arxiv:1110.6794v2
 c-----------------------------------------------------------------------
-        subroutine sqrten2dens_func(
-     &                  sqrten2dens_f,
+        subroutine sqrten2density_func(
+     &                  sqrten2density_f,
      &                  f1_np1,f1_n,f1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
@@ -1793,7 +1793,7 @@ c-----------------------------------------------------------------------
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
         real*8 f1_np1(Nx,Ny,Nz),f1_n(Nx,Ny,Nz),f1_nm1(Nx,Ny,Nz)
-        real*8 sqrten2dens_f(Nx,Ny,Nz)
+        real*8 sqrten2density_f(Nx,Ny,Nz)
         real*8 en2dens_f0
         integer sp,hnorm_argtype
         real*8 sqrth20normdensity_f(Nx,Ny,Nz)
@@ -2030,7 +2030,7 @@ c-----------------------------------------------------------------------
 
 
 !Take square root, so we can use DV calculation of L2-norm, and then square it, to compute the H_AdS(1,s) norm.
-                sqrten2dens_f(i,j,k)=sqrt(en2dens_f0)
+                sqrten2density_f(i,j,k)=sqrt(en2dens_f0)
 
                  !the phi coordinate is not defined at y=z=0, i.e., theta=0,PI 
                 !(not surprising since spherical coordinates are not valid everywhere on the sphere), 
@@ -2038,7 +2038,7 @@ c-----------------------------------------------------------------------
 
                 if ((abs(y0).lt.10.0d0**(-10)).and.
      &          (abs(z0).lt.10.0d0**(-10))) then
-                    sqrten2dens_f(i,j,k)=0.0d0
+                    sqrten2density_f(i,j,k)=0.0d0
                 end if
 
                 if (ltrace) then
@@ -2046,7 +2046,7 @@ c-----------------------------------------------------------------------
      &               (abs(y0).gt.10.0d0**(-1.0d0)).and.
      &               (abs(z0).gt.10.0d0**(-1.0d0)).and.
      &                (rho0.lt.0.9)  ) then
-                   write(*,*) 'sqrten2dens_func '
+                   write(*,*) 'sqrten2density_func '
                    write(*,*) 'at i,j,k= ', i,j,k
                    write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
                    write(*,*) ' sqrth20normdensity_f = ',
@@ -2061,8 +2061,8 @@ c-----------------------------------------------------------------------
      &                  sqrth10normdensity_m3f(i,j,k)
                    write(*,*) ' sqrth0m2normdensity_d2fdtdt = ',
      &                  sqrth0m2normdensity_d2fdtdt(i,j,k)
-                   write(*,*) ' sqrten2dens_f = ',
-     &                  sqrten2dens_f(i,j,k)
+                   write(*,*) ' sqrten2density_f = ',
+     &                  sqrten2density_f(i,j,k)
                    !return
                    stop
                  end if
@@ -2070,7 +2070,7 @@ c-----------------------------------------------------------------------
 
 
             else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
-               sqrten2dens_f(i,j,k)=0.0d0
+               sqrten2density_f(i,j,k)=0.0d0
             end if
 
            end do

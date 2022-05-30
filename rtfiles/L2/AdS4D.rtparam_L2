@@ -44,7 +44,7 @@ AH_freq_aft := 1
 #excision_type=0: no internal excision - excision_type=1: spherical excised region - excision_type=2: elliptic excised region - excision_type=3: AH-shaped excised region
 excision_type := 2
 #excision buffer, i.e. how wide the region to evolve within the AH (or the AdS boundary if there is no BH) is
-ex_rbuf := 0.9
+ex_rbuf := 0.3
 AH_reset_scale := 1.1
 AH_max_iter_2 := 0
 AH_max_iter_3 := 0
@@ -87,6 +87,7 @@ output_kretsch := 1
 output_kretschcentregrid := 0
 output_riemanncube := 1
 output_sqrth10normdensity_phi := 1
+output_sqrten2density_phi := 1
 
 #------ Boundary extrapolation ---------
 output_bdyquantities := 0
@@ -261,7 +262,7 @@ cp_restore_fname := "cp_L2_A"
 
 #------- solution related -------------------------------------------------
 
-steps := 10
+steps := 2
 evo_max_iter := 25
 evo_min_iter := 1
 evo_tol := 1.0e-6
@@ -294,7 +295,8 @@ num_save_1_vars := 0
 #save_1_vars := [ "iresall" "gb_res" "kg_ires" "chr" ]
 
 num_save_2_vars := 1
-save_2_vars := [ "sqrth10normdensity_phi" ]
+save_2_vars := [ "sqrten2density_phi" ]
+#save_2_vars := [ "sqrth10normdensity_phi" ]
 #save_2_vars := [ "phi1" "sqrth1normdensity_phi" ]
 #save_2_vars := [ "gb_tt" "gb_xx" "gb_zz" "Hb_x" "phi1" "kretsch" "riemanncube" ]
 #save_2_vars := [ "gb_xx" "kretsch" "riemanncube" ]
