@@ -3165,6 +3165,14 @@ c--------------------------------------------------------------------------
 
 !--------------------------------------------------------------------
 
+        call df1_int(f_np1,f_n,f_nm1,f_t,f_x,f_y,f_z,
+     &       x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,name)
+
+        df_dxcar(1)=f_t
+        df_dxcar(2)=f_x
+        df_dxcar(3)=f_y
+        df_dxcar(4)=f_z
+
         call derf_dxsph(f_np1,f_n,f_nm1,f_t,f_rho,f_theta,f_phi,
      &              x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,name)
 
@@ -3184,7 +3192,7 @@ c--------------------------------------------------------------------------
      &       f_yy,
      &       f_yz,
      &       f_zz,
-     &       x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,'f')
+     &       x,y,z,dt,i,j,k,chr,ex,Nx,Ny,Nz,name)
 
              d2f_dxcardxcar(1,1)=f_tt
              d2f_dxcardxcar(1,2)=f_tx
@@ -3317,10 +3325,40 @@ c--------------------------------------------------------------------------
               end do
              end do
 
+!impose symmetry of second derivatives
+             do a=1,3
+              do b=a+1,4
+               d2f_dxsphdxsph(b,a)=d2f_dxsphdxsph(a,b)
+              end do
+             end do
+
             if (ltrace) then
+              if ((abs(x0+0.625d0).lt.10.0d0**(-10)).and.
+     &            (abs(y0+0.5625d0).lt.10.0d0**(-10)).and.
+     &            (abs(z0).lt.10.0d0**(-10)) ) then
                 write(*,*) 'd2f_dxsphdxsph for ',name
                 write(*,*) 'at i,j,k= ', i,j,k
                 write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
+                write(*,*) 'Cartesian derivatives'
+                write(*,*) ' f_t         =',df_dxcar(1)
+                write(*,*) ' f_x         =',df_dxcar(2)
+                write(*,*) ' f_y         =',df_dxcar(3)
+                write(*,*) ' f_z         =',df_dxcar(4)
+                write(*,*) ' f_tt        =',d2f_dxcardxcar(1,1)
+                write(*,*) ' f_tx        =',d2f_dxcardxcar(1,2)
+                write(*,*) ' f_ty        =',d2f_dxcardxcar(1,3)
+                write(*,*) ' f_tz        =',d2f_dxcardxcar(1,4)
+                write(*,*) ' f_xx        =',d2f_dxcardxcar(2,2)
+                write(*,*) ' f_xy        =',d2f_dxcardxcar(2,3)
+                write(*,*) ' f_xz        =',d2f_dxcardxcar(2,4)
+                write(*,*) ' f_yy        =',d2f_dxcardxcar(3,3)
+                write(*,*) ' f_yz        =',d2f_dxcardxcar(3,4)
+                write(*,*) ' f_zz        =',d2f_dxcardxcar(4,4)
+                write(*,*) 'Spherical derivatives'
+                write(*,*) ' f_t         =',df_dxsph(1)
+                write(*,*) ' f_rho       =',df_dxsph(2)
+                write(*,*) ' f_theta     =',df_dxsph(3)
+                write(*,*) ' f_phi       =',df_dxsph(4)
                 write(*,*) ' f_tt        =',d2f_dxsphdxsph(1,1)
                 write(*,*) ' f_trho      =',d2f_dxsphdxsph(1,2)
                 write(*,*) ' f_ttheta    =',d2f_dxsphdxsph(1,3)
@@ -3331,6 +3369,8 @@ c--------------------------------------------------------------------------
                 write(*,*) ' f_thetatheta=',d2f_dxsphdxsph(3,3)
                 write(*,*) ' f_thetaphi  =',d2f_dxsphdxsph(3,4)
                 write(*,*) ' f_phiphi    =',d2f_dxsphdxsph(4,4)
+                !stop
+             end if
             end if
 
         return
