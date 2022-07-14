@@ -1,11 +1,12 @@
 STATUS OF THIS BRANCH:
-3+1 Cartesian code for study of superradiance of Kerr-AdS4D with no symmetries. The first commit is taken from the Lorenzo-ahfinder-qlsettensor-wip branch of the AdS4D repository.
+3+1 Cartesian code for study of non-linear instability of Kerr-AdS4D below the Hawking-Reall bound (so no superradiance) with no symmetries. The first commit is taken from the KerrAdS-addperturb-norelKR3-cleanmemalloc branch of the Kerr_AdS4D code.
 Implemented analytic Kerr-AdS (and Schwarzschild-AdS) initial data in Kerr-Schild Cartesian coordinates non-rotating at the boundary.
 
 Implemented the option to use Kerr-AdS (or Schwarzschild-AdS) in Kerr-Schil
 d Cartesian coordinates non-rotating at the boundary as background metric.
 Implemented spherical harmonics perturbations with l=2,m=2 that follow the ones used in arXiv:1801.09711 (Chesler,Lowe). Adding these to initial data makes them constraint-violating!!
 Implemented the possibility of adding these perturbations at later times during the evolution.
+Implemented the addition of boosted Gaussian scalar field lumps.
 
 Implemented AH-shaped excision and spherical excision with radius given by the minimum of the AH radius (times (1-ex_rbuf)).
 

@@ -7,7 +7,7 @@ kerrads_background := 1
 #------ Initial Data -------------------------------------------------------
 
 #scalar field ID#
-phi1_amp_1 := 2.0
+phi1_amp_1 := 0.0
 phi1_r0_1 := 0.0
 phi1_delta_1 := 0.4
 phi1_x0_1 := [0.0 0.0 0.0]
@@ -18,6 +18,21 @@ phi1_C_1 := 0.0
 rhoc := 0.4
 rhod := 0.8
 stype := 0
+
+#Lorent boost parameters
+boost_v_1 := [0.0 +0.95 0.0]
+boost_amp_1 := 2.0
+boost_r0_1 := 0.0
+boost_delta_1 := 0.2
+boost_x0_1 := [0.0 0.6 0.0]
+boost_ecc_1 := [0.9 0.1 0.5]
+
+boost_v_2 := [0.0 +0.95 0.0]
+boost_amp_2 := 0.0
+boost_r0_2 := 0.0
+boost_delta_2 := 0.2
+boost_x0_2 := [0.0 -0.3 -0.2]
+boost_ecc_2 := [0.2 0.2 0.2]
 
 #AdS4D-Kerr BH ID#
 ief_bh_r0 := 0.8
@@ -262,7 +277,7 @@ cp_restore_fname := "cp_L2_A"
 
 #------- solution related -------------------------------------------------
 
-steps := 1
+steps := 10
 evo_max_iter := 25
 evo_min_iter := 1
 evo_tol := 1.0e-6
@@ -295,7 +310,8 @@ num_save_1_vars := 0
 #save_1_vars := [ "iresall" "gb_res" "kg_ires" "chr" ]
 
 num_save_2_vars := 1
-save_2_vars := [ "sqrten2density_phi" ]
+save_2_vars := [ "phi1" ]
+#save_2_vars := [ "sqrten2density_phi" ]
 #save_2_vars := [ "sqrth10normdensity_phi" ]
 #save_2_vars := [ "phi1" "sqrth1normdensity_phi" ]
 #save_2_vars := [ "gb_tt" "gb_xx" "gb_zz" "Hb_x" "phi1" "kretsch" "riemanncube" ]
