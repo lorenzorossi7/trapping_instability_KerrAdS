@@ -31,6 +31,9 @@ c----------------------------------------------------------------------
         implicit none
         real*8 ief_bh_r0,a_rot
         integer kerrads_background
+        logical calc_der,calc_adv_quant
+        data calc_der/.true./
+        data calc_adv_quant/.false./
         integer Nx,Ny,Nz
         integer i,j,k
         integer phys_bdy(6),ghost_width(6)
@@ -224,7 +227,8 @@ c----------------------------------------------------------------------
      &                einstein_ll,set_ll,
      &                phi10_x,phi10_xx,
      &                x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &                ief_bh_r0,a_rot,kerrads_background)
+     &                ief_bh_r0,a_rot,kerrads_background,
+     &                calc_der,calc_adv_quant)
 
 !       write (*,*) 'L,i,j,k,x0,y0,z0,rho0=',L,i,j,k,x0,y0,z0,rho0
 !       write (*,*) 'g0_ll_x(1,1,1)=',g0_ll_x(1,1,1)
@@ -582,6 +586,9 @@ c-----------------------------------------------------------------------
         implicit none
         real*8 ief_bh_r0,a_rot
         integer kerrads_background
+        logical calc_der,calc_adv_quant
+        data calc_der/.true./
+        data calc_adv_quant/.false./
         integer output_kretsch
         integer output_riemanncube
         integer Nx,Ny,Nz
@@ -786,7 +793,8 @@ c-----------------------------------------------------------------------
      &                einstein_ll,set_ll,
      &                phi10_x,phi10_xx,
      &                x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &                ief_bh_r0,a_rot,kerrads_background)
+     &                ief_bh_r0,a_rot,kerrads_background,
+     &                calc_der,calc_adv_quant)
 
                do a=1,4
                 do b=1,4

@@ -18,6 +18,9 @@ c----------------------------------------------------------------------
         implicit none
         real*8 ief_bh_r0,a_rot
         integer kerrads_background
+        logical calc_der,calc_adv_quant
+        data calc_der/.true./
+        data calc_adv_quant/.false./
         integer Nx,Ny,Nz
         integer phys_bdy(6),ghost_width(6)
         integer regtype
@@ -174,7 +177,8 @@ c----------------------------------------------------------------------
      &              einstein_ll,set_ll,
      &              phi10_x,phi10_xx,
      &              x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &              ief_bh_r0,a_rot,kerrads_background)
+     &              ief_bh_r0,a_rot,kerrads_background,
+     &              calc_der,calc_adv_quant)
 
               ! calculate boxx^c at point i,j
               ! (boxx^c = -g^ab gamma^c_ab)

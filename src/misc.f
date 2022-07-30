@@ -4153,7 +4153,8 @@ c----------------------------------------------------------------------
      &                  einstein_ll,set_ll,
      &                  phi10_x,phi10_xx,
      &                  x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &                  ief_bh_r0,a_rot,kerrads_background)
+     &                  ief_bh_r0,a_rot,kerrads_background,
+     &                  calc_der,calc_adv_quant)
 
         implicit none
 
@@ -4163,8 +4164,6 @@ c----------------------------------------------------------------------
         integer kerrads_background
 
         logical calc_der,calc_adv_quant
-        data calc_der/.true./
-        data calc_adv_quant/.false./
 
         real*8 chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,L
@@ -4200,25 +4199,11 @@ c----------------------------------------------------------------------
         ! variables for tensor manipulations
         !(indices are t,x,w,y,z)
         !--------------------------------------------------------------
-        real*8 g0_ll(4,4),g0_uu(4,4),detg0
-        real*8 g0_ll_x(4,4,4),g0_uu_x(4,4,4),g0_ll_xx(4,4,4,4)
         real*8 gads_ll(4,4),gads_uu(4,4)
         real*8 gads_ll_x(4,4,4),gads_uu_x(4,4,4),gads_ll_xx(4,4,4,4)
-        real*8 h0_ll(4,4),h0_uu(4,4)
-        real*8 h0_ll_x(4,4,4),h0_uu_x(4,4,4),h0_ll_xx(4,4,4,4)
-        real*8 gamma_ull(4,4,4),gamma_ull_x(4,4,4,4)
-        real*8 riemann_ulll(4,4,4,4)
-        real*8 ricci_ll(4,4),ricci_lu(4,4),ricci
-        real*8 einstein_ll(4,4),set_ll(4,4)
-        real*8 Hads_l(4)
-        real*8 A_l(4),A_l_x(4,4)
-        real*8 phi10_x(4),phi10_xx(4,4)
         real*8 gads_ll_sph(4,4),gads_uu_sph(4,4)
         real*8 gads_ll_sph_x(4,4,4),gads_uu_sph_x(4,4,4)
         real*8 gads_ll_sph_xx(4,4,4,4)
-        real*8 dxsph_dxcar(4,4)
-        real*8 d2xsph_dxcardxcar(4,4,4)
-        real*8 d3xsph_dxcardxcardxcar(4,4,4,4)
         real*8 gammaads_ull(4,4,4)
         real*8 boxadsx_u(4)
         real*8 phi1ads, phi1ads_x(4),phi1ads_xx(4,4)
@@ -4226,6 +4211,23 @@ c----------------------------------------------------------------------
         real*8 riemannads_ulll(4,4,4,4)
         real*8 ricciads_ll(4,4),ricciads_lu(4,4),ricciads
         real*8 einsteinads_ll(4,4),setads_ll(4,4)
+        real*8 Hads_l(4)
+
+        real*8 g0_ll(4,4),g0_uu(4,4),detg0
+        real*8 g0_ll_x(4,4,4),g0_uu_x(4,4,4),g0_ll_xx(4,4,4,4)
+        real*8 h0_ll(4,4),h0_uu(4,4)
+        real*8 h0_ll_x(4,4,4),h0_uu_x(4,4,4),h0_ll_xx(4,4,4,4)
+        real*8 gamma_ull(4,4,4),gamma_ull_x(4,4,4,4)
+        real*8 riemann_ulll(4,4,4,4)
+        real*8 ricci_ll(4,4),ricci_lu(4,4),ricci
+        real*8 einstein_ll(4,4),set_ll(4,4)
+        real*8 A_l(4),A_l_x(4,4)
+        real*8 phi10_x(4),phi10_xx(4,4)
+
+        real*8 dxsph_dxcar(4,4)
+        real*8 d2xsph_dxcardxcar(4,4,4)
+        real*8 d3xsph_dxcardxcardxcar(4,4,4,4)
+
 
         !--------------------------------------------------------------
         ! the following are first and second time derivatives of *n*
@@ -4458,6 +4460,8 @@ c----------------------------------------------------------------------
         ! set phi1 value
         phi10=phi1_n(i,j,k)
 
+      if (calc_der) then
+
         ! calculate gbar derivatives
         call df2_int(gb_tt_np1,gb_tt_n,gb_tt_nm1,gb_tt_t,
      &       gb_tt_x,gb_tt_y,
@@ -4606,6 +4610,8 @@ c----------------------------------------------------------------------
      &       x,y,z,dt,i,j,k,
      &       chr,ex,Nx,Ny,Nz,'phi1')
 
+      end if
+
 
 
 
@@ -4621,7 +4627,7 @@ c----------------------------------------------------------------------
         g0_ll(3,4)=gads_ll(3,4)+gb_yz0
         g0_ll(4,4)=gads_ll(4,4)+gb_zz0
 
-
+      if (calc_der) then
 
         g0_ll_x(1,1,1)   =gads_ll_x(1,1,1)
      &                   +gb_tt_t
@@ -4914,6 +4920,8 @@ c----------------------------------------------------------------------
         g0_ll_xx(4,4,4,4)=gads_ll_xx(4,4,4,4)
      &                   +gb_zz_zz
 
+      end if
+
         ! give values to the metric inverse
         call calc_g0uu(g0_ll(1,1),g0_ll(1,2),g0_ll(1,3),g0_ll(1,4),
      &         g0_ll(2,2),g0_ll(2,3),g0_ll(2,4),
@@ -4931,6 +4939,8 @@ c----------------------------------------------------------------------
             end do
           end do
         end do
+
+      if (calc_der) then
 
         do a=1,4
           do b=1,4
@@ -4995,6 +5005,8 @@ c----------------------------------------------------------------------
           end do
         end do
 
+      end if
+
 
         ! give values to the metric deviation
         h0_ll(1,1)=gb_tt0 
@@ -5019,6 +5031,8 @@ c----------------------------------------------------------------------
         h0_uu(3,3)=g0_uu(3,3)-gads_uu(3,3)
         h0_uu(3,4)=g0_uu(3,4)-gads_uu(3,4)
         h0_uu(4,4)=g0_uu(4,4)-gads_uu(4,4)
+
+      if (calc_der) then
 
         h0_ll_x(1,1,1)   =g0_ll_x(1,1,1)-gads_ll_x(1,1,1)
         h0_ll_x(1,1,2)   =g0_ll_x(1,1,2)-gads_ll_x(1,1,2)
@@ -5221,15 +5235,19 @@ c----------------------------------------------------------------------
         h0_uu_x(4,4,3)=g0_uu_x(4,4,3)-gads_uu_x(4,4,3)
         h0_uu_x(4,4,4)=g0_uu_x(4,4,4)-gads_uu_x(4,4,4)
 
+      end if
+
 
         do a=1,3
           do b=a+1,4
             h0_ll(b,a)=h0_ll(a,b)
             h0_uu(b,a)=h0_uu(a,b)
-            do c=1,4
-              h0_ll_x(b,a,c)=h0_ll_x(a,b,c)
-              h0_uu_x(b,a,c)=h0_uu_x(a,b,c)
-            end do
+            if (calc_der) then
+             do c=1,4
+               h0_ll_x(b,a,c)=h0_ll_x(a,b,c)
+               h0_uu_x(b,a,c)=h0_uu_x(a,b,c)
+             end do
+            end if
           end do
         end do
 
@@ -5243,6 +5261,8 @@ c----------------------------------------------------------------------
 !      write(*,*) 'L,x0,y0,z0,rho0,dx=',L,x0,y0,z0,rho0,dx
 !      write(*,*) 'A_l(1),A_l(2),A_l(3),A_l(4)='
 !     &           ,A_l(1),A_l(2),A_l(3),A_l(4)
+
+      if (calc_der) then
 
         A_l_x(1,1)=Hb_t_t*(1-rho0**2)
         A_l_x(1,2)=Hb_t_x*(1-rho0**2)
@@ -5275,7 +5295,6 @@ c----------------------------------------------------------------------
      &            -Hb_z0*2*y0
         A_l_x(4,4)=Hb_z_z*(1-rho0**2)
      &            -Hb_z0*2*z0
-
 
 
 
@@ -5327,7 +5346,6 @@ c----------------------------------------------------------------------
      &               +phi1_z*(2)*(-4*z0)*(1-rho0**2)
      &               +phi10*(-4*(1-rho0**2)+8*z0**2)
 
-!!!CHECKED WITH Mathematica UP TO HERE!!
 
         do a=1,3
           do b=a+1,4
@@ -5454,6 +5472,9 @@ c----------------------------------------------------------------------
 !          stop
 !        end if
 !!!!!!!!!!!!!!
+
+      end if
+
 
         return
         end

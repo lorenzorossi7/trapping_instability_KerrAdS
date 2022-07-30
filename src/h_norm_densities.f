@@ -1,6 +1,6 @@
 c-----------------------------------------------------------------------
-c Calculate square root of the integrand of the H_AdS^(0,sp), H_AdS^(1,sp), H_AdS^(2,sp) norms (defined in arxiv:1110.6794v2)
-c of the scalar field phi.
+c Calculate square root of the integrand of the H_AdS^(0,sp), H_AdS^(1,sp), H_AdS^(2,sp) norms 
+c (defined in arxiv:1103.0710v2 and used in arxiv:1110.6794v2) of the scalar field phi.
 c We replace the coordinates of arxiv:1110.6794v2 with uncompactified quasi-spherical Kerr-Schild coords.
 c We write the (Euclidean) volume measure dV=R^2sin(theta)dR dtheta dphi as 
 c R^2/rho^2dR_drho rho^2 sin(theta)drho dtheta dphi=R^2/rho^2 dR_drho dxdydz.
@@ -34,12 +34,13 @@ c-----------------------------------------------------------------------
      &                  f1_np1,f1_n,f1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
-     &                  ief_bh_r0,a_rot)
+     &                  ief_bh_r0,a_rot,kerrads_background)
 
         implicit none
 
         logical is_nan
         real*8  ief_bh_r0,a_rot,M0,M0_min
+        real*8  kerrads_background
         integer Nx,Ny,Nz
         integer i,j,k
         integer phys_bdy(6),ghost_width(6)
@@ -353,17 +354,36 @@ c-----------------------------------------------------------------------
      &                  sqrth1spnormdensity_f,
      &                  sp,hnorm_argtype,
      &                  f1_np1,f1_n,f1_nm1,
+     &                  gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &                  gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &                  gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &                  gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &                  gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &                  gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &                  gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &                  gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &                  gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &                  gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                  Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                  Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                  phi1_np1,phi1_n,phi1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
-     &                  ief_bh_r0,a_rot)
+     &                  ief_bh_r0,a_rot,kerrads_background)
 
         implicit none
 
         logical is_nan
+
+        real*8  ief_bh_r0,a_rot,M0,M0_min
+        real*8  kerrads_background
+
         logical calc_der,calc_adv_quant
         data calc_der/.false./
         data calc_adv_quant/.false./
-        real*8  ief_bh_r0,a_rot,M0,M0_min
+
         integer Nx,Ny,Nz
         integer i,j,k
         integer phys_bdy(6),ghost_width(6)
@@ -403,6 +423,22 @@ c-----------------------------------------------------------------------
 
         real*8 dxcar_dxqssph(4,4)
 
+        real*8 gb_tt_np1(Nx,Ny,Nz),gb_tt_n(Nx,Ny,Nz),gb_tt_nm1(Nx,Ny,Nz)
+        real*8 gb_tx_np1(Nx,Ny,Nz),gb_tx_n(Nx,Ny,Nz),gb_tx_nm1(Nx,Ny,Nz)
+        real*8 gb_ty_np1(Nx,Ny,Nz),gb_ty_n(Nx,Ny,Nz),gb_ty_nm1(Nx,Ny,Nz)
+        real*8 gb_tz_np1(Nx,Ny,Nz),gb_tz_n(Nx,Ny,Nz),gb_tz_nm1(Nx,Ny,Nz)
+        real*8 gb_xx_np1(Nx,Ny,Nz),gb_xx_n(Nx,Ny,Nz),gb_xx_nm1(Nx,Ny,Nz)
+        real*8 gb_xy_np1(Nx,Ny,Nz),gb_xy_n(Nx,Ny,Nz),gb_xy_nm1(Nx,Ny,Nz)
+        real*8 gb_xz_np1(Nx,Ny,Nz),gb_xz_n(Nx,Ny,Nz),gb_xz_nm1(Nx,Ny,Nz)
+        real*8 gb_yy_np1(Nx,Ny,Nz),gb_yy_n(Nx,Ny,Nz),gb_yy_nm1(Nx,Ny,Nz)
+        real*8 gb_yz_np1(Nx,Ny,Nz),gb_yz_n(Nx,Ny,Nz),gb_yz_nm1(Nx,Ny,Nz)
+        real*8 gb_zz_np1(Nx,Ny,Nz),gb_zz_n(Nx,Ny,Nz),gb_zz_nm1(Nx,Ny,Nz)
+        real*8 Hb_t_np1(Nx,Ny,Nz),Hb_t_n(Nx,Ny,Nz),Hb_t_nm1(Nx,Ny,Nz)
+        real*8 Hb_x_np1(Nx,Ny,Nz),Hb_x_n(Nx,Ny,Nz),Hb_x_nm1(Nx,Ny,Nz)
+        real*8 Hb_y_np1(Nx,Ny,Nz),Hb_y_n(Nx,Ny,Nz),Hb_y_nm1(Nx,Ny,Nz)
+        real*8 Hb_z_np1(Nx,Ny,Nz),Hb_z_n(Nx,Ny,Nz),Hb_z_nm1(Nx,Ny,Nz)
+        real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
+
         !--------------------------------------------------------------
         ! variables for tensor manipulations 
         !(indices are t,x,y,theta,phi)
@@ -410,12 +446,22 @@ c-----------------------------------------------------------------------
         real*8 gkerrads_ll(4,4),gkerrads_uu(4,4)
         real*8 gkerrads_ll_x(4,4,4),gkerrads_uu_x(4,4,4)
         real*8 gkerrads_ll_xx(4,4,4,4)
-        real*8 gammakerrads_ull(4,4,4)
-        real*8 gammakerrads_ull_x(4,4,4,4)
         real*8 Hkerrads_l(4)
         real*8 phi1kerrads, phi1kerrads_x(4)
-        real*8 detg0_kerrads_qssph0
-        real*8 gkerrads_ll_qssph(4,4),gkerrads_uu_qssph(4,4)
+
+        real*8 g0_ll(4,4),g0_uu(4,4),detg0
+        real*8 g0_ll_x(4,4,4),g0_uu_x(4,4,4),g0_ll_xx(4,4,4,4)
+        real*8 h0_ll(4,4),h0_uu(4,4)
+        real*8 h0_ll_x(4,4,4),h0_uu_x(4,4,4),h0_ll_xx(4,4,4,4)
+        real*8 gamma_ull(4,4,4),gamma_ull_x(4,4,4,4)
+        real*8 riemann_ulll(4,4,4,4)
+        real*8 ricci_ll(4,4),ricci_lu(4,4),ricci
+        real*8 einstein_ll(4,4),set_ll(4,4)
+        real*8 A_l(4),A_l_x(4,4)
+        real*8 phi10_x(4),phi10_xx(4,4)
+
+        real*8 detg0_qssph0
+        real*8 g0_ll_qssph(4,4),g0_uu_qssph(4,4)
 
 
 
@@ -430,13 +476,26 @@ c-----------------------------------------------------------------------
         data gkerrads_ll,gkerrads_uu/16*0.0,16*0.0/
         data gkerrads_ll_x,gkerrads_uu_x/64*0.0,64*0.0/
         data gkerrads_ll_xx/256*0.0/
-        data gammakerrads_ull/64*0.0/
-        data gammakerrads_ull_x/256*0.0/
         data Hkerrads_l/4*0.0/
         data phi1kerrads_x/4*0.0/
+
+        data g0_ll,g0_uu/16*0.0,16*0.0/
+        data g0_ll_x,g0_uu_x/64*0.0,64*0.0/
+        data g0_ll_xx/256*0.0/
+        data h0_ll,h0_uu/16*0.0,16*0.0/
+        data h0_ll_x,h0_uu_x/64*0.0,64*0.0/
+        data h0_ll_xx/256*0.0/
+        data gamma_ull/64*0.0/
+        data gamma_ull_x/256*0.0/
+        data riemann_ulll/256*0.0/
+        data ricci_ll,ricci_lu/16*0.0,16*0.0/
+        data einstein_ll,set_ll/16*0.0,16*0.0/
+        data A_l,A_l_x/4*0.0,16*0.0/
+        data phi10_x,phi10_xx/4*0.0,16*0.0/
         data dxcar_dxqssph/16*0.0/
-        data gkerrads_ll_qssph/16*0.0/
-        data gkerrads_uu_qssph/16*0.0/
+
+        data g0_ll_qssph/16*0.0/
+        data g0_uu_qssph/16*0.0/
 
 
 
@@ -570,16 +629,37 @@ c-----------------------------------------------------------------------
                 ! set f1 value
                 f10=f1_n(i,j,k)
 
-                call kerrads_derivs_kerrschildcoords(
-     &          gkerrads_ll,gkerrads_uu,gkerrads_ll_x,
-     &          gkerrads_uu_x,gkerrads_ll_xx,
-     &          Hkerrads_l,
-     &          gammakerrads_ull,
-     &          phi1kerrads,
-     &          phi1kerrads_x,
-     &          x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &          ief_bh_r0,a_rot,
-     &          calc_der,calc_adv_quant)
+    !compute metric and its derivatives 
+              call tensor_init(
+     &                gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &                gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &                gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &                gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &                gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &                gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &                gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &                gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &                gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &                gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                phi1_np1,phi1_n,phi1_nm1,
+     &                g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
+     &                gkerrads_ll,gkerrads_uu,
+     &                gkerrads_ll_x,gkerrads_uu_x,gkerrads_ll_xx,
+     &                h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
+     &                A_l,A_l_x,Hkerrads_l,
+     &                gamma_ull,gamma_ull_x,
+     &                riemann_ulll,ricci_ll,ricci_lu,ricci,
+     &                einstein_ll,set_ll,
+     &                phi10_x,phi10_xx,
+     &                x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
+     &                ief_bh_r0,a_rot,kerrads_background,
+     &                calc_der,calc_adv_quant)
+
+
 
 !define transformation matrix between Cartesian coordinates to compactified (quasi-)spherical coordinates, 
 !        !e.g. dxcar_dxqssph(3,2)=dy/drho=sin(theta0)*cos(phi0)
@@ -603,43 +683,43 @@ c-----------------------------------------------------------------------
 
              do a=1,4
                do b=1,4
-                gkerrads_ll_qssph(a,b)=0.0d0
+                g0_ll_qssph(a,b)=0.0d0
                 do c=1,4
                  do d=1,4
-                  gkerrads_ll_qssph(a,b)=gkerrads_ll_qssph(a,b)
+                  g0_ll_qssph(a,b)=g0_ll_qssph(a,b)
      &                        +dxcar_dxqssph(c,a)*dxcar_dxqssph(d,b)
-     &                          *gkerrads_ll(c,d)
+     &                          *g0_ll(c,d)
                  end do
                 end do
                end do
              end do
 
-                call calc_g0uu(gkerrads_ll_qssph(1,1),
-     &              gkerrads_ll_qssph(1,2),
-     &              gkerrads_ll_qssph(1,3),
-     &              gkerrads_ll_qssph(1,4),
-     &              gkerrads_ll_qssph(2,2),
-     &              gkerrads_ll_qssph(2,3),
-     &              gkerrads_ll_qssph(2,4),
-     &              gkerrads_ll_qssph(3,3),
-     &              gkerrads_ll_qssph(3,4),
-     &              gkerrads_ll_qssph(4,4),
-     &              gkerrads_uu_qssph(1,1),
-     &              gkerrads_uu_qssph(1,2),
-     &              gkerrads_uu_qssph(1,3),
-     &              gkerrads_uu_qssph(1,4),
-     &              gkerrads_uu_qssph(2,2),
-     &              gkerrads_uu_qssph(2,3),
-     &              gkerrads_uu_qssph(2,4),
-     &              gkerrads_uu_qssph(3,3),
-     &              gkerrads_uu_qssph(3,4),
-     &              gkerrads_uu_qssph(4,4),
-     &              detg0_kerrads_qssph0)
+                call calc_g0uu(g0_ll_qssph(1,1),
+     &              g0_ll_qssph(1,2),
+     &              g0_ll_qssph(1,3),
+     &              g0_ll_qssph(1,4),
+     &              g0_ll_qssph(2,2),
+     &              g0_ll_qssph(2,3),
+     &              g0_ll_qssph(2,4),
+     &              g0_ll_qssph(3,3),
+     &              g0_ll_qssph(3,4),
+     &              g0_ll_qssph(4,4),
+     &              g0_uu_qssph(1,1),
+     &              g0_uu_qssph(1,2),
+     &              g0_uu_qssph(1,3),
+     &              g0_uu_qssph(1,4),
+     &              g0_uu_qssph(2,2),
+     &              g0_uu_qssph(2,3),
+     &              g0_uu_qssph(2,4),
+     &              g0_uu_qssph(3,3),
+     &              g0_uu_qssph(3,4),
+     &              g0_uu_qssph(4,4),
+     &              detg0_qssph0)
 
 
              do a=1,3
                do b=a+1,4
-                 gkerrads_uu_qssph(b,a)=gkerrads_uu_qssph(a,b) 
+                 g0_uu_qssph(b,a)=g0_uu_qssph(a,b) 
                end do
              end do
 
@@ -798,11 +878,11 @@ c-----------------------------------------------------------------------
 
               h1spnormdensity_f0=
      &             Rad0**2*df_dRad**2
-     &            +(gkerrads_uu_qssph(3,3)*
+     &            +(g0_uu_qssph(3,3)*
      &               df_dtheta**2+ 
-     &             2*gkerrads_uu_qssph(3,4)*
+     &             2*g0_uu_qssph(3,4)*
      &               df_dtheta*df_dphi+ 
-     &             gkerrads_uu_qssph(4,4)*
+     &             g0_uu_qssph(4,4)*
      &               df_dphi**2)
      &            +f0**2
 
@@ -860,11 +940,11 @@ c-----------------------------------------------------------------------
                    write(*,*) 'df_dtheta=',df_dtheta
                    write(*,*) 'df_dphi=',df_dphi
                    write(*,*) 'nablafq=',
-     &              (gkerrads_uu_qssph(3,3)*
+     &              (g0_uu_qssph(3,3)*
      &               df_dtheta**2+ 
-     &             2*gkerrads_uu_qssph(3,4)*
+     &             2*g0_uu_qssph(3,4)*
      &               df_dtheta*df_dphi+ 
-     &             gkerrads_uu_qssph(4,4)*
+     &             g0_uu_qssph(4,4)*
      &               df_dphi**2)
                    write(*,*) ' sqrth1spnormdensity_f = ',
      &                  sqrth1spnormdensity_f(i,j,k)
@@ -895,17 +975,35 @@ c-----------------------------------------------------------------------
      &                  sqrth2spnormdensity_f,
      &                  sp,hnorm_argtype,
      &                  f1_np1,f1_n,f1_nm1,
+     &                  gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &                  gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &                  gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &                  gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &                  gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &                  gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &                  gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &                  gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &                  gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &                  gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                  Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                  Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                  phi1_np1,phi1_n,phi1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
-     &                  ief_bh_r0,a_rot)
+     &                  ief_bh_r0,a_rot,kerrads_background)
 
         implicit none
 
         logical is_nan
+        real*8 ief_bh_r0,a_rot,M0,M0_min
+        real*8 kerrads_background
+
         logical calc_der,calc_adv_quant
         data calc_der/.true./
         data calc_adv_quant/.false./
-        real*8  ief_bh_r0,a_rot,M0,M0_min
+
         integer Nx,Ny,Nz
         integer i,j,k
         integer phys_bdy(6),ghost_width(6)
@@ -952,6 +1050,22 @@ c-----------------------------------------------------------------------
         real*8 dxcar_dxqssph(4,4)
         real*8 d2xcar_dxqssphdxqssph(4,4,4)
 
+        real*8 gb_tt_np1(Nx,Ny,Nz),gb_tt_n(Nx,Ny,Nz),gb_tt_nm1(Nx,Ny,Nz)
+        real*8 gb_tx_np1(Nx,Ny,Nz),gb_tx_n(Nx,Ny,Nz),gb_tx_nm1(Nx,Ny,Nz)
+        real*8 gb_ty_np1(Nx,Ny,Nz),gb_ty_n(Nx,Ny,Nz),gb_ty_nm1(Nx,Ny,Nz)
+        real*8 gb_tz_np1(Nx,Ny,Nz),gb_tz_n(Nx,Ny,Nz),gb_tz_nm1(Nx,Ny,Nz)
+        real*8 gb_xx_np1(Nx,Ny,Nz),gb_xx_n(Nx,Ny,Nz),gb_xx_nm1(Nx,Ny,Nz)
+        real*8 gb_xy_np1(Nx,Ny,Nz),gb_xy_n(Nx,Ny,Nz),gb_xy_nm1(Nx,Ny,Nz)
+        real*8 gb_xz_np1(Nx,Ny,Nz),gb_xz_n(Nx,Ny,Nz),gb_xz_nm1(Nx,Ny,Nz)
+        real*8 gb_yy_np1(Nx,Ny,Nz),gb_yy_n(Nx,Ny,Nz),gb_yy_nm1(Nx,Ny,Nz)
+        real*8 gb_yz_np1(Nx,Ny,Nz),gb_yz_n(Nx,Ny,Nz),gb_yz_nm1(Nx,Ny,Nz)
+        real*8 gb_zz_np1(Nx,Ny,Nz),gb_zz_n(Nx,Ny,Nz),gb_zz_nm1(Nx,Ny,Nz)
+        real*8 Hb_t_np1(Nx,Ny,Nz),Hb_t_n(Nx,Ny,Nz),Hb_t_nm1(Nx,Ny,Nz)
+        real*8 Hb_x_np1(Nx,Ny,Nz),Hb_x_n(Nx,Ny,Nz),Hb_x_nm1(Nx,Ny,Nz)
+        real*8 Hb_y_np1(Nx,Ny,Nz),Hb_y_n(Nx,Ny,Nz),Hb_y_nm1(Nx,Ny,Nz)
+        real*8 Hb_z_np1(Nx,Ny,Nz),Hb_z_n(Nx,Ny,Nz),Hb_z_nm1(Nx,Ny,Nz)
+        real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
+
         !--------------------------------------------------------------
         ! variables for tensor manipulations 
         !(indices are t,x,y,theta,phi)
@@ -959,13 +1073,24 @@ c-----------------------------------------------------------------------
         real*8 gkerrads_ll(4,4),gkerrads_uu(4,4)
         real*8 gkerrads_ll_x(4,4,4),gkerrads_uu_x(4,4,4)
         real*8 gkerrads_ll_xx(4,4,4,4)
-        real*8 gammakerrads_ull(4,4,4)
-        real*8 gammakerrads_ull_x(4,4,4,4)
         real*8 Hkerrads_l(4)
         real*8 phi1kerrads, phi1kerrads_x(4)
-        real*8 detg0_kerrads_qssph0
-        real*8 gkerrads_ll_qssph(4,4),gkerrads_uu_qssph(4,4)
-        real*8 gkerrads_ll_qssph_x(4,4,4)
+
+        real*8 g0_ll(4,4),g0_uu(4,4),detg0
+        real*8 g0_ll_x(4,4,4),g0_uu_x(4,4,4),g0_ll_xx(4,4,4,4)
+        real*8 h0_ll(4,4),h0_uu(4,4)
+        real*8 h0_ll_x(4,4,4),h0_uu_x(4,4,4),h0_ll_xx(4,4,4,4)
+        real*8 gamma_ull(4,4,4),gamma_ull_x(4,4,4,4)
+        real*8 riemann_ulll(4,4,4,4)
+        real*8 ricci_ll(4,4),ricci_lu(4,4),ricci
+        real*8 einstein_ll(4,4),set_ll(4,4)
+        real*8 A_l(4),A_l_x(4,4)
+        real*8 phi10_x(4),phi10_xx(4,4)
+
+        real*8 detg0_qssph0
+        real*8 g0_ll_qssph(4,4),g0_uu_qssph(4,4)
+        real*8 g0_ll_qssph_x(4,4,4)
+
 
 
 
@@ -978,17 +1103,32 @@ c-----------------------------------------------------------------------
         data dx,dy,dz/0.0,0.0,0.0/
         data x0,y0,z0,rho0/0.0,0.0,0.0,0.0/    
 
+
         data gkerrads_ll,gkerrads_uu/16*0.0,16*0.0/
         data gkerrads_ll_x,gkerrads_uu_x/64*0.0,64*0.0/
         data gkerrads_ll_xx/256*0.0/
-        data gammakerrads_ull/64*0.0/
-        data gammakerrads_ull_x/256*0.0/
         data Hkerrads_l/4*0.0/
         data phi1kerrads_x/4*0.0/
+
+        data g0_ll,g0_uu/16*0.0,16*0.0/
+        data g0_ll_x,g0_uu_x/64*0.0,64*0.0/
+        data g0_ll_xx/256*0.0/
+        data h0_ll,h0_uu/16*0.0,16*0.0/
+        data h0_ll_x,h0_uu_x/64*0.0,64*0.0/
+        data h0_ll_xx/256*0.0/
+        data gamma_ull/64*0.0/
+        data gamma_ull_x/256*0.0/
+        data riemann_ulll/256*0.0/
+        data ricci_ll,ricci_lu/16*0.0,16*0.0/
+        data einstein_ll,set_ll/16*0.0,16*0.0/
+        data A_l,A_l_x/4*0.0,16*0.0/
+        data phi10_x,phi10_xx/4*0.0,16*0.0/
         data dxcar_dxqssph/16*0.0/
-        data gkerrads_ll_qssph/16*0.0/
-        data gkerrads_uu_qssph/16*0.0/
-        data gkerrads_ll_qssph_x/64*0.0/
+
+        data g0_ll_qssph/16*0.0/
+        data g0_uu_qssph/16*0.0/
+        data g0_ll_qssph_x/64*0.0/
+
 
         data df1_dxqssph,d2f1_dxqssphdxqssph/4*0.0,16*0.0/
         data dxcar_dxqssph,d2xcar_dxqssphdxqssph/16*0.0,64*0.0/
@@ -1127,16 +1267,35 @@ c-----------------------------------------------------------------------
                 ! set f1 value
                 f10=f1_n(i,j,k)
 
-                call kerrads_derivs_kerrschildcoords(
-     &          gkerrads_ll,gkerrads_uu,gkerrads_ll_x,
-     &          gkerrads_uu_x,gkerrads_ll_xx,
-     &          Hkerrads_l,
-     &          gammakerrads_ull,
-     &          phi1kerrads,
-     &          phi1kerrads_x,
-     &          x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &          ief_bh_r0,a_rot,
-     &          calc_der,calc_adv_quant)
+    !compute metric and its derivatives 
+              call tensor_init(
+     &                gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &                gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &                gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &                gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &                gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &                gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &                gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &                gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &                gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &                gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                phi1_np1,phi1_n,phi1_nm1,
+     &                g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
+     &                gkerrads_ll,gkerrads_uu,
+     &                gkerrads_ll_x,gkerrads_uu_x,gkerrads_ll_xx,
+     &                h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
+     &                A_l,A_l_x,Hkerrads_l,
+     &                gamma_ull,gamma_ull_x,
+     &                riemann_ulll,ricci_ll,ricci_lu,ricci,
+     &                einstein_ll,set_ll,
+     &                phi10_x,phi10_xx,
+     &                x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
+     &                ief_bh_r0,a_rot,kerrads_background,
+     &                calc_der,calc_adv_quant)
 
 !define transformation matrix between Cartesian coordinates to compactified (quasi-)spherical coordinates, 
 !        !e.g. dxcar_dxqssph(3,2)=dy/drho=sin(theta0)*cos(phi0)
@@ -1229,26 +1388,26 @@ c-----------------------------------------------------------------------
 
              do a=1,4
                do b=1,4
-                gkerrads_ll_qssph(a,b)=0.0d0
+                g0_ll_qssph(a,b)=0.0d0
                 do c=1,4
-                 gkerrads_ll_qssph_x(a,b,c)=0.0d0
+                 g0_ll_qssph_x(a,b,c)=0.0d0
                  do d=1,4
-                  gkerrads_ll_qssph(a,b)=gkerrads_ll_qssph(a,b)
+                  g0_ll_qssph(a,b)=g0_ll_qssph(a,b)
      &                        +dxcar_dxqssph(c,a)*dxcar_dxqssph(d,b)
-     &                          *gkerrads_ll(c,d)
+     &                          *g0_ll(c,d)
                   do e=1,4
-                   gkerrads_ll_qssph_x(a,b,c)=gkerrads_ll_qssph_x(a,b,c)
+                   g0_ll_qssph_x(a,b,c)=g0_ll_qssph_x(a,b,c)
      &              +d2xcar_dxqssphdxqssph(d,c,a)*dxcar_dxqssph(e,b)
-     &              *gkerrads_ll(d,e)
+     &              *g0_ll(d,e)
      &              +dxcar_dxqssph(d,a)*d2xcar_dxqssphdxqssph(e,c,b)
-     &              *gkerrads_ll(d,e)
+     &              *g0_ll(d,e)
                    do f=1,4
-                    gkerrads_ll_qssph_x(a,b,c)=
-     &               gkerrads_ll_qssph_x(a,b,c)
+                    g0_ll_qssph_x(a,b,c)=
+     &               g0_ll_qssph_x(a,b,c)
      &               +dxcar_dxqssph(d,a)*
      &                dxcar_dxqssph(e,b)*
      &                dxcar_dxqssph(f,c)*
-     &                gkerrads_ll_x(d,e,f)
+     &                g0_ll_x(d,e,f)
                    end do
                   end do
                  end do
@@ -1256,32 +1415,32 @@ c-----------------------------------------------------------------------
                end do
              end do
 
-                call calc_g0uu(gkerrads_ll_qssph(1,1),
-     &              gkerrads_ll_qssph(1,2),
-     &              gkerrads_ll_qssph(1,3),
-     &              gkerrads_ll_qssph(1,4),
-     &              gkerrads_ll_qssph(2,2),
-     &              gkerrads_ll_qssph(2,3),
-     &              gkerrads_ll_qssph(2,4),
-     &              gkerrads_ll_qssph(3,3),
-     &              gkerrads_ll_qssph(3,4),
-     &              gkerrads_ll_qssph(4,4),
-     &              gkerrads_uu_qssph(1,1),
-     &              gkerrads_uu_qssph(1,2),
-     &              gkerrads_uu_qssph(1,3),
-     &              gkerrads_uu_qssph(1,4),
-     &              gkerrads_uu_qssph(2,2),
-     &              gkerrads_uu_qssph(2,3),
-     &              gkerrads_uu_qssph(2,4),
-     &              gkerrads_uu_qssph(3,3),
-     &              gkerrads_uu_qssph(3,4),
-     &              gkerrads_uu_qssph(4,4),
-     &              detg0_kerrads_qssph0)
+                call calc_g0uu(g0_ll_qssph(1,1),
+     &              g0_ll_qssph(1,2),
+     &              g0_ll_qssph(1,3),
+     &              g0_ll_qssph(1,4),
+     &              g0_ll_qssph(2,2),
+     &              g0_ll_qssph(2,3),
+     &              g0_ll_qssph(2,4),
+     &              g0_ll_qssph(3,3),
+     &              g0_ll_qssph(3,4),
+     &              g0_ll_qssph(4,4),
+     &              g0_uu_qssph(1,1),
+     &              g0_uu_qssph(1,2),
+     &              g0_uu_qssph(1,3),
+     &              g0_uu_qssph(1,4),
+     &              g0_uu_qssph(2,2),
+     &              g0_uu_qssph(2,3),
+     &              g0_uu_qssph(2,4),
+     &              g0_uu_qssph(3,3),
+     &              g0_uu_qssph(3,4),
+     &              g0_uu_qssph(4,4),
+     &              detg0_qssph0)
 
 
         do a=1,3
           do b=a+1,4
-            gkerrads_uu_qssph(b,a)=gkerrads_uu_qssph(a,b) 
+            g0_uu_qssph(b,a)=g0_uu_qssph(a,b) 
           end do
         end do
 
@@ -1350,10 +1509,10 @@ c-----------------------------------------------------------------------
                do d=3,4
                 gamma2dim_ull_qssph(as,bs,cs)=
      &            gamma2dim_ull_qssph(as,bs,cs)+
-     &              0.5d0*gkerrads_uu_qssph(a,d)
-     &                   *(gkerrads_ll_qssph_x(b,d,c)
-     &                    -gkerrads_ll_qssph_x(b,c,d)
-     &                    +gkerrads_ll_qssph_x(d,c,b))
+     &              0.5d0*g0_uu_qssph(a,d)
+     &                   *(g0_ll_qssph_x(b,d,c)
+     &                    -g0_ll_qssph_x(b,c,d)
+     &                    +g0_ll_qssph_x(d,c,b))
                end do
               end do
              end do
@@ -1381,11 +1540,11 @@ c-----------------------------------------------------------------------
 
               h2spnormdensity_f0=
      &             Rad0**2*df_dRad**2
-     &            +(gkerrads_uu_qssph(3,3)*
+     &            +(g0_uu_qssph(3,3)*
      &               df_dtheta**2+ 
-     &             2*gkerrads_uu_qssph(3,4)*
+     &             2*g0_uu_qssph(3,4)*
      &               df_dtheta*df_dphi+ 
-     &             gkerrads_uu_qssph(4,4)*
+     &             g0_uu_qssph(4,4)*
      &               df_dphi**2)
      &            +f0**2
 
@@ -1393,9 +1552,9 @@ c-----------------------------------------------------------------------
      &       h2spnormdensity_f0+
      &          Rad0**4*d2f_dRaddRad**2
      &          +Rad0**2*(
-     &           gkerrads_uu_qssph(3,3)*d2f_dRaddtheta**2+
-     &         2*gkerrads_uu_qssph(3,4)*d2f_dRaddtheta*d2f_dRaddphi+
-     &           gkerrads_uu_qssph(4,4)*d2f_dRaddphi**2)
+     &           g0_uu_qssph(3,3)*d2f_dRaddtheta**2+
+     &         2*g0_uu_qssph(3,4)*d2f_dRaddtheta*d2f_dRaddphi+
+     &           g0_uu_qssph(4,4)*d2f_dRaddphi**2)
          do a=3,4
           do b=3,4
            do ap=3,4
@@ -1406,8 +1565,8 @@ c-----------------------------------------------------------------------
                 bps=bp-2
                  h2spnormdensity_f0=
      &            h2spnormdensity_f0
-     &            +gkerrads_uu_qssph(a,ap)*
-     &             gkerrads_uu_qssph(b,bp)*
+     &            +g0_uu_qssph(a,ap)*
+     &             g0_uu_qssph(b,bp)*
      &            (nablanablaf_qssph_trhocons_xx(as,bs)*
      &             nablanablaf_qssph_trhocons_xx(aps,bps) )
             end do
@@ -1457,22 +1616,22 @@ c-----------------------------------------------------------------------
                    write(*,*) 'd2f_dRaddRad=',d2f_dRaddRad
                    write(*,*) 'd2f_dRaddtheta=',d2f_dRaddtheta
                    write(*,*) 'd2f_dRaddphi=',d2f_dRaddphi
-                   write(*,*) 'gkerrads_ll_qssph_x(3,3,3)=',
-     &                          gkerrads_ll_qssph_x(3,3,3)
-                   write(*,*) 'gkerrads_ll_qssph_x(3,3,4)=',
-     &                          gkerrads_ll_qssph_x(3,3,4)
-                   write(*,*) 'gkerrads_ll_qssph_x(3,4,3)=',
-     &                          gkerrads_ll_qssph_x(3,4,3)
-                   write(*,*) 'gkerrads_ll_qssph_x(3,4,4)=',
-     &                          gkerrads_ll_qssph_x(3,4,4)
-                   write(*,*) 'gkerrads_ll_qssph_x(4,3,3)=',
-     &                          gkerrads_ll_qssph_x(4,3,3)
-                   write(*,*) 'gkerrads_ll_qssph_x(4,3,4)=',
-     &                          gkerrads_ll_qssph_x(4,3,4)
-                   write(*,*) 'gkerrads_ll_qssph_x(4,4,3)=',
-     &                          gkerrads_ll_qssph_x(4,4,3)
-                   write(*,*) 'gkerrads_ll_qssph_x(4,4,4)=',
-     &                          gkerrads_ll_qssph_x(4,4,4)
+                   write(*,*) 'g0_ll_qssph_x(3,3,3)=',
+     &                          g0_ll_qssph_x(3,3,3)
+                   write(*,*) 'g0_ll_qssph_x(3,3,4)=',
+     &                          g0_ll_qssph_x(3,3,4)
+                   write(*,*) 'g0_ll_qssph_x(3,4,3)=',
+     &                          g0_ll_qssph_x(3,4,3)
+                   write(*,*) 'g0_ll_qssph_x(3,4,4)=',
+     &                          g0_ll_qssph_x(3,4,4)
+                   write(*,*) 'g0_ll_qssph_x(4,3,3)=',
+     &                          g0_ll_qssph_x(4,3,3)
+                   write(*,*) 'g0_ll_qssph_x(4,3,4)=',
+     &                          g0_ll_qssph_x(4,3,4)
+                   write(*,*) 'g0_ll_qssph_x(4,4,3)=',
+     &                          g0_ll_qssph_x(4,4,3)
+                   write(*,*) 'g0_ll_qssph_x(4,4,4)=',
+     &                          g0_ll_qssph_x(4,4,4)
                    write(*,*) 'gamma2dim_ull_qssph(1,1,1)=',
      &                          gamma2dim_ull_qssph(1,1,1)
                    write(*,*) 'gamma2dim_ull_qssph(1,1,2)=',
@@ -1524,14 +1683,30 @@ c-----------------------------------------------------------------------
         subroutine sqrten1density_func(
      &                  sqrten1density_f,
      &                  f1_np1,f1_n,f1_nm1,
+     &                  gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &                  gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &                  gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &                  gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &                  gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &                  gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &                  gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &                  gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &                  gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &                  gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                  Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                  Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                  phi1_np1,phi1_n,phi1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
-     &                  ief_bh_r0,a_rot)
+     &                  ief_bh_r0,a_rot,kerrads_background)
 
         implicit none
 
         logical is_nan
         real*8  ief_bh_r0,a_rot,M0,M0_min
+        real*8 kerrads_background
         integer Nx,Ny,Nz
         integer i,j,k
         integer phys_bdy(6),ghost_width(6)
@@ -1565,6 +1740,22 @@ c-----------------------------------------------------------------------
         real*8 rho0,theta0,phi0   
         real*8 Rad0
         real*8 drho_dRad,dRad_drho
+
+        real*8 gb_tt_np1(Nx,Ny,Nz),gb_tt_n(Nx,Ny,Nz),gb_tt_nm1(Nx,Ny,Nz)
+        real*8 gb_tx_np1(Nx,Ny,Nz),gb_tx_n(Nx,Ny,Nz),gb_tx_nm1(Nx,Ny,Nz)
+        real*8 gb_ty_np1(Nx,Ny,Nz),gb_ty_n(Nx,Ny,Nz),gb_ty_nm1(Nx,Ny,Nz)
+        real*8 gb_tz_np1(Nx,Ny,Nz),gb_tz_n(Nx,Ny,Nz),gb_tz_nm1(Nx,Ny,Nz)
+        real*8 gb_xx_np1(Nx,Ny,Nz),gb_xx_n(Nx,Ny,Nz),gb_xx_nm1(Nx,Ny,Nz)
+        real*8 gb_xy_np1(Nx,Ny,Nz),gb_xy_n(Nx,Ny,Nz),gb_xy_nm1(Nx,Ny,Nz)
+        real*8 gb_xz_np1(Nx,Ny,Nz),gb_xz_n(Nx,Ny,Nz),gb_xz_nm1(Nx,Ny,Nz)
+        real*8 gb_yy_np1(Nx,Ny,Nz),gb_yy_n(Nx,Ny,Nz),gb_yy_nm1(Nx,Ny,Nz)
+        real*8 gb_yz_np1(Nx,Ny,Nz),gb_yz_n(Nx,Ny,Nz),gb_yz_nm1(Nx,Ny,Nz)
+        real*8 gb_zz_np1(Nx,Ny,Nz),gb_zz_n(Nx,Ny,Nz),gb_zz_nm1(Nx,Ny,Nz)
+        real*8 Hb_t_np1(Nx,Ny,Nz),Hb_t_n(Nx,Ny,Nz),Hb_t_nm1(Nx,Ny,Nz)
+        real*8 Hb_x_np1(Nx,Ny,Nz),Hb_x_n(Nx,Ny,Nz),Hb_x_nm1(Nx,Ny,Nz)
+        real*8 Hb_y_np1(Nx,Ny,Nz),Hb_y_n(Nx,Ny,Nz),Hb_y_nm1(Nx,Ny,Nz)
+        real*8 Hb_z_np1(Nx,Ny,Nz),Hb_z_n(Nx,Ny,Nz),Hb_z_nm1(Nx,Ny,Nz)
+        real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
 
 
 
@@ -1653,9 +1844,24 @@ c-----------------------------------------------------------------------
      &          sqrth10normdensity_f,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &          gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &          gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &          gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &          gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &          gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &          gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &          gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &          gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &          gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &          Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &          Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &          phi1_np1,phi1_n,phi1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
         sp=-2
         hnorm_argtype=1
@@ -1665,7 +1871,7 @@ c-----------------------------------------------------------------------
      &          f1_np1,f1_n,f1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
 
 
@@ -1778,14 +1984,30 @@ c-----------------------------------------------------------------------
         subroutine sqrten2density_func(
      &                  sqrten2density_f,
      &                  f1_np1,f1_n,f1_nm1,
+     &                  gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &                  gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &                  gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &                  gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &                  gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &                  gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &                  gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &                  gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &                  gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &                  gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                  Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                  Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                  phi1_np1,phi1_n,phi1_nm1,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
-     &                  ief_bh_r0,a_rot)
+     &                  ief_bh_r0,a_rot,kerrads_background)
 
         implicit none
 
         logical is_nan
         real*8  ief_bh_r0,a_rot,M0,M0_min
+        real*8 kerrads_background
         integer Nx,Ny,Nz
         integer i,j,k
         integer phys_bdy(6),ghost_width(6)
@@ -1823,6 +2045,22 @@ c-----------------------------------------------------------------------
         real*8 rho0,theta0,phi0   
         real*8 Rad0
         real*8 drho_dRad,dRad_drho
+
+        real*8 gb_tt_np1(Nx,Ny,Nz),gb_tt_n(Nx,Ny,Nz),gb_tt_nm1(Nx,Ny,Nz)
+        real*8 gb_tx_np1(Nx,Ny,Nz),gb_tx_n(Nx,Ny,Nz),gb_tx_nm1(Nx,Ny,Nz)
+        real*8 gb_ty_np1(Nx,Ny,Nz),gb_ty_n(Nx,Ny,Nz),gb_ty_nm1(Nx,Ny,Nz)
+        real*8 gb_tz_np1(Nx,Ny,Nz),gb_tz_n(Nx,Ny,Nz),gb_tz_nm1(Nx,Ny,Nz)
+        real*8 gb_xx_np1(Nx,Ny,Nz),gb_xx_n(Nx,Ny,Nz),gb_xx_nm1(Nx,Ny,Nz)
+        real*8 gb_xy_np1(Nx,Ny,Nz),gb_xy_n(Nx,Ny,Nz),gb_xy_nm1(Nx,Ny,Nz)
+        real*8 gb_xz_np1(Nx,Ny,Nz),gb_xz_n(Nx,Ny,Nz),gb_xz_nm1(Nx,Ny,Nz)
+        real*8 gb_yy_np1(Nx,Ny,Nz),gb_yy_n(Nx,Ny,Nz),gb_yy_nm1(Nx,Ny,Nz)
+        real*8 gb_yz_np1(Nx,Ny,Nz),gb_yz_n(Nx,Ny,Nz),gb_yz_nm1(Nx,Ny,Nz)
+        real*8 gb_zz_np1(Nx,Ny,Nz),gb_zz_n(Nx,Ny,Nz),gb_zz_nm1(Nx,Ny,Nz)
+        real*8 Hb_t_np1(Nx,Ny,Nz),Hb_t_n(Nx,Ny,Nz),Hb_t_nm1(Nx,Ny,Nz)
+        real*8 Hb_x_np1(Nx,Ny,Nz),Hb_x_n(Nx,Ny,Nz),Hb_x_nm1(Nx,Ny,Nz)
+        real*8 Hb_y_np1(Nx,Ny,Nz),Hb_y_n(Nx,Ny,Nz),Hb_y_nm1(Nx,Ny,Nz)
+        real*8 Hb_z_np1(Nx,Ny,Nz),Hb_z_n(Nx,Ny,Nz),Hb_z_nm1(Nx,Ny,Nz)
+        real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
 
 
 
@@ -1912,9 +2150,24 @@ c-----------------------------------------------------------------------
      &          sqrth20normdensity_f,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &          gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &          gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &          gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &          gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &          gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &          gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &          gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &          gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &          gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &          Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &          Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &          phi1_np1,phi1_n,phi1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
         sp=0
         hnorm_argtype=1
@@ -1922,9 +2175,24 @@ c-----------------------------------------------------------------------
      &          sqrth10normdensity_dfdt,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &          gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &          gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &          gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &          gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &          gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &          gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &          gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &          gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &          gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &          Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &          Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &          phi1_np1,phi1_n,phi1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
         sp=0
         hnorm_argtype=3
@@ -1932,9 +2200,24 @@ c-----------------------------------------------------------------------
      &          sqrth10normdensity_m1f,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &          gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &          gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &          gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &          gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &          gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &          gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &          gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &          gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &          gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &          Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &          Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &          phi1_np1,phi1_n,phi1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
         sp=0
         hnorm_argtype=4
@@ -1942,9 +2225,24 @@ c-----------------------------------------------------------------------
      &          sqrth10normdensity_m2f,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &          gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &          gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &          gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &          gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &          gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &          gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &          gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &          gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &          gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &          Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &          Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &          phi1_np1,phi1_n,phi1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
         sp=0
         hnorm_argtype=5
@@ -1952,9 +2250,24 @@ c-----------------------------------------------------------------------
      &          sqrth10normdensity_m3f,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          gb_tt_np1,gb_tt_n,gb_tt_nm1,
+     &          gb_tx_np1,gb_tx_n,gb_tx_nm1,
+     &          gb_ty_np1,gb_ty_n,gb_ty_nm1,
+     &          gb_tz_np1,gb_tz_n,gb_tz_nm1,
+     &          gb_xx_np1,gb_xx_n,gb_xx_nm1,
+     &          gb_xy_np1,gb_xy_n,gb_xy_nm1,
+     &          gb_xz_np1,gb_xz_n,gb_xz_nm1,
+     &          gb_yy_np1,gb_yy_n,gb_yy_nm1,
+     &          gb_yz_np1,gb_yz_n,gb_yz_nm1,
+     &          gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &          Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &          Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &          phi1_np1,phi1_n,phi1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
         sp=-2
         hnorm_argtype=2
@@ -1964,7 +2277,7 @@ c-----------------------------------------------------------------------
      &          f1_np1,f1_n,f1_nm1,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
-     &          ief_bh_r0,a_rot)
+     &          ief_bh_r0,a_rot,kerrads_background)
 
 
         dx=(x(2)-x(1))

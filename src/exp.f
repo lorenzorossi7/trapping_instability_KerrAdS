@@ -63,6 +63,11 @@ c----------------------------------------------------------------------
      &                    gb_yy_np1,gb_yy_n,gb_yy_nm1,
      &                    gb_yz_np1,gb_yz_n,gb_yz_nm1,
      &                    gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                    Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                    Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                    Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                    Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                    phi1_np1,phi1_n,phi1_nm1,
      &                    L,x,y,z,dt,chr,ex,do_ex,
      &                    Nx,Ny,Nz,
      &                    ief_bh_r0,a_rot,kerrads_background)
@@ -70,6 +75,9 @@ c----------------------------------------------------------------------
 
         real*8  ief_bh_r0,a_rot,M0,M0_min
         integer kerrads_background
+        logical calc_der,calc_adv_quant
+        data calc_der/.true./
+        data calc_adv_quant/.false./
 
         integer Nx,Ny,Nz,is0,ie0,js0,je0,ks0,ke0,do_ex
         integer is_ex
@@ -86,6 +94,11 @@ c----------------------------------------------------------------------
         real*8 gb_yy_np1(Nx,Ny,Nz),gb_yy_n(Nx,Ny,Nz),gb_yy_nm1(Nx,Ny,Nz)
         real*8 gb_yz_np1(Nx,Ny,Nz),gb_yz_n(Nx,Ny,Nz),gb_yz_nm1(Nx,Ny,Nz)
         real*8 gb_zz_np1(Nx,Ny,Nz),gb_zz_n(Nx,Ny,Nz),gb_zz_nm1(Nx,Ny,Nz)
+        real*8 Hb_t_np1(Nx,Ny,Nz),Hb_t_n(Nx,Ny,Nz),Hb_t_nm1(Nx,Ny,Nz)
+        real*8 Hb_x_np1(Nx,Ny,Nz),Hb_x_n(Nx,Ny,Nz),Hb_x_nm1(Nx,Ny,Nz)
+        real*8 Hb_y_np1(Nx,Ny,Nz),Hb_y_n(Nx,Ny,Nz),Hb_y_nm1(Nx,Ny,Nz)
+        real*8 Hb_z_np1(Nx,Ny,Nz),Hb_z_n(Nx,Ny,Nz),Hb_z_nm1(Nx,Ny,Nz)
+        real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
 
         integer i,j,k,is,ie,js,je,ks,ke
         integer a,b,c,d,e
@@ -96,8 +109,6 @@ c----------------------------------------------------------------------
         real*8 x0,y0,z0
         real*8 rho0,theta0,phi0
         real*8 dx,dy,dz
-
-        real*8 zeros(Nx,Ny,Nz)
 
         real*8 f_x,f_y,f_z,f_xx,f_xy,f_xz,f_yy,f_yz,f_zz
         real*8 tmp1,tmp2,tmp3,tmp4,tmp5
@@ -194,14 +205,6 @@ c----------------------------------------------------------------------
 
         is_ex=0
 
-        do i=1,Nx
-          do j=1,Ny
-           do k=1,Nz
-            zeros(i,j,k)=0
-           end do
-          end do
-        end do
-
         do i=is0,ie0
           do j=js0,je0
            do k=ks0,ke0 
@@ -263,11 +266,11 @@ c----------------------------------------------------------------------
      &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
      &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
      &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 zeros,zeros,zeros,
-     &                 zeros,zeros,zeros,
-     &                 zeros,zeros,zeros,
-     &                 zeros,zeros,zeros,
-     &                 zeros,zeros,zeros,
+     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                 phi1_np1,phi1_n,phi1_nm1,
      &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
      &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
      &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
@@ -277,7 +280,8 @@ c----------------------------------------------------------------------
      &                 einstein_ll,set_ll,
      &                 phi10_x,phi10_xx,
      &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &                 ief_bh_r0,a_rot,kerrads_background)
+     &                 ief_bh_r0,a_rot,kerrads_background,
+     &                 calc_der,calc_adv_quant)
 
             end if
 
@@ -955,6 +959,11 @@ c-----------------------------------------------------------------------
      &                    gb_yy_np1,gb_yy_n,gb_yy_nm1,
      &                    gb_yz_np1,gb_yz_n,gb_yz_nm1,
      &                    gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &                    Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &                    Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &                    Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &                    Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &                    phi1_np1,phi1_n,phi1_nm1,
      &                    kretsch_n,
      &                    riemanncube_n,
      &                    L,x,y,z,dt,chr,ex,do_ex,
@@ -1005,6 +1014,12 @@ c-----------------------------------------------------------------------
         real*8 gb_yy_np1(Nx,Ny,Nz),gb_yy_n(Nx,Ny,Nz),gb_yy_nm1(Nx,Ny,Nz)
         real*8 gb_yz_np1(Nx,Ny,Nz),gb_yz_n(Nx,Ny,Nz),gb_yz_nm1(Nx,Ny,Nz)
         real*8 gb_zz_np1(Nx,Ny,Nz),gb_zz_n(Nx,Ny,Nz),gb_zz_nm1(Nx,Ny,Nz)
+        real*8 Hb_t_np1(Nx,Ny,Nz),Hb_t_n(Nx,Ny,Nz),Hb_t_nm1(Nx,Ny,Nz)
+        real*8 Hb_x_np1(Nx,Ny,Nz),Hb_x_n(Nx,Ny,Nz),Hb_x_nm1(Nx,Ny,Nz)
+        real*8 Hb_y_np1(Nx,Ny,Nz),Hb_y_n(Nx,Ny,Nz),Hb_y_nm1(Nx,Ny,Nz)
+        real*8 Hb_z_np1(Nx,Ny,Nz),Hb_z_n(Nx,Ny,Nz),Hb_z_nm1(Nx,Ny,Nz)
+        real*8 phi1_np1(Nx,Ny,Nz),phi1_n(Nx,Ny,Nz),phi1_nm1(Nx,Ny,Nz)
+
         real*8 kretsch_n(Nx,Ny,Nz)
         real*8 riemanncube_n(Nx,Ny,Nz)
 
@@ -1216,6 +1231,11 @@ c-----------------------------------------------------------------------
      &               gb_yy_np1,gb_yy_n,gb_yy_nm1,
      &               gb_yz_np1,gb_yz_n,gb_yz_nm1,
      &               gb_zz_np1,gb_zz_n,gb_zz_nm1,
+     &               Hb_t_np1,Hb_t_n,Hb_t_nm1,
+     &               Hb_x_np1,Hb_x_n,Hb_x_nm1,
+     &               Hb_y_np1,Hb_y_n,Hb_y_nm1,
+     &               Hb_z_np1,Hb_z_n,Hb_z_nm1,
+     &               phi1_np1,phi1_n,phi1_nm1,
      &               L,x,y,z,dt,chr,ex,do_ex,Nx,Ny,Nz,
      &               ief_bh_r0,a_rot,kerrads_background)
 
