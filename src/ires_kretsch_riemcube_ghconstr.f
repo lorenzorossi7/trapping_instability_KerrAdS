@@ -1,7 +1,8 @@
 c----------------------------------------------------------------------
-c routine for computing independent residuals of the AdS4D system
+c routine for computing independent residuals 
+c and Generalized Harmonic Constraints C_a:=g_{ab} (H^a-\Box x^a)
 c----------------------------------------------------------------------
-        subroutine ires(efe_all_ires,
+        subroutine ires_ghconstr(efe_all_ires,
      &                  efe_tt_ires,efe_tx_ires,efe_ty_ires,
      &                  efe_tz_ires,
      &                  efe_xx_ires,efe_xy_ires,
@@ -10,6 +11,11 @@ c----------------------------------------------------------------------
      &                  efe_yz_ires,
      &                  efe_zz_ires,
      &                  kg_ires,
+     &                  ghconstr_all,
+     &                  ghconstr_t,
+     &                  ghconstr_x,
+     &                  ghconstr_y,
+     &                  ghconstr_z,
      &                  gb_tt_np1,gb_tt_n,gb_tt_nm1,
      &                  gb_tx_np1,gb_tx_n,gb_tx_nm1,
      &                  gb_ty_np1,gb_ty_n,gb_ty_nm1,
@@ -47,6 +53,11 @@ c----------------------------------------------------------------------
         real*8 efe_yz_ires(Nx,Ny,Nz)
         real*8 efe_zz_ires(Nx,Ny,Nz)
         real*8 kg_ires(Nx,Ny,Nz)
+        real*8 ghconstr_all(Nx,Ny,Nz)
+        real*8 ghconstr_t(Nx,Ny,Nz)
+        real*8 ghconstr_x(Nx,Ny,Nz)
+        real*8 ghconstr_y(Nx,Ny,Nz)
+        real*8 ghconstr_z(Nx,Ny,Nz)
         real*8 chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,L
         real*8 lambda4
@@ -302,30 +313,43 @@ c----------------------------------------------------------------------
               z0=z(k)
               rho0=sqrt(x0**2+y0**2+z0**2)
 
-!              ! calculate boxx^c at point i,j
-!              ! (boxx^c = -g^ab gamma^c_ab)
-!              do c=1,4
-!                boxx_u(c)=-( gamma_ull(c,1,1)*g0_uu(1,1)+
-!     &                       gamma_ull(c,2,2)*g0_uu(2,2)+
-!     &                       gamma_ull(c,3,3)*g0_uu(3,3)+
-!     &                       gamma_ull(c,4,4)*g0_uu(4,4)+
-!     &                    2*(gamma_ull(c,1,2)*g0_uu(1,2)+
-!     &                       gamma_ull(c,1,3)*g0_uu(1,3)+
-!     &                       gamma_ull(c,1,4)*g0_uu(1,4)+
-!     &                       gamma_ull(c,2,3)*g0_uu(2,3)+
-!     &                       gamma_ull(c,2,4)*g0_uu(2,4)+
-!     &                       gamma_ull(c,3,4)*g0_uu(3,4)) )
-!              end do
-!
-!              ! calculate boxx_a at point i,j
-!              ! (boxx_a = g_ab boxx^b)
-!              do a=1,4
-!                boxx_l(a)=boxx_u(1)*g0_ll(a,1)+
-!     &                    boxx_u(2)*g0_ll(a,2)+
-!     &                    boxx_u(3)*g0_ll(a,3)+
-!     &                    boxx_u(4)*g0_ll(a,4)
-!              end do
-!
+              ! calculate boxx^c at point i,j,k
+              ! (boxx^c = -g^ab gamma^c_ab)
+              do c=1,4
+                boxx_u(c)=-( gamma_ull(c,1,1)*g0_uu(1,1)+
+     &                       gamma_ull(c,2,2)*g0_uu(2,2)+
+     &                       gamma_ull(c,3,3)*g0_uu(3,3)+
+     &                       gamma_ull(c,4,4)*g0_uu(4,4)+
+     &                    2*(gamma_ull(c,1,2)*g0_uu(1,2)+
+     &                       gamma_ull(c,1,3)*g0_uu(1,3)+
+     &                       gamma_ull(c,1,4)*g0_uu(1,4)+
+     &                       gamma_ull(c,2,3)*g0_uu(2,3)+
+     &                       gamma_ull(c,2,4)*g0_uu(2,4)+
+     &                       gamma_ull(c,3,4)*g0_uu(3,4)) )
+              end do
+
+              ! calculate boxx_a at point i,j,k
+              ! (boxx_a = g_ab boxx^b)
+              do a=1,4
+                boxx_l(a)=boxx_u(1)*g0_ll(a,1)+
+     &                    boxx_u(2)*g0_ll(a,2)+
+     &                    boxx_u(3)*g0_ll(a,3)+
+     &                    boxx_u(4)*g0_ll(a,4)
+              end do
+
+              !calculate generalized harmonic constraints at point i,j,k
+              ghconstr_t(i,j,k)=Hads_l(1)+A_l(1)-boxx_l(1)
+              ghconstr_x(i,j,k)=Hads_l(2)+A_l(2)-boxx_l(2)
+              ghconstr_y(i,j,k)=Hads_l(3)+A_l(3)-boxx_l(3)
+              ghconstr_z(i,j,k)=Hads_l(4)+A_l(4)-boxx_l(4)
+
+              ghconstr_all(i,j,k)=
+     &        max(abs(ghconstr_t(i,j,k)),
+     &            abs(ghconstr_x(i,j,k)),
+     &            abs(ghconstr_y(i,j,k)),
+     &            abs(ghconstr_z(i,j,k)))
+
+
 !              ! define unit time-like vector n, normal to t=const
 !              ! surfaces
 !              n_l(1)=-1/sqrt(-g0_uu(1,1))
@@ -556,6 +580,9 @@ c----------------------------------------------------------------------
 
         return
         end
+
+
+
 
 c-----------------------------------------------------------------------
 c calculate Kretschmann scalar and Riemann cube scalar

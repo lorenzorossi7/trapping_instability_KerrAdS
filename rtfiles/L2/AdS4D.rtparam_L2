@@ -7,10 +7,10 @@ kerrads_background := 1
 #------ Initial Data -------------------------------------------------------
 
 #scalar field ID#
-phi1_amp_1 := 0.0
+phi1_amp_1 := 0.55
 phi1_r0_1 := 0.0
 phi1_delta_1 := 0.4
-phi1_x0_1 := [0.0 0.0 0.0]
+phi1_x0_1 := [0.0 -0.6 0.0]
 phi1_ecc_1 := [0.2 0.2 0.2]
 phi1_B_1 := 0.0
 phi1_C_1 := 0.0
@@ -20,8 +20,8 @@ rhod := 0.8
 stype := 0
 
 #Lorent boost parameters
-boost_v_1 := [0.0 +0.95 0.0]
-boost_amp_1 := 2.0
+boost_v_1 := [0.0 +0.2 0.0]
+boost_amp_1 := 0.0
 boost_r0_1 := 0.0
 boost_delta_1 := 0.2
 boost_x0_1 := [0.0 0.6 0.0]
@@ -94,9 +94,9 @@ prev_run_ex_r_4 := [0.0 0.0 0.0]
 #         otherwise init_nm1.f,init_np1.f will initialize by double-dots)#
 #        (also, skip_constraints=1 && ief_bh_r0!=0 for adsbh initial data) 
  
-background := 1
-skip_constraints := 1
-output_ires := 1
+background := 0
+skip_constraints := 0
+output_ires_ghconstr := 1
 output_kretsch := 0
 #setting output_kretschcentregrid to 1 will output relative Kretschmann at the centre of the grid only if output_kretsch is enabled
 output_kretschcentregrid := 0
@@ -277,7 +277,7 @@ cp_restore_fname := "cp_L2_A"
 
 #------- solution related -------------------------------------------------
 
-steps := 10
+steps := 1
 evo_max_iter := 25
 evo_min_iter := 1
 evo_tol := 1.0e-6
@@ -306,8 +306,9 @@ max_t_interp_order := 3
 
 #------- IO ---------------------------------------------------------------
 
-num_save_1_vars := 0
-#save_1_vars := [ "iresall" "gb_res" "kg_ires" "chr" ]
+num_save_1_vars := 6
+save_1_vars := [ "efe_all_ires" "ghconstr_all" "ghconstr_t" "ghconstr_x" "ghconstr_y" "ghconstr_z" ]
+#save_1_vars := [ "efe_all_ires" "ghconstr_all" "gb_res" "kg_ires" "chr" ]
 
 num_save_2_vars := 1
 save_2_vars := [ "phi1" ]

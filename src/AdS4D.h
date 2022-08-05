@@ -36,7 +36,7 @@ extern int ex_reset_rbuf;
 extern real ex_r[MAX_BHS][3],ex_xc[MAX_BHS][3];
 
 extern int bh_background,background,skip_constraints;
-extern int use_bg_inc,output_ires,output_quasiset;
+extern int use_bg_inc,output_ires_ghconstr,output_quasiset;
 extern int which_gb_ii_res,which_gb_ii_delta_ads; 
 
 extern int interptype;
@@ -391,7 +391,7 @@ void hb_i_evo_(real *res,
                int *gauge, real *t_n, real *rho1_i, real *rho2_i, real *rho3, real *rho4, real *xi1_i, real *xi2_i, 
                real *c1, real *c2, real *c3, real *cbulk);
 
-void ires_(real *efe_all_ires,
+void ires_ghconstr_(real *efe_all_ires,
            real *efe_tt_ires, real *efe_tx_ires, real *efe_ty_ires,
            real *efe_tz_ires,
            real *efe_xx_ires, real *efe_xy_ires, 
@@ -400,6 +400,11 @@ void ires_(real *efe_all_ires,
            real *efe_yz_ires,
            real *efe_zz_ires,
            real *kg_ires,
+           real *ghconstr_all,
+           real *ghconstr_t,
+           real *ghconstr_x,
+           real *ghconstr_y,
+           real *ghconstr_z,
            real *gb_tt_np1, real *gb_tt_n, real *gb_tt_nm1,
            real *gb_tx_np1, real *gb_tx_n, real *gb_tx_nm1,
            real *gb_ty_np1, real *gb_ty_n, real *gb_ty_nm1,

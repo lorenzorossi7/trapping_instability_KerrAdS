@@ -94,7 +94,7 @@ real prev_run_ex_r[MAX_BHS][3];
 real ex_r[MAX_BHS][3],ex_xc[MAX_BHS][3];
 
 int background,skip_constraints;
-int output_ires,output_kretschcentregrid;
+int output_ires_ghconstr,output_kretschcentregrid;
 int output_kretsch,output_riemanncube;
 int sp;
 int output_sqrth10normdensity_phi,output_sqrten2density_phi,hnorm_argtype;
@@ -232,6 +232,8 @@ real *efe_tt_ires,*efe_tx_ires,*efe_ty_ires;
 real *efe_tz_ires;
 real *efe_xx_ires,*efe_xy_ires,*efe_yy_ires,*efe_zz_ires;
 real *efe_xz_ires,*efe_yz_ires;
+real *ghconstr_all;
+real *ghconstr_t,*ghconstr_x,*ghconstr_y,*ghconstr_z;
 int currentres_reduction_factor;
 real currentres_ratio_Lhighres_Llowres;
 int ind_distance_fixedpts;
@@ -592,11 +594,11 @@ real *z_outermostpt_fixedpts_extraporder3_paramset2;
 real *kretschcentregrid, lkretschcentregrid0, maxkretschcentregrid0,minkretschcentregrid0,kretschcentregrid0;
 
 real *tfunction,*test1,*test2,*test3,*test4;
-real *iresall,*irestt,*irestx,*iresty,*iresxx,*iresxy,*iresyy,*ireszz;
-real *irestz;
-real *iresxz;
-real *iresyz;
-real *ireskg;
+//real *iresall,*irestt,*irestx,*iresty,*iresxx,*iresxy,*iresyy,*ireszz;
+//real *irestz;
+//real *iresxz;
+//real *iresyz;
+//real *ireskg;
 
 real *zeta,*zeta_res,*zeta_lop,*zeta_rhs;
 
@@ -678,6 +680,8 @@ int efe_tt_ires_gfn,efe_tx_ires_gfn,efe_ty_ires_gfn;
 int efe_tz_ires_gfn;
 int efe_xx_ires_gfn,efe_xy_ires_gfn,efe_yy_ires_gfn,efe_zz_ires_gfn;
 int efe_xz_ires_gfn,efe_yz_ires_gfn;
+int ghconstr_all_gfn;
+int ghconstr_t_gfn,ghconstr_x_gfn,ghconstr_y_gfn,ghconstr_z_gfn;
 int leadordcoeff_phi1_gfn;
 int quasiset_tt_ll_gfn;
 int quasiset_tchi_ll_gfn,quasiset_txi_ll_gfn;
@@ -690,8 +694,8 @@ int quasiset_angmomdensityzll_gfn;
 int kretschcentregrid_gfn;
 
 int tfunction_gfn,test1_gfn,test2_gfn,test3_gfn,test4_gfn;
-int iresall_gfn,irestt_gfn,irestx_gfn,iresty_gfn,irestz_gfn,iresxx_gfn,iresxy_gfn,iresxz_gfn,iresyy_gfn,iresyz_gfn,ireszz_gfn;
-int ireskg_gfn;
+//int iresall_gfn,irestt_gfn,irestx_gfn,iresty_gfn,irestz_gfn,iresxx_gfn,iresxy_gfn,iresxz_gfn,iresyy_gfn,iresyz_gfn,ireszz_gfn;
+//int ireskg_gfn;
 
 int zeta_gfn,zeta_res_gfn,zeta_lop_gfn,zeta_rhs_gfn;
 
@@ -1756,7 +1760,7 @@ void set_gfns(void)
     if ((chrbdy_fixedpts_extraporder3_paramset2_gfn     = PAMR_get_gfn("chrbdy_fixedpts_extraporder3_paramset2",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((phi1_res_gfn  = PAMR_get_gfn("phi1_res",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((gb_res_gfn    = PAMR_get_gfn("gb_res",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((efe_all_ires_gfn    = PAMR_get_gfn("efe_all_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((efe_all_ires_gfn   = PAMR_get_gfn("efe_all_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((efe_tt_ires_gfn    = PAMR_get_gfn("efe_tt_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((efe_tx_ires_gfn    = PAMR_get_gfn("efe_tx_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((efe_ty_ires_gfn    = PAMR_get_gfn("efe_ty_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
@@ -1767,6 +1771,11 @@ void set_gfns(void)
     if ((efe_yy_ires_gfn    = PAMR_get_gfn("efe_yy_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((efe_yz_ires_gfn    = PAMR_get_gfn("efe_yz_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((efe_zz_ires_gfn    = PAMR_get_gfn("efe_zz_ires",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((ghconstr_all_gfn       = PAMR_get_gfn("ghconstr_all",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((ghconstr_t_gfn       = PAMR_get_gfn("ghconstr_t",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((ghconstr_x_gfn       = PAMR_get_gfn("ghconstr_x",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((ghconstr_y_gfn       = PAMR_get_gfn("ghconstr_y",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((ghconstr_z_gfn       = PAMR_get_gfn("ghconstr_z",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((leadordcoeff_phi1_gfn    = PAMR_get_gfn("leadordcoeff_phi1",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((quasiset_tt_ll_gfn    = PAMR_get_gfn("quasiset_tt_ll",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
     if ((quasiset_tchi_ll_gfn    = PAMR_get_gfn("quasiset_tchi_ll",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
@@ -1800,18 +1809,18 @@ void set_gfns(void)
     if ((test2_gfn  = PAMR_get_gfn("test2",PAMR_MGH,0))<0) AMRD_stop("set_gnfs error",0);
     if ((test3_gfn  = PAMR_get_gfn("test3",PAMR_MGH,0))<0) AMRD_stop("set_gnfs error",0);
     if ((test4_gfn  = PAMR_get_gfn("test4",PAMR_MGH,0))<0) AMRD_stop("set_gnfs error",0);
-    if ((iresall_gfn  = PAMR_get_gfn("iresall",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((irestt_gfn  = PAMR_get_gfn("irestt",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((irestx_gfn  = PAMR_get_gfn("irestx",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((iresty_gfn  = PAMR_get_gfn("iresty",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((irestz_gfn  = PAMR_get_gfn("irestz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((iresxx_gfn  = PAMR_get_gfn("iresxx",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((iresxy_gfn  = PAMR_get_gfn("iresxy",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((iresxz_gfn  = PAMR_get_gfn("iresxz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((iresyy_gfn  = PAMR_get_gfn("iresyy",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((iresyz_gfn  = PAMR_get_gfn("iresyz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((ireszz_gfn  = PAMR_get_gfn("ireszz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
-    if ((ireskg_gfn  = PAMR_get_gfn("ireskg",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((iresall_gfn  = PAMR_get_gfn("iresall",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((irestt_gfn  = PAMR_get_gfn("irestt",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((irestx_gfn  = PAMR_get_gfn("irestx",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((iresty_gfn  = PAMR_get_gfn("iresty",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((irestz_gfn  = PAMR_get_gfn("irestz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((iresxx_gfn  = PAMR_get_gfn("iresxx",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((iresxy_gfn  = PAMR_get_gfn("iresxy",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((iresxz_gfn  = PAMR_get_gfn("iresxz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((iresyy_gfn  = PAMR_get_gfn("iresyy",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((iresyz_gfn  = PAMR_get_gfn("iresyz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((ireszz_gfn  = PAMR_get_gfn("ireszz",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+//    if ((ireskg_gfn  = PAMR_get_gfn("ireskg",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
 
     if ((mg_w1_gfn   = PAMR_get_gfn("mg_w1",PAMR_MGH,0))<0) AMRD_stop("set_gnfs error",0);
     if ((mg_w2_gfn   = PAMR_get_gfn("mg_w2",PAMR_MGH,0))<0) AMRD_stop("set_gnfs error",0);
@@ -2036,6 +2045,11 @@ void ldptr(void)
     efe_yy_ires  = gfs[efe_yy_ires_gfn-1];
     efe_yz_ires  = gfs[efe_yz_ires_gfn-1];
     efe_zz_ires  = gfs[efe_zz_ires_gfn-1];
+    ghconstr_all  = gfs[ghconstr_all_gfn-1];
+    ghconstr_t  = gfs[ghconstr_t_gfn-1];
+    ghconstr_x  = gfs[ghconstr_x_gfn-1];
+    ghconstr_y  = gfs[ghconstr_y_gfn-1];
+    ghconstr_z  = gfs[ghconstr_z_gfn-1];
     leadordcoeff_phi1  = gfs[leadordcoeff_phi1_gfn-1];
     quasiset_tt_ll  = gfs[quasiset_tt_ll_gfn-1];
     quasiset_tchi_ll  = gfs[quasiset_tchi_ll_gfn-1];
@@ -2068,18 +2082,18 @@ void ldptr(void)
     test2 = gfs[test2_gfn-1];
     test3 = gfs[test3_gfn-1];
     test4 = gfs[test4_gfn-1];
-    iresall = gfs[iresall_gfn-1];
-    irestt = gfs[irestt_gfn-1];
-    irestx = gfs[irestx_gfn-1];
-    iresty = gfs[iresty_gfn-1];
-    irestz = gfs[irestz_gfn-1];
-    iresxx = gfs[iresxx_gfn-1];
-    iresxy = gfs[iresxy_gfn-1];
-    iresxz = gfs[iresxz_gfn-1];
-    iresyy = gfs[iresyy_gfn-1];
-    iresyz = gfs[iresyz_gfn-1];
-    ireszz = gfs[ireszz_gfn-1];
-    ireskg = gfs[ireskg_gfn-1];
+//    iresall = gfs[iresall_gfn-1];
+//    irestt = gfs[irestt_gfn-1];
+//    irestx = gfs[irestx_gfn-1];
+//    iresty = gfs[iresty_gfn-1];
+//    irestz = gfs[irestz_gfn-1];
+//    iresxx = gfs[iresxx_gfn-1];
+//    iresxy = gfs[iresxy_gfn-1];
+//    iresxz = gfs[iresxz_gfn-1];
+//    iresyy = gfs[iresyy_gfn-1];
+//    iresyz = gfs[iresyz_gfn-1];
+//    ireszz = gfs[ireszz_gfn-1];
+//    ireskg = gfs[ireskg_gfn-1];
  
     mg_w1    =gfs[mg_w1_gfn-1]; 
     mg_w2    =gfs[mg_w2_gfn-1]; 
@@ -2386,7 +2400,7 @@ void AdS4D_var_post_init(char *pfile)
     diss_all=1; AMRD_int_param(pfile,"diss_all",&diss_all,1);   
     background=0; AMRD_int_param(pfile,"background",&background,1);
     skip_constraints=0; AMRD_int_param(pfile,"skip_constraints",&skip_constraints,1);
-    output_ires=0; AMRD_int_param(pfile,"output_ires",&output_ires,1);  
+    output_ires_ghconstr=0; AMRD_int_param(pfile,"output_ires_ghconstr",&output_ires_ghconstr,1);  
     ratio_Lhighres_Llowres=1.5; AMRD_real_param(pfile,"ratio_Lhighres_Llowres",&ratio_Lhighres_Llowres,1);
     resolution_degree=1; AMRD_int_param(pfile,"resolution_degree",&resolution_degree,1);
     max_resolution_degree=3; AMRD_int_param(pfile,"max_resolution_degree",&max_resolution_degree,1);
@@ -12507,9 +12521,9 @@ void AdS4D_pre_io_calc(void)
 
 
         // output independent residual
-        if (output_ires)
+        if (output_ires_ghconstr)
         {   
-            ires_(efe_all_ires,
+            ires_ghconstr_(efe_all_ires,
                 efe_tt_ires,efe_tx_ires,efe_ty_ires,
                 efe_tz_ires,
                 efe_xx_ires,efe_xy_ires,
@@ -12518,6 +12532,11 @@ void AdS4D_pre_io_calc(void)
                 efe_yz_ires,
                 efe_zz_ires,
                 kg_ires,
+                ghconstr_all,
+                ghconstr_t,
+                ghconstr_x,
+                ghconstr_y,
+                ghconstr_z,
                 gb_tt_n,gb_tt_nm1,gb_tt_np1,
                 gb_tx_n,gb_tx_nm1,gb_tx_np1,
                 gb_ty_n,gb_ty_nm1,gb_ty_np1,
@@ -21677,9 +21696,9 @@ void AdS4D_pre_io_calc(void)
 
 	    }//closes condition on (g_L==bdy_L)&& (fabs(coarse_t-ct)<pow(10,-10)))
 
-        if (output_ires)
+        if (output_ires_ghconstr)
         {   
-            ires_(efe_all_ires,
+            ires_ghconstr_(efe_all_ires,
                 efe_tt_ires,efe_tx_ires,efe_ty_ires,
                 efe_tz_ires,
                 efe_xx_ires,efe_xy_ires,
@@ -21688,6 +21707,11 @@ void AdS4D_pre_io_calc(void)
                 efe_yz_ires,
                 efe_zz_ires,
                 kg_ires,
+                ghconstr_all,
+                ghconstr_t,
+                ghconstr_x,
+                ghconstr_y,
+                ghconstr_z,
                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
@@ -21708,46 +21732,46 @@ void AdS4D_pre_io_calc(void)
         }   
     } //closes condition on ct==0   
 
-    if (output_ires)
-    {
-        // fill in independent residual evaluator test functions
-        for (i=0; i<Nx; i++)
-        {
-            for (j=0; j<Ny; j++)
-            {
-                for (k=0; k<Nz; k++)
-                {
-                    ind=i+Nx*(j+Ny*k);
-                    rho=sqrt(x[i]*x[i]+y[j]*y[j]+z[k]*z[k]);    
-                    if (chr[ind]==AMRD_ex)
-                    {
-                        iresall[ind]=0;  
-                        irestt[ind]=0;  
-                        irestx[ind]=0;  
-                        iresty[ind]=0;  
-                        irestz[ind]=0;
-                        iresxx[ind]=0;  
-                        iresxy[ind]=0;  
-                        iresxz[ind]=0;
-                        iresyy[ind]=0;  
-                        iresyz[ind]=0;
-                        ireszz[ind]=0;  
-                        ireskg[ind]=0;
-                    }
-                    else
-                    {
-                        iresall[ind]=efe_all_ires[ind];
-                        irestt[ind]=efe_tt_ires[ind];
-                        irestx[ind]=efe_tx_ires[ind];
-                        iresty[ind]=efe_ty_ires[ind];
-                        irestz[ind]=efe_tz_ires[ind];
-                        iresxx[ind]=efe_xx_ires[ind];
-                        iresxy[ind]=efe_xy_ires[ind];
-                        iresxz[ind]=efe_xz_ires[ind];
-                        iresyy[ind]=efe_yy_ires[ind];
-                        iresyz[ind]=efe_yz_ires[ind];
-                        ireszz[ind]=efe_zz_ires[ind];
-                        ireskg[ind]=kg_ires[ind];
+//    if (output_ires_ghconstr)
+//    {
+//        // fill in independent residual evaluator test functions
+//        for (i=0; i<Nx; i++)
+//        {
+//            for (j=0; j<Ny; j++)
+//            {
+//                for (k=0; k<Nz; k++)
+//                {
+//                    ind=i+Nx*(j+Ny*k);
+//                    rho=sqrt(x[i]*x[i]+y[j]*y[j]+z[k]*z[k]);    
+//                    if (chr[ind]==AMRD_ex)
+//                    {
+//                        iresall[ind]=0;  
+//                        irestt[ind]=0;  
+//                        irestx[ind]=0;  
+//                        iresty[ind]=0;  
+//                        irestz[ind]=0;
+//                        iresxx[ind]=0;  
+//                        iresxy[ind]=0;  
+//                        iresxz[ind]=0;
+//                        iresyy[ind]=0;  
+//                        iresyz[ind]=0;
+//                        ireszz[ind]=0;
+//                        ireskg[ind]=0;
+//                    }
+//                    else
+//                    {
+//                        iresall[ind]=efe_all_ires[ind];
+//                        irestt[ind]=efe_tt_ires[ind];
+//                        irestx[ind]=efe_tx_ires[ind];
+//                        iresty[ind]=efe_ty_ires[ind];
+//                        irestz[ind]=efe_tz_ires[ind];
+//                        iresxx[ind]=efe_xx_ires[ind];
+//                        iresxy[ind]=efe_xy_ires[ind];
+//                        iresxz[ind]=efe_xz_ires[ind];
+//                        iresyy[ind]=efe_yy_ires[ind];
+//                        iresyz[ind]=efe_yz_ires[ind];
+//                        ireszz[ind]=efe_zz_ires[ind];
+//                        ireskg[ind]=kg_ires[ind];
 //                        if ((fabs(iresall[ind])>0)&&
 //                        	(
 //                        	(fabs(gb_tt_n[ind])>0)||
@@ -21777,11 +21801,11 @@ void AdS4D_pre_io_calc(void)
 //                        	printf("gb_zz_n[ind]=%lf\n",gb_zz_n[ind]);
 //                        	//AMRD_stop("NON zero iresall and metric","");
 //                        }
-                    }
-                }
-            } 
-        }
-    }  //closes (output_ires)
+//                    }
+//                }
+//            } 
+//        }
+//    }  //closes (output_ires_ghconstr)
 
 
     return;

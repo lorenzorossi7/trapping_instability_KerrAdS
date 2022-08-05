@@ -65,7 +65,7 @@ g_evo_opt.o:
 init_nm1.o : 
 misc.o: 
 axisym.o:
-ires.o: 
+ires_kretsch_riemcube_ghconstr.o: 
 mg_sup.o: 
 init_hb.o: 
 init_ghbdot.o: 
@@ -87,7 +87,7 @@ secondord_func_radextrap.o:
 h_norm_densities.o:
 boost_perturb.o:
 
-ADS4D_OBJS = AdS4D.o g_evo_opt.o init_nm1.o misc.o axisym.o ires.o mg_sup.o init_hb.o init_ghbdot.o gauge.o apph.o exp.o interp.o quasiset.o init_analytic_sols.o ads_derivs_cartcoords.o schwads_derivs_kerrschildcoords.o kerrads_derivs_kerrschildcoords.o sph_harm_perturb.o radextrap_main.o firstord_chrbdy_radextrap.o firstord_func_radextrap.o secondord_chrbdy_radextrap.o secondord_func_radextrap.o h_norm_densities.o boost_perturb.o
+ADS4D_OBJS = AdS4D.o g_evo_opt.o init_nm1.o misc.o axisym.o ires_kretsch_riemcube_ghconstr.o mg_sup.o init_hb.o init_ghbdot.o gauge.o apph.o exp.o interp.o quasiset.o init_analytic_sols.o ads_derivs_cartcoords.o schwads_derivs_kerrschildcoords.o kerrads_derivs_kerrschildcoords.o sph_harm_perturb.o radextrap_main.o firstord_chrbdy_radextrap.o firstord_func_radextrap.o secondord_chrbdy_radextrap.o secondord_func_radextrap.o h_norm_densities.o boost_perturb.o
 
 AdS4D: $(ADS4D_OBJS) 
 	$(CC_LOAD) $(ADS4D_OBJS) $(LIBS) -o AdS4D
