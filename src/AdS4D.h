@@ -783,8 +783,10 @@ void sqrten2density_func_(real *sqrten2density_f,
            real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
            real *ief_bh_r0,real *a_rot0, int *kerrads_background);
 
-void subs_boost_phi1_(real *phi1_np1, real *phi1_n, real *phi1_nm1, real *phi1_t_n, real *A, real *B, real *C, real *r0, real *delta, real *xu0, real *yu0, real *zu0, real *ex, real *ey, real *ez,
-              real *boost_vx, real *boost_vy, real *boost_vz, real *AdS_L, real *x, real *y, real *z, real *dt, real *chr,real *exc, int *Nx, int *Ny, int *Nz);
+void subs_boost_phi1_(real *phi1_np1, real *phi1_n, real *phi1_nm1, real *phi1_t_n, 
+                      real *boost_vx, real *boost_vy, real *boost_vz,
+                      real *boost_amp, real *r0, real *delta, real *xu0, real *yu0, real *zu0, real *ex, real *ey, real *ez,
+                      real *AdS_L, real *x, real *y, real *z, real *dt, real *chr,real *exc, int *Nx, int *Ny, int *Nz);
 
 void boost_perturb_(          real *phi1_np1, real *phi1_n, real *phi1_nm1, real *phi1_t_n, 
                               real *gb_tt_np1,real *gb_tt_n,real *gb_tt_nm1,real *gb_tt_t_n,

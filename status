@@ -9,7 +9,8 @@ Implemented spherical harmonics perturbations with l=2,m=2 that follow the ones 
 Implemented the possibility of adding these perturbations at later times during the evolution.
 *)
 Implemented the calculation of the densities of the norms defined in arxiv:1103.0710v2 and used in arxiv:1110.6794v2, both for fixed background (Kerr-AdS) and for the case with backreaction.
-Implemented the addition of boosted Gaussian scalar field lumps.
+Implemented the addition of boosted Gaussian scalar field lumps to initial data.
+Implemented the option of substituting (instead of adding) the initial scalar field profile with a Lorentz-boosted one.
 
 Implemented the calculation and output of Generalised Harmonic constraints.
 

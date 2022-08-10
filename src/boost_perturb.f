@@ -1,7 +1,7 @@
 c----------------------------------------------------------------------
 c add a small Lorentz-boosted Gaussian perturbation to the initial scalar field profile
 c and gbs
-c centre of the perturbation is (xu0,yu0,zu0), boost velocity is (boost_vx,boost_vy,boost_vz)
+c centre of the perturbation is (boost_xu0,boost_yu0,boost_zu0), boost velocity is (boost_vx,boost_vy,boost_vz)
 c----------------------------------------------------------------------
 
         subroutine boost_perturb(

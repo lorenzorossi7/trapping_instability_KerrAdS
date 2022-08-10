@@ -65,6 +65,9 @@ real boost_delta_2;
 real boost_x0_2[3];
 real boost_ecc_2[3];
 
+int add_perturb;
+int subs_perturb;
+
 // if > 0, initialize with exact BH
 real ief_bh_r0,a_rot0;
 
@@ -2355,6 +2358,10 @@ void AdS4D_var_post_init(char *pfile)
     boost_delta_2=0;
     boost_x0_2[0]=boost_x0_2[1]=boost_x0_2[2]=0;
     boost_ecc_2[0]=boost_ecc_2[1]=boost_ecc_2[2]=0;
+
+    AMRD_int_param(pfile,"add_perturb",&add_perturb,1);
+    AMRD_int_param(pfile,"subs_perturb",&subs_perturb,1);
+    if (add_perturb==1 && subs_perturb==1) { AMRD_stop("Either add or substitute perturbations, not both...","");}
 
     AMRD_real_param(pfile,"phi1_amp_1",&phi1_amp_1,1);
     AMRD_real_param(pfile,"phi1_B_1",&phi1_B_1,1);
@@ -12567,83 +12574,122 @@ void AdS4D_pre_io_calc(void)
 		//Thanks to constraint-damping, we can expect to return to a solution of the Einstein equations in a short amount of evolution time
 		//only if the boost velocity is small enough.
         if ((!AMRD_cp_restart)&&
-	    ((fabs(boost_amp_1)>pow(10.0,-10))||(fabs(boost_amp_2)>pow(10.0,-10)))&&
-	    ((fabs(boost_v_1[0])>pow(10.0,-10))||(fabs(boost_v_1[1])>pow(10.0,-10))||(fabs(boost_v_1[2])>pow(10.0,-10))||
-        	(fabs(boost_v_2[0])>pow(10.0,-10))||(fabs(boost_v_2[1])>pow(10.0,-10))||(fabs(boost_v_2[2])>pow(10.0,-10))))
+	    ((fabs(boost_amp_1)>pow(10.0,-10))&&((fabs(boost_v_1[0])>pow(10.0,-10))||(fabs(boost_v_1[1])>pow(10.0,-10))||(fabs(boost_v_1[2])>pow(10.0,-10))))
+	    ||
+	    ((fabs(boost_amp_2)>pow(10.0,-10))&&((fabs(boost_v_2[0])>pow(10.0,-10))||(fabs(boost_v_2[1])>pow(10.0,-10))||(fabs(boost_v_2[2])>pow(10.0,-10))))
+	    )
         {
-
-        	if (my_rank==0) 
+        	if (add_perturb)
         	{
-        		printf("Adding Lorentz-boosted Gaussian perturbation to initial phi1 and gbs\n"
-        			   "WARNING: use of time-asymmetric, constraint-violating initial data\n");
-        		printf("first boost\n");
-        		printf("boost_velocity components:\n"
-        			   "boost_v_1[0]=%lf,boost_v_1[1]=%lf,boost_v_1[2]=%lf\n",boost_v_1[0],boost_v_1[1],boost_v_1[2]);
-        		printf("boost_v_norm=%lf\n",sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2]));
-        		printf("perturbation amplitude=%lf\n",boost_amp_1);
-        		printf("boost_r0_1=%lf\n",boost_r0_1);
-        		printf("boost_delta_1=%lf\n",boost_delta_1);
-        		printf("boost_x0_1[0]=%lf,boost_x0_1[1]=%lf,boost_x0_1[2]=%lf\n",boost_x0_1[0],boost_x0_1[1],boost_x0_1[2]);
-        		printf("boost_ecc_1[0]=%lf,boost_ecc_1[1]=%lf,boost_ecc_1[2]=%lf\n",boost_ecc_1[0],boost_ecc_1[1],boost_ecc_1[2]);
-
-    			printf("\nsecond boost\n");
-        		printf("boost_velocity components:\n"
-        			   "boost_v_2[0]=%lf,boost_v_2[1]=%lf,boost_v_2[2]=%lf\n",boost_v_2[0],boost_v_2[1],boost_v_2[2]);
-        		printf("boost_v_norm=%lf\n",sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2]));
-        		printf("perturbation amplitude=%lf\n",boost_amp_2);
-        		printf("boost_r0_2=%lf\n",boost_r0_2);
-        		printf("boost_delta_2=%lf\n",boost_delta_2);
-        		printf("boost_x0_2[0]=%lf,boost_x0_2[1]=%lf,boost_x0_2[2]=%lf\n",boost_x0_2[0],boost_x0_2[1],boost_x0_2[2]);
-        		printf("boost_ecc_2[0]=%lf,boost_ecc_2[1]=%lf,boost_ecc_2[2]=%lf\n",boost_ecc_2[0],boost_ecc_2[1],boost_ecc_2[2]);
-        		if ((sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2])>=1)||
-        			(sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2])>=1))
-        		{
-        			AMRD_stop("ERROR: boost velocities equal to or larger than the speed of light are not allowed","");
-        		}
+	        	if (my_rank==0) 
+	        	{
+	        		printf("Adding Lorentz-boosted Gaussian perturbation to initial phi1 and gbs\n"
+	        			   "WARNING: use of time-asymmetric, constraint-violating initial data\n");
+	        		printf("first boost\n");
+	        		printf("boost_velocity components:\n"
+	        			   "boost_v_1[0]=%lf,boost_v_1[1]=%lf,boost_v_1[2]=%lf\n",boost_v_1[0],boost_v_1[1],boost_v_1[2]);
+	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2]));
+	        		printf("perturbation amplitude=%lf\n",boost_amp_1);
+	        		printf("boost_r0_1=%lf\n",boost_r0_1);
+	        		printf("boost_delta_1=%lf\n",boost_delta_1);
+	        		printf("boost_x0_1[0]=%lf,boost_x0_1[1]=%lf,boost_x0_1[2]=%lf\n",boost_x0_1[0],boost_x0_1[1],boost_x0_1[2]);
+	        		printf("boost_ecc_1[0]=%lf,boost_ecc_1[1]=%lf,boost_ecc_1[2]=%lf\n",boost_ecc_1[0],boost_ecc_1[1],boost_ecc_1[2]);
+	
+	    			printf("\nsecond boost\n");
+	        		printf("boost_velocity components:\n"
+	        			   "boost_v_2[0]=%lf,boost_v_2[1]=%lf,boost_v_2[2]=%lf\n",boost_v_2[0],boost_v_2[1],boost_v_2[2]);
+	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2]));
+	        		printf("perturbation amplitude=%lf\n",boost_amp_2);
+	        		printf("boost_r0_2=%lf\n",boost_r0_2);
+	        		printf("boost_delta_2=%lf\n",boost_delta_2);
+	        		printf("boost_x0_2[0]=%lf,boost_x0_2[1]=%lf,boost_x0_2[2]=%lf\n",boost_x0_2[0],boost_x0_2[1],boost_x0_2[2]);
+	        		printf("boost_ecc_2[0]=%lf,boost_ecc_2[1]=%lf,boost_ecc_2[2]=%lf\n",boost_ecc_2[0],boost_ecc_2[1],boost_ecc_2[2]);
+	        		if ((sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2])>=1)||
+	        			(sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2])>=1))
+	        		{
+	        			AMRD_stop("ERROR: boost velocities equal to or larger than the speed of light are not allowed","");
+	        		}
+	        	}
+	
+	        	boost_perturb_(phi1_np1,phi1_n,phi1_nm1,phi1_t_n,
+	        				gb_tt_np1,gb_tt_n,gb_tt_nm1,gb_tt_t_n,
+	                        gb_tx_np1,gb_tx_n,gb_tx_nm1,gb_tx_t_n,
+	                        gb_ty_np1,gb_ty_n,gb_ty_nm1,gb_ty_t_n,
+	                        gb_tz_np1,gb_tz_n,gb_tz_nm1,gb_tz_t_n,
+	                        gb_xx_np1,gb_xx_n,gb_xx_nm1,gb_xx_t_n,
+	                        gb_xy_np1,gb_xy_n,gb_xy_nm1,gb_xy_t_n,
+	                        gb_xz_np1,gb_xz_n,gb_xz_nm1,gb_xz_t_n,
+	                        gb_yy_np1,gb_yy_n,gb_yy_nm1,gb_yy_t_n,
+	                        gb_yz_np1,gb_yz_n,gb_yz_nm1,gb_yz_t_n,
+	                        gb_zz_np1,gb_zz_n,gb_zz_nm1,gb_zz_t_n,
+	                        &boost_v_1[0],&boost_v_1[1],&boost_v_1[2],
+	                        &boost_amp_1,
+	                        &boost_r0_1,
+	                        &boost_delta_1,
+	                        &boost_x0_1[0],&boost_x0_1[1],&boost_x0_1[2],
+	            			&boost_ecc_1[0],&boost_ecc_1[1],&boost_ecc_1[2],
+	                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
+	
+	        	boost_perturb_(phi1_np1,phi1_n,phi1_nm1,phi1_t_n,
+	        				gb_tt_np1,gb_tt_n,gb_tt_nm1,gb_tt_t_n,
+	                        gb_tx_np1,gb_tx_n,gb_tx_nm1,gb_tx_t_n,
+	                        gb_ty_np1,gb_ty_n,gb_ty_nm1,gb_ty_t_n,
+	                        gb_tz_np1,gb_tz_n,gb_tz_nm1,gb_tz_t_n,
+	                        gb_xx_np1,gb_xx_n,gb_xx_nm1,gb_xx_t_n,
+	                        gb_xy_np1,gb_xy_n,gb_xy_nm1,gb_xy_t_n,
+	                        gb_xz_np1,gb_xz_n,gb_xz_nm1,gb_xz_t_n,
+	                        gb_yy_np1,gb_yy_n,gb_yy_nm1,gb_yy_t_n,
+	                        gb_yz_np1,gb_yz_n,gb_yz_nm1,gb_yz_t_n,
+	                        gb_zz_np1,gb_zz_n,gb_zz_nm1,gb_zz_t_n,
+	                        &boost_v_2[0],&boost_v_2[1],&boost_v_2[2],
+	                        &boost_amp_2,
+	                        &boost_r0_2,
+	                        &boost_delta_2,
+	                        &boost_x0_2[0],&boost_x0_2[1],&boost_x0_2[2],
+	            			&boost_ecc_2[0],&boost_ecc_2[1],&boost_ecc_2[2],
+	                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
+        	}
+        	else if (subs_perturb)
+        	{
+        		if (my_rank==0) 
+	        	{
+	        		printf("Substituting Lorentz-boosted Gaussian perturbation to initial phi1\n"
+	        			   "WARNING: use of time-asymmetric, constraint-violating initial data\n");
+	        		printf("first boost\n");
+	        		printf("boost_velocity components:\n"
+	        			   "boost_v_1[0]=%lf,boost_v_1[1]=%lf,boost_v_1[2]=%lf\n",boost_v_1[0],boost_v_1[1],boost_v_1[2]);
+	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2]));
+	        		printf("perturbation amplitude=%lf\n",boost_amp_1);
+	        		printf("boost_r0_1=%lf\n",boost_r0_1);
+	        		printf("boost_delta_1=%lf\n",boost_delta_1);
+	        		printf("boost_x0_1[0]=%lf,boost_x0_1[1]=%lf,boost_x0_1[2]=%lf\n",boost_x0_1[0],boost_x0_1[1],boost_x0_1[2]);
+	        		printf("boost_ecc_1[0]=%lf,boost_ecc_1[1]=%lf,boost_ecc_1[2]=%lf\n",boost_ecc_1[0],boost_ecc_1[1],boost_ecc_1[2]);
+	
+	    			printf("\nsecond boost\n");
+	        		printf("boost_velocity components:\n"
+	        			   "boost_v_2[0]=%lf,boost_v_2[1]=%lf,boost_v_2[2]=%lf\n",boost_v_2[0],boost_v_2[1],boost_v_2[2]);
+	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2]));
+	        		printf("perturbation amplitude=%lf\n",boost_amp_2);
+	        		printf("boost_r0_2=%lf\n",boost_r0_2);
+	        		printf("boost_delta_2=%lf\n",boost_delta_2);
+	        		printf("boost_x0_2[0]=%lf,boost_x0_2[1]=%lf,boost_x0_2[2]=%lf\n",boost_x0_2[0],boost_x0_2[1],boost_x0_2[2]);
+	        		printf("boost_ecc_2[0]=%lf,boost_ecc_2[1]=%lf,boost_ecc_2[2]=%lf\n",boost_ecc_2[0],boost_ecc_2[1],boost_ecc_2[2]);
+	        		if ((sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2])>=1)||
+	        			(sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2])>=1))
+	        		{
+	        			AMRD_stop("ERROR: boost velocities equal to or larger than the speed of light are not allowed","");
+	        		}
+	        	}
+        		subs_boost_phi1_(phi1_np1,phi1_n,phi1_nm1,phi1_t_n,
+    		       			&boost_v_1[0],&boost_v_1[1],&boost_v_1[2],
+    		       			&boost_amp_1,
+	                        &boost_r0_1,
+	                        &boost_delta_1,
+	                        &boost_x0_1[0],&boost_x0_1[1],&boost_x0_1[2],
+	            			&boost_ecc_1[0],&boost_ecc_1[1],&boost_ecc_1[2],
+	                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
         	}
 
-        	boost_perturb_(phi1_np1,phi1_n,phi1_nm1,phi1_t_n,
-        				gb_tt_np1,gb_tt_n,gb_tt_nm1,gb_tt_t_n,
-                        gb_tx_np1,gb_tx_n,gb_tx_nm1,gb_tx_t_n,
-                        gb_ty_np1,gb_ty_n,gb_ty_nm1,gb_ty_t_n,
-                        gb_tz_np1,gb_tz_n,gb_tz_nm1,gb_tz_t_n,
-                        gb_xx_np1,gb_xx_n,gb_xx_nm1,gb_xx_t_n,
-                        gb_xy_np1,gb_xy_n,gb_xy_nm1,gb_xy_t_n,
-                        gb_xz_np1,gb_xz_n,gb_xz_nm1,gb_xz_t_n,
-                        gb_yy_np1,gb_yy_n,gb_yy_nm1,gb_yy_t_n,
-                        gb_yz_np1,gb_yz_n,gb_yz_nm1,gb_yz_t_n,
-                        gb_zz_np1,gb_zz_n,gb_zz_nm1,gb_zz_t_n,
-                        &boost_v_1[0],&boost_v_1[1],&boost_v_1[2],
-                        &boost_amp_1,
-                        &boost_r0_1,
-                        &boost_delta_1,
-                        &boost_x0_1[0],&boost_x0_1[1],&boost_x0_1[2],
-            			&boost_ecc_1[0],&boost_ecc_1[1],&boost_ecc_1[2],
-                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
-
-        	boost_perturb_(phi1_np1,phi1_n,phi1_nm1,phi1_t_n,
-        				gb_tt_np1,gb_tt_n,gb_tt_nm1,gb_tt_t_n,
-                        gb_tx_np1,gb_tx_n,gb_tx_nm1,gb_tx_t_n,
-                        gb_ty_np1,gb_ty_n,gb_ty_nm1,gb_ty_t_n,
-                        gb_tz_np1,gb_tz_n,gb_tz_nm1,gb_tz_t_n,
-                        gb_xx_np1,gb_xx_n,gb_xx_nm1,gb_xx_t_n,
-                        gb_xy_np1,gb_xy_n,gb_xy_nm1,gb_xy_t_n,
-                        gb_xz_np1,gb_xz_n,gb_xz_nm1,gb_xz_t_n,
-                        gb_yy_np1,gb_yy_n,gb_yy_nm1,gb_yy_t_n,
-                        gb_yz_np1,gb_yz_n,gb_yz_nm1,gb_yz_t_n,
-                        gb_zz_np1,gb_zz_n,gb_zz_nm1,gb_zz_t_n,
-                        &boost_v_2[0],&boost_v_2[1],&boost_v_2[2],
-                        &boost_amp_2,
-                        &boost_r0_2,
-                        &boost_delta_2,
-                        &boost_x0_2[0],&boost_x0_2[1],&boost_x0_2[2],
-            			&boost_ecc_2[0],&boost_ecc_2[1],&boost_ecc_2[2],
-                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
-
-        	//INCORRECT CALL of subs_boost_phi1 function
-            //subs_boost_phi1_(phi1_np1,phi1_n,phi1_nm1,
-    		//       &boost_v_1[0],&boost_v_1[1],&boost_v_1[2],
-            //        &AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
 					//for (i=0; i<Nx; i++)
 					//{    
 					//	for (j=0; j<Ny; j++)

@@ -9,7 +9,7 @@ kerrads_background := 1
 #scalar field ID#
 phi1_amp_1 := 0.2
 phi1_r0_1 := 0.0
-phi1_delta_1 := 0.4
+phi1_delta_1 := 0.2
 phi1_x0_1 := [0.0 -0.6 0.0]
 phi1_ecc_1 := [0.2 0.2 0.2]
 phi1_B_1 := 0.0
@@ -20,19 +20,24 @@ rhod := 0.8
 stype := 0
 
 #Lorent boost parameters
-boost_v_1 := [0.0 +0.2 0.0]
-boost_amp_1 := 0.0
+boost_v_1 := [0.9 0.0 0.0]
+boost_amp_1 := 0.2
 boost_r0_1 := 0.0
 boost_delta_1 := 0.2
-boost_x0_1 := [0.0 0.6 0.0]
-boost_ecc_1 := [0.9 0.1 0.5]
+boost_x0_1 := [0.0 -0.6 0.0]
+boost_ecc_1 := [0.2 0.2 0.2]
 
-boost_v_2 := [0.0 +0.95 0.0]
+boost_v_2 := [0.0 0.0 0.0]
 boost_amp_2 := 0.0
 boost_r0_2 := 0.0
 boost_delta_2 := 0.2
 boost_x0_2 := [0.0 -0.3 -0.2]
 boost_ecc_2 := [0.2 0.2 0.2]
+
+#Either add perturbations to the initial data or substitute the entire initial data with the boosted profile
+add_perturb := 0
+subs_perturb := 1
+
 
 #AdS4D-Kerr BH ID#
 ief_bh_r0 := 0.8
@@ -59,7 +64,7 @@ AH_freq_aft := 1
 #excision_type=0: no internal excision - excision_type=1: spherical excised region - excision_type=2: elliptic excised region - excision_type=3: AH-shaped excised region
 excision_type := 2
 #excision buffer, i.e. how wide the region to evolve within the AH (or the AdS boundary if there is no BH) is
-ex_rbuf := 0.3
+ex_rbuf := 0.4
 AH_reset_scale := 1.1
 AH_max_iter_2 := 0
 AH_max_iter_3 := 0
@@ -277,7 +282,7 @@ cp_restore_fname := "cp_L2_A"
 
 #------- solution related -------------------------------------------------
 
-steps := 1
+steps := 10
 evo_max_iter := 25
 evo_min_iter := 1
 evo_tol := 1.0e-6
