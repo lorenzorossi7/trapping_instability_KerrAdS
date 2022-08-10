@@ -7,7 +7,7 @@ kerrads_background := 1
 #------ Initial Data -------------------------------------------------------
 
 #scalar field ID#
-phi1_amp_1 := 0.55
+phi1_amp_1 := 0.2
 phi1_r0_1 := 0.0
 phi1_delta_1 := 0.4
 phi1_x0_1 := [0.0 -0.6 0.0]
@@ -306,8 +306,8 @@ max_t_interp_order := 3
 
 #------- IO ---------------------------------------------------------------
 
-num_save_1_vars := 6
-save_1_vars := [ "efe_all_ires" "ghconstr_all" "ghconstr_t" "ghconstr_x" "ghconstr_y" "ghconstr_z" ]
+num_save_1_vars := 2
+save_1_vars := [ "efe_all_ires" "ghconstr_all" ]
 #save_1_vars := [ "efe_all_ires" "ghconstr_all" "gb_res" "kg_ires" "chr" ]
 
 num_save_2_vars := 1

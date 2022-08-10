@@ -540,7 +540,22 @@ c----------------------------------------------------------------------
                end do
 
             else
+               efe_tt_ires(i,j,k)=0.0d0
+               efe_tx_ires(i,j,k)=0.0d0
+               efe_ty_ires(i,j,k)=0.0d0
+               efe_tz_ires(i,j,k)=0.0d0
+               efe_xx_ires(i,j,k)=0.0d0
+               efe_xy_ires(i,j,k)=0.0d0
+               efe_xz_ires(i,j,k)=0.0d0
+               efe_yy_ires(i,j,k)=0.0d0
+               efe_yz_ires(i,j,k)=0.0d0
+               efe_zz_ires(i,j,k)=0.0d0
                kg_ires(i,j,k)=0.0d0
+               ghconstr_t(i,j,k)=0.0d0
+               ghconstr_x(i,j,k)=0.0d0
+               ghconstr_y(i,j,k)=0.0d0
+               ghconstr_z(i,j,k)=0.0d0
+               ghconstr_all(i,j,k)=0.0d0
             end if
 
 
