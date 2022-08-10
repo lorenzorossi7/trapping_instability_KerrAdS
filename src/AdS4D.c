@@ -2359,8 +2359,8 @@ void AdS4D_var_post_init(char *pfile)
     boost_x0_2[0]=boost_x0_2[1]=boost_x0_2[2]=0;
     boost_ecc_2[0]=boost_ecc_2[1]=boost_ecc_2[2]=0;
 
-    AMRD_int_param(pfile,"add_perturb",&add_perturb,1);
-    AMRD_int_param(pfile,"subs_perturb",&subs_perturb,1);
+    add_perturb=0; AMRD_int_param(pfile,"add_perturb",&add_perturb,1);
+    subs_perturb=0; AMRD_int_param(pfile,"subs_perturb",&subs_perturb,1);
     if (add_perturb==1 && subs_perturb==1) { AMRD_stop("Either add or substitute perturbations, not both...","");}
 
     AMRD_real_param(pfile,"phi1_amp_1",&phi1_amp_1,1);
