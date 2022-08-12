@@ -120,6 +120,7 @@ c----------------------------------------------------------------------
         real*8 einstein_ll(4,4),set_ll(4,4)
         real*8 Hads_l(4),A_l(4),A_l_x(4,4)
         real*8 phi10_x(4),phi10_xx(4,4)
+        real*8 phi_x(4),phi_xx(4,4)
 
         !--------------------------------------------------------------
         ! variables for outward null expansion in spherical symmetry
@@ -175,6 +176,8 @@ c----------------------------------------------------------------------
 
         data phi10_x/4*0.0/
         data phi10_xx/16*0.0/
+        data phi_x/4*0.0/
+        data phi_xx/16*0.0/
 
         data boxx_u,boxx_l/4*0.0,4*0.0/
 
@@ -523,18 +526,62 @@ c----------------------------------------------------------------------
 
 
                 !--------------------------------------------------------------------------
-                ! phi1_res = phi1,ab g^ab + phi1,b g^ab,a + phi1,c g^cb gamma^a_ab
-                !         (= g^ab phi1,ab - g^ab gamma^c_ab phi1,c) 
+                ! phi_res = phi,ab g^ab + phi,b g^ab,a + phi,c g^cb gamma^a_ab
+                !         (= g^ab phi,ab - g^ab gamma^c_ab phi,c) 
                 !--------------------------------------------------------------------------
+                phi_x(1)=(1-rho0**2)**2*phi1_x(1)
+                phi_x(2)=(1-rho0**2)**2*phi1_x(2)
+     &             -4*x0*(1-rho0**2)*phi10
+                phi_x(3)=(1-rho0**2)**2*phi1_x(3)
+     &             -4*y0*(1-rho0**2)*phi10
+                phi_x(2)=(1-rho0**2)**2*phi1_x(4)
+     &             -4*z0*(1-rho0**2)*phi10
+
+                phi_xx(1,1)=(1-rho0**2)**2*phi1_xx(1,1)
+                phi_xx(1,2)=(1-rho0**2)**2*phi1_xx(1,2)
+     &             -4*x0*(1-rho0**2)*phi1_x(1)
+                phi_xx(1,3)=(1-rho0**2)**2*phi1_xx(1,3)
+     &             -4*y0*(1-rho0**2)*phi1_x(1)
+                phi_xx(1,4)=(1-rho0**2)**2*phi1_xx(1,4)
+     &             -4*z0*(1-rho0**2)*phi1_x(1)
+                phi_xx(2,2)=(1-rho0**2)**2*phi1_x(2,2)
+     &             -2*4*x0*(1-rho0**2)*phi1_x(2)
+     &             -4*(1-rho0**2-2*x0**2)*phi10
+                phi_xx(2,3)=(1-rho0**2)**2*phi1_x(2,3)
+     &             -4*y0*(1-rho0**2)*phi1_x(2)           
+     &             -4*x0*(1-rho0**2)*phi1_x(3)
+     &             +8*x0*y0*phi10
+                phi_xx(2,4)=(1-rho0**2)**2*phi1_x(2,4)
+     &             -4*z0*(1-rho0**2)*phi1_x(2)           
+     &             -4*x0*(1-rho0**2)*phi1_x(4)
+     &             +8*x0*z0*phi10
+                phi_xx(3,3)=(1-rho0**2)**2*phi1_x(3,3)
+     &             -2*4*y0*(1-rho0**2)*phi1_x(3)
+     &             -4*(1-rho0**2-2*y0**2)*phi10
+                phi_xx(3,4)=(1-rho0**2)**2*phi1_x(3,4)
+     &             -4*z0*(1-rho0**2)*phi1_x(3)           
+     &             -4*y0*(1-rho0**2)*phi1_x(4)
+     &             +8*y0*z0*phi10
+                phi_xx(4,4)=(1-rho0**2)**2*phi1_x(4,4)
+     &             -2*4*z0*(1-rho0**2)*phi1_x(4)
+     &             -4*(1-rho0**2-2*z0**2)*phi10
+
+                do a=1,3
+                 do b=a+1,4
+                   phi_xx(b,a)=phi_xx(a,b)
+                 end do
+               end do
+
                kg_ires(i,j,k)=0.0d0
                do a=1,4
                 do b=1,4
+                 kg_ires(i,j,k)=
+     &               kg_ires(i,j,k)
+     &                +g0_uu(a,b)*phi_xx(a,b)
                  do c=1,4
                    kg_ires(i,j,k)=
-     &                         kg_ires(i,j,k)
-     &                         +phi10_xx(a,b)*g0_uu(a,b)
-     &                         +phi10_x(b)*g0_uu_x(a,b,a)
-     &                         +phi10_x(c)*g0_uu(c,b)*gamma_ull(a,a,b)
+     &               kg_ires(i,j,k)
+     &                -g0_uu(a,b)*gamma_ull(c,a,b)*phi_x(c)
                  end do
                 end do
                end do
