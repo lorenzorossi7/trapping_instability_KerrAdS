@@ -119,7 +119,7 @@ c----------------------------------------------------------------------
         real*8 ricci_ll(4,4),ricci_lu(4,4),ricci
         real*8 einstein_ll(4,4),set_ll(4,4)
         real*8 Hads_l(4),A_l(4),A_l_x(4,4)
-        real*8 phi10_x(4),phi10_xx(4,4)
+        real*8 phi10,phi10_x(4),phi10_xx(4,4)
         real*8 phi_x(4),phi_xx(4,4)
 
         !--------------------------------------------------------------
@@ -302,10 +302,12 @@ c----------------------------------------------------------------------
 
               ! calculate efe_all_ires function at point i,j,k
               efe_all_ires(i,j,k)=
-     &        max(abs(efe_tt_ires(i,j,k)),abs(efe_tx_ires(i,j,k)),
+     &         max(abs(efe_tt_ires(i,j,k)),
+     &            abs(efe_tx_ires(i,j,k)),
      &            abs(efe_ty_ires(i,j,k)),
      &            abs(efe_tz_ires(i,j,k)),
-     &            abs(efe_xx_ires(i,j,k)),abs(efe_xy_ires(i,j,k)),
+     &            abs(efe_xx_ires(i,j,k)),
+     &            abs(efe_xy_ires(i,j,k)),
      &            abs(efe_xz_ires(i,j,k)),
      &            abs(efe_yy_ires(i,j,k)),
      &            abs(efe_yz_ires(i,j,k)),
@@ -529,41 +531,43 @@ c----------------------------------------------------------------------
                 ! phi_res = phi,ab g^ab + phi,b g^ab,a + phi,c g^cb gamma^a_ab
                 !         (= g^ab phi,ab - g^ab gamma^c_ab phi,c) 
                 !--------------------------------------------------------------------------
-                phi_x(1)=(1-rho0**2)**2*phi1_x(1)
-                phi_x(2)=(1-rho0**2)**2*phi1_x(2)
+                phi10=phi1_n(i,j,k)
+
+                phi_x(1)=(1-rho0**2)**2*phi10_x(1)
+                phi_x(2)=(1-rho0**2)**2*phi10_x(2)
      &             -4*x0*(1-rho0**2)*phi10
-                phi_x(3)=(1-rho0**2)**2*phi1_x(3)
+                phi_x(3)=(1-rho0**2)**2*phi10_x(3)
      &             -4*y0*(1-rho0**2)*phi10
-                phi_x(2)=(1-rho0**2)**2*phi1_x(4)
+                phi_x(2)=(1-rho0**2)**2*phi10_x(4)
      &             -4*z0*(1-rho0**2)*phi10
 
-                phi_xx(1,1)=(1-rho0**2)**2*phi1_xx(1,1)
-                phi_xx(1,2)=(1-rho0**2)**2*phi1_xx(1,2)
-     &             -4*x0*(1-rho0**2)*phi1_x(1)
-                phi_xx(1,3)=(1-rho0**2)**2*phi1_xx(1,3)
-     &             -4*y0*(1-rho0**2)*phi1_x(1)
-                phi_xx(1,4)=(1-rho0**2)**2*phi1_xx(1,4)
-     &             -4*z0*(1-rho0**2)*phi1_x(1)
-                phi_xx(2,2)=(1-rho0**2)**2*phi1_x(2,2)
-     &             -2*4*x0*(1-rho0**2)*phi1_x(2)
+                phi_xx(1,1)=(1-rho0**2)**2*phi10_xx(1,1)
+                phi_xx(1,2)=(1-rho0**2)**2*phi10_xx(1,2)
+     &             -4*x0*(1-rho0**2)*phi10_x(1)
+                phi_xx(1,3)=(1-rho0**2)**2*phi10_xx(1,3)
+     &             -4*y0*(1-rho0**2)*phi10_x(1)
+                phi_xx(1,4)=(1-rho0**2)**2*phi10_xx(1,4)
+     &             -4*z0*(1-rho0**2)*phi10_x(1)
+                phi_xx(2,2)=(1-rho0**2)**2*phi10_xx(2,2)
+     &             -2*4*x0*(1-rho0**2)*phi10_x(2)
      &             -4*(1-rho0**2-2*x0**2)*phi10
-                phi_xx(2,3)=(1-rho0**2)**2*phi1_x(2,3)
-     &             -4*y0*(1-rho0**2)*phi1_x(2)           
-     &             -4*x0*(1-rho0**2)*phi1_x(3)
+                phi_xx(2,3)=(1-rho0**2)**2*phi10_xx(2,3)
+     &             -4*y0*(1-rho0**2)*phi10_x(2)           
+     &             -4*x0*(1-rho0**2)*phi10_x(3)
      &             +8*x0*y0*phi10
-                phi_xx(2,4)=(1-rho0**2)**2*phi1_x(2,4)
-     &             -4*z0*(1-rho0**2)*phi1_x(2)           
-     &             -4*x0*(1-rho0**2)*phi1_x(4)
+                phi_xx(2,4)=(1-rho0**2)**2*phi10_xx(2,4)
+     &             -4*z0*(1-rho0**2)*phi10_x(2)           
+     &             -4*x0*(1-rho0**2)*phi10_x(4)
      &             +8*x0*z0*phi10
-                phi_xx(3,3)=(1-rho0**2)**2*phi1_x(3,3)
-     &             -2*4*y0*(1-rho0**2)*phi1_x(3)
+                phi_xx(3,3)=(1-rho0**2)**2*phi10_xx(3,3)
+     &             -2*4*y0*(1-rho0**2)*phi10_x(3)
      &             -4*(1-rho0**2-2*y0**2)*phi10
-                phi_xx(3,4)=(1-rho0**2)**2*phi1_x(3,4)
-     &             -4*z0*(1-rho0**2)*phi1_x(3)           
-     &             -4*y0*(1-rho0**2)*phi1_x(4)
+                phi_xx(3,4)=(1-rho0**2)**2*phi10_xx(3,4)
+     &             -4*z0*(1-rho0**2)*phi10_x(3)           
+     &             -4*y0*(1-rho0**2)*phi10_x(4)
      &             +8*y0*z0*phi10
-                phi_xx(4,4)=(1-rho0**2)**2*phi1_x(4,4)
-     &             -2*4*z0*(1-rho0**2)*phi1_x(4)
+                phi_xx(4,4)=(1-rho0**2)**2*phi10_xx(4,4)
+     &             -2*4*z0*(1-rho0**2)*phi10_x(4)
      &             -4*(1-rho0**2-2*z0**2)*phi10
 
                 do a=1,3
