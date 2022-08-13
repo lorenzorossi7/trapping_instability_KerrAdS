@@ -23505,7 +23505,7 @@ void AdS4D_post_tstep(int L)
     	if (my_rank==0)
     	{
     		l=0;
-	    	if (excision_type==0) printf("No internal excision\n");
+	    	if (excision_type==0) printf("\nNo internal excision\n");
 		    if ((excision_type==1)&&(min_AH_R0<1)) 
 		    {
 		    	printf("\nSpherical excised region with radius min_AH_R*(1-ex_rbuf[l])=%lf\n",min_AH_R0*(1-ex_rbuf[l]));
