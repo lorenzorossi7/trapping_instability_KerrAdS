@@ -2513,13 +2513,7 @@ void AdS4D_var_post_init(char *pfile)
             AMRD_real_param(pfile,buf,&ex_rbuf[l],1);
             if (ex_rbuf[l]<0 || ex_rbuf[l]>1 ) printf("WARNING ... ex_rbuf[%i]=%lf is outside of standard range\n",l,ex_rbuf[l]);
         }   
-        if (excision_type==0) {
-        	if (fabs(ex_rbuf[l])<pow(10,-10))
-        	{
-        		if (my_rank==0) {printf("WARNING...ex_rbuf[%i] is not 1 but excision_type=0, so we do not excise. Setting ex_rbuf[%i]=0\n",l,l);}
-        	}
-        	ex_rbuf[l]=1.0;
-        }
+
         if (!AMRD_cp_restart)
         {
             ex_xc[l][0]=ex_xc[l][1]=ex_xc[l][2]=0;
