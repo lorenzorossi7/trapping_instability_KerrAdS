@@ -2846,13 +2846,22 @@ void AdS4D_var_post_init(char *pfile)
         }
         min_AH_R0=1;
         max_AH_R0=1;
-        ex_r[0][0]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse x-semiaxis
-        ex_r[0][1]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse y-semiaxis
-        ex_r[0][2]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
-        if (ah_finder_is_off)
+        if (excision_type==0) //no excision
         {
-            if (my_rank==0)   printf("\n ... AH finder is off so we excise, AT ALL TIME STEPS, points with compactified radius smaller than (1-ex_rbuf[0])=%lf ... \n",(1-ex_rbuf[0]));
+        	ex_r[0][0]=0; //excision ellipse x-semiaxis
+        	ex_r[0][1]=0; //excision ellipse y-semiaxis
+        	ex_r[0][2]=0; //excision ellipse z-semiaxis
         }
+        else
+        {
+        	ex_r[0][0]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse x-semiaxis
+        	ex_r[0][1]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse y-semiaxis
+        	ex_r[0][2]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
+	        if (ah_finder_is_off)
+	        {
+	            if (my_rank==0)   printf("\n ... AH finder is off so we excise, AT ALL TIME STEPS, points with compactified radius smaller than (1-ex_rbuf[0])=%lf ... \n",(1-ex_rbuf[0]));
+	        }
+    	}
     }   
 
     if (AMRD_do_ex==0) AMRD_stop("require excision to be on","");   
