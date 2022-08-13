@@ -2840,7 +2840,7 @@ void AdS4D_var_post_init(char *pfile)
     }
     else
     {
-        if (my_rank==0) printf("\nscalar field initial data from Hamiltonian constraint solver\n");
+        if (my_rank==0) printf("\nInitial data with no black hole\n");
         for (i0=0;i0<AH_Nchi[0];i0++)
         {
        		for (j0=0;j0<AH_Nphi[0];j0++)
