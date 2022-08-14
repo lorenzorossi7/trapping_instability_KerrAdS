@@ -213,6 +213,11 @@ c----------------------------------------------------------------------
           do j=js,je
            do k=ks,ke
 
+            x0=x(i)
+            y0=y(j)
+            z0=z(k)
+            rho0=sqrt(x0**2+y0**2+z0**2)
+
             if (chr(i,j,k).ne.ex) then
 
               ! computes tensors at point i,j
@@ -312,11 +317,6 @@ c----------------------------------------------------------------------
      &            abs(efe_yy_ires(i,j,k)),
      &            abs(efe_yz_ires(i,j,k)),
      &            abs(efe_zz_ires(i,j,k)))
-
-              x0=x(i)
-              y0=y(j)
-              z0=z(k)
-              rho0=sqrt(x0**2+y0**2+z0**2)
 
               ! calculate boxx^c at point i,j,k
               ! (boxx^c = -g^ab gamma^c_ab)
