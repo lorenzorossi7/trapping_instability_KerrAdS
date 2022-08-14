@@ -22283,6 +22283,7 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
     real AH_Rp,AH_xp,AH_yp,AH_zp;
     real ex_xp,ex_yp,ex_zp,ex_rhop;
     real prev_run_ex_r_xp,prev_run_ex_r_yp,prev_run_ex_r_zp,prev_run_r;
+    int output_message=1;
 
     dx=(bbox[1]-bbox[0])/(shape[0]-1);
     dy=(bbox[3]-bbox[2])/(shape[1]-1);
@@ -22320,9 +22321,10 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
 
 					if (excision_type==1)//spherical excised region with radius min_AH_R0*(1-ex_rbuf[l])
                     {
-                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0))
+                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0)&&(output_message))
                     	{
                     		printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence.\n");
+                    		output_message=0;
                     	}
                     		//Cartesian coordinates of point p w.r.t. the centre of the AH
                         	xp=(x-ex_xc[l][0]);
@@ -22338,9 +22340,10 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
                     }
                     else if (excision_type==2) //elliptic excised region with semiaxes ex_r[l][0],ex_r[l][1],ex_r[l][2]
                     {
-                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0))
+                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0)&&(output_message))
                     	{
                     		printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence.\n");
+                    		output_message=0;
                     	}
                     		//Cartesian coordinates of point p w.r.t. the centre of the AH
                         	xp=(x-ex_xc[l][0]);
@@ -22383,9 +22386,10 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
                     }
                     else if (excision_type==3) //AH-shaped excised region
                     {
-                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0))
+                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0)&&(output_message))
                     	{
                     		printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence.\n");
+                    		output_message=0;
                     	}
                         	//Cartesian coordinates of point p w.r.t. the centre of the AH
                             xp=(x-ex_xc[l][0]);
