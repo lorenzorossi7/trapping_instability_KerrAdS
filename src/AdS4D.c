@@ -2697,14 +2697,21 @@ void AdS4D_var_post_init(char *pfile)
         }
 		min_AH_R0=rhoh;
         max_AH_R0=rhoh;
-        ex_r[0][0]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse x-semiaxis
-        ex_r[0][1]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse y-semiaxis
-        ex_r[0][2]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
+        if (excision_type==0) //no excision
+        {
+        	AMRD_stop("ERROR: Use excision to be on for black hole initial data or code will crash due to the curvature singularity. Set excision_type to a non-zero value.","");    
+        }
+        else
+        {
+        	ex_r[0][0]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse x-semiaxis
+        	ex_r[0][1]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse y-semiaxis
+        	ex_r[0][2]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
+       	}
         if (ah_finder_is_off) 
         {
             if (my_rank==0) printf("\n ... AH finder is off so we excise, AT ALL TIME STEPS, points with compactified radius smaller than rhoh*(1-ex_rbuf[0])=%lf ... \n",rhoh*(1-ex_rbuf[0]));
         }
-        else //if we start from bh initial data and AH finder is not off
+        else //if we start from Schwarzschild-AdS initial data and AH finder is not off
         {
            	//AH_rsteps[l]=1;
            	//AH_r0[l]=rhoh;
@@ -2783,20 +2790,24 @@ void AdS4D_var_post_init(char *pfile)
                    "Semi-axes of elliptic approximation of BH in Kerr-Schild quasi-spherical compactified coordinates: AH_semiax[0]=%lf, AH_semiax[1]=%lf, AH_semiax[2]=%lf\n\n"
                    "Excision buffer (i.e. size of the evolved region within the AH) ex_rbuf[0]=%lf\n\n"
                    ,ief_bh_r0/AdS_L,M0,a_rot0/AdS_L,E,J0,rh,min_AH_R0,max_AH_R0,AH_semiax[0],AH_semiax[1],AH_semiax[2],ex_rbuf[0]);
-        } 
-        if (excision_type==1)
+        }
+        if (excision_type==0)
+        {
+        	AMRD_stop("ERROR: Use excision to be on for black hole initial data or code will crash due to the curvature singularity. Set excision_type to a non-zero value.","");   
+        }
+        else if (excision_type==1)
 		{
 			ex_r[0][0]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse x-semiaxis
         	ex_r[0][1]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse y-semiaxis
         	ex_r[0][2]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
 		}
-		if (excision_type==2)
+		else if (excision_type==2)
 		{
 			ex_r[0][0]=AH_semiax[0]*(1-ex_rbuf[0]); //excision ellipse x-semiaxis
         	ex_r[0][1]=AH_semiax[1]*(1-ex_rbuf[0]); //excision ellipse y-semiaxis
         	ex_r[0][2]=AH_semiax[2]*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
 		}
-		if (excision_type==3)
+		else if (excision_type==3)
 		{
 	        for (i0=0;i0<AH_Nchi[0];i0++)
     	    {
@@ -2812,12 +2823,12 @@ void AdS4D_var_post_init(char *pfile)
         {
             if (my_rank==0)   printf("\n ... AH finder is off so the excision region is the same AT ALL TIME STEPS\n");
         }
-        else //if we start from bh initial data and AH finder is not off
+        else //if we start from Kerr-AdS initial data and AH finder is on
         {
         	if (my_rank==0) printf("\n ... AH finder is on\n");
         	if (AH_analytic_kerrads)
         	{
-        		if (my_rank==0) printf("\nThe initial guess for the horizon radius AH_R is the analytic Kerr-AdS function\n");
+        		if (my_rank==0) printf("\nThe initial guess for the horizon radius AH_R is the corresponding, analytic Kerr-AdS function\n");
         	}
 			else if (AH_reset_r_sample==0)
 			{
@@ -2859,7 +2870,7 @@ void AdS4D_var_post_init(char *pfile)
         	ex_r[0][2]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
 	        if (ah_finder_is_off)
 	        {
-	            if (my_rank==0)   printf("\n ... AH finder is off so we excise, AT ALL TIME STEPS, points with compactified radius smaller than (1-ex_rbuf[0])=%lf ... \n",(1-ex_rbuf[0]));
+	            if (my_rank==0) printf("\n ... AH finder is off so we excise, AT ALL TIME STEPS, points with compactified radius smaller than (1-ex_rbuf[0])=%lf ... \n",(1-ex_rbuf[0]));
 	        }
     	}
     }   
@@ -2870,13 +2881,15 @@ void AdS4D_var_post_init(char *pfile)
 		l=0;
 
 	    	if (excision_type==0) printf("\nNo internal excision\n");
-		    if ((excision_type==1)&&(min_AH_R0<1)) 
+		    else if (excision_type==1)
 		    {
+		    	if (fabs(min_AH_R0-1)<pow(10,-12)) if (my_rank==0) printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence. Set excision_type=0 to turn off excision.\n");
 		    	printf("\nSpherical excised region with radius min_AH_R0*(1-ex_rbuf[l])=%lf\n",min_AH_R0*(1-ex_rbuf[l]));
 		    	if ((AMRD_cp_restart)&&(excise_prev_run_ex_pts)) printf("WARNING: excision of pre-checkpoint excised points that would not be excised in the current run can be activated only for elliptic-type excision. This will be ignored\n");
 		    }
-	    	if ((excision_type==2)&&(min_AH_R0<1))
+	    	else if (excision_type==2)
 	    	{
+	    		if (fabs(min_AH_R0-1)<pow(10,-12)) if (my_rank==0) printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence. Set excision_type=0 to turn off excision.\n");
 	    		printf("\nExcision ellipse semiaxes: (ex_r[l][0],ex_r[l][1],ex_r[l][2])=(%lf,%lf,%lf)\n",ex_r[l][0],ex_r[l][1],ex_r[l][2]);
 	    		if ((AMRD_cp_restart)&&(excise_prev_run_ex_pts))
 	        	{     
@@ -2891,8 +2904,9 @@ void AdS4D_var_post_init(char *pfile)
 					}	
 				}
 			}
-	   		if ((excision_type==3)&&(min_AH_R0<1)) 
+	   		else if (excision_type==3)
 	   		{
+	   			if (fabs(min_AH_R0-1)<pow(10,-12)) if (my_rank==0) printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence. Set excision_type=0 to turn off excision.\n");
 	   			printf("AH-shaped excised region: minimum and maximum of AH radius: min_AH_R0=%lf, max_AH_R0=%lf\n",min_AH_R0,max_AH_R0);
 	   			if ((AMRD_cp_restart)&&(excise_prev_run_ex_pts)) printf("WARNING: excision of pre-checkpoint excised points that would not be excised in the current run can be activated only for elliptic-type excision. This will be ignored\n");
 	   		}
@@ -22283,7 +22297,6 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
     real AH_Rp,AH_xp,AH_yp,AH_zp;
     real ex_xp,ex_yp,ex_zp,ex_rhop;
     real prev_run_ex_r_xp,prev_run_ex_r_yp,prev_run_ex_r_zp,prev_run_r;
-    int output_message=1;
 
     dx=(bbox[1]-bbox[0])/(shape[0]-1);
     dy=(bbox[3]-bbox[2])/(shape[1]-1);
@@ -22321,11 +22334,6 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
 
 					if (excision_type==1)//spherical excised region with radius min_AH_R0*(1-ex_rbuf[l])
                     {
-                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0)&&(output_message))
-                    	{
-                    		printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence.\n");
-                    		output_message=0;
-                    	}
                     		//Cartesian coordinates of point p w.r.t. the centre of the AH
                         	xp=(x-ex_xc[l][0]);
                         	yp=(y-ex_xc[l][1]);
@@ -22340,11 +22348,6 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
                     }
                     else if (excision_type==2) //elliptic excised region with semiaxes ex_r[l][0],ex_r[l][1],ex_r[l][2]
                     {
-                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0)&&(output_message))
-                    	{
-                    		printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence.\n");
-                    		output_message=0;
-                    	}
                     		//Cartesian coordinates of point p w.r.t. the centre of the AH
                         	xp=(x-ex_xc[l][0]);
                         	yp=(y-ex_xc[l][1]);
@@ -22386,11 +22389,6 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
                     }
                     else if (excision_type==3) //AH-shaped excised region
                     {
-                    	if ((fabs(min_AH_R0-1)<pow(10,-12))&&(my_rank==0)&&(output_message))
-                    	{
-                    		printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence.\n");
-                    		output_message=0;
-                    	}
                         	//Cartesian coordinates of point p w.r.t. the centre of the AH
                             xp=(x-ex_xc[l][0]);
                             yp=(y-ex_xc[l][1]);
