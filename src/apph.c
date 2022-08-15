@@ -705,7 +705,7 @@ int find_apph(real *M, real *J, real *area, real *c_equat, real *c_polar, real *
    if (eps1>1) eps1=eps1-1;
 
    // for found_AH:=use_R_ic=0, figure out an initial guess for AH_R
-   if ((!use_R_ic)&&(!AH_analytic_kerrads))
+   if ((!use_R_ic)&&(!(*AH_analytic_kerrads)))
    {
       if (AH_rsteps[c_AH]==1) // for one radius iteration
       {

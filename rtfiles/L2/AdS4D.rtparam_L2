@@ -7,10 +7,10 @@ kerrads_background := 1
 #------ Initial Data -------------------------------------------------------
 
 #scalar field ID#
-phi1_amp_1 := 0.2
+phi1_amp_1 := 1.0
 phi1_r0_1 := 0.0
 phi1_delta_1 := 0.2
-phi1_x0_1 := [0.0 -0.6 0.0]
+phi1_x0_1 := [0.0 0.0 0.0]
 phi1_ecc_1 := [0.2 0.2 0.2]
 phi1_B_1 := 0.0
 phi1_C_1 := 0.0
@@ -20,8 +20,8 @@ rhod := 0.8
 stype := 0
 
 #Lorent boost parameters
-boost_v_1 := [0.9 0.0 0.0]
-boost_amp_1 := 0.2
+boost_v_1 := [0.0 0.0 0.0]
+boost_amp_1 := 0.0
 boost_r0_1 := 0.0
 boost_delta_1 := 0.2
 boost_x0_1 := [0.0 -0.6 0.0]
@@ -35,8 +35,8 @@ boost_x0_2 := [0.0 -0.3 -0.2]
 boost_ecc_2 := [0.2 0.2 0.2]
 
 #Either add perturbations to the initial data or substitute the entire initial data with the boosted profile
-add_perturb := 0
-subs_perturb := 1
+add_perturb := 1
+subs_perturb := 0
 
 
 #AdS4D-Kerr BH ID#
@@ -44,18 +44,19 @@ ief_bh_r0 := 0.8
 a_rot0 := 0.2
 
 #------ AH-finder ---------
-#AH_analytic_kerrads to use AH finder with analytic Kerr-AdS horizon radius as initial guess
-AH_analytic_kerrads := 1
 #AH_Lmin := 2
 #AH_Lmax := 2
 AH_rsteps := 10
 AH_eps := 0.0
-AH_max_iter := 0000
+AH_max_iter := 10000
 AH_lambda := 0.001
 AH_tol := 1e-2
 AH_r0 := 0.1
-AH_r1 := 0.2
-AH_reset_r_sample := 1
+AH_r1 := 0.4
+#AH_analytic_kerrads to use AH finder with analytic Kerr-AdS horizon radius as initial guess (not needed when evolving a pure AdS background)
+AH_analytic_kerrads := 1
+#To use max and min of analytic Kerr-AdS horizon radius as range of sample spheres for AH finder (only if AH_analytic_kerrads=0. This flag is not used in the case of Schwarzschild-AdS background.)
+AH_rsample_maxminkerrads := 0
 AH_xc := [0.0 0.0 0.0]
 AH_Nchi := 9
 AH_Nphi := 17
@@ -63,7 +64,7 @@ AH_freq := 1
 AH_freq_aft := 1
 #excision_type=0: no internal excision - excision_type=1: spherical excised region - excision_type=2: elliptic excised region - excision_type=3: AH-shaped excised region
 excision_type := 2
-#excision buffer, i.e. how wide the region to evolve within the AH (or the AdS boundary if there is no BH) is
+#excision buffer, i.e. size of the region to evolve within the AH (or the AdS boundary if there is no BH)
 ex_rbuf := 0.4
 AH_reset_scale := 1.1
 AH_max_iter_2 := 0
@@ -73,14 +74,14 @@ AH_tmin := 0
 #if the following are disabled, we only output the position of the AH and the expansion theta in .sdf files
 output_moreAHquant_sdf := 1
 output_metricAH_cart_sdf := 1
-output_metricAH_sph_sdf := 1
+output_metricAH_sph_sdf := 0
 #setting output_kretschAH_sdf to 1 will output Kretschmann at the AH only if output_kretsch is enabled
 output_kretschAH_sdf := 1
 output_riemanncubeAH_sdf := 1
 output_moreAHquant_ascii := 1
 output_AHtheta_ascii := 0
 output_metricAH_cart_ascii := 1
-output_metricAH_sph_ascii := 0
+output_metricAH_sph_ascii := 1
 #setting output_kretschAH_ascii to 1 will output Kretschmann at the AH only if output_kretsch is enabled
 output_kretschAH_ascii := 1
 output_riemanncubeAH_ascii := 1
@@ -100,7 +101,7 @@ prev_run_ex_r_4 := [0.0 0.0 0.0]
 #        (also, skip_constraints=1 && ief_bh_r0!=0 for adsbh initial data) 
  
 background := 0
-skip_constraints := 0
+skip_constraints := 1
 output_ires_ghconstr := 1
 output_kretsch := 0
 #setting output_kretschcentregrid to 1 will output relative Kretschmann at the centre of the grid only if output_kretsch is enabled
