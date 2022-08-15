@@ -3,6 +3,7 @@ STATUS OF THIS BRANCH:
 Implemented analytic Kerr-AdS (and Schwarzschild-AdS) initial data in Kerr-Schild Cartesian coordinates non-rotating at the boundary.
 
 Implemented the option to use Kerr-AdS (or Schwarzschild-AdS) in Kerr-Schild Cartesian coordinates non-rotating at the boundary as background metric.
+NOTE: the option of solving the constraints on black hole backgrounds is not implemented. Before implementing this, a momentum constraint solver is needed: black hole metrics in horizon penetrating-coordinates (needed to ensure we can excise a region well-inside the event horizon, and thus not lose convergence) have g_ti!=0, so they do not trivially satisfy the momentum constraint. If you wish to use a black hole background, perturbations can only be added without solving the constraints. Set skip_constraints=0 to skip the Hamiltonian constraint solver.
 (* 
 Notes from the Kerr_AdS4D code (the one used to study superradiance). The following features are not fully implemented because not needed at the moment, but have been implemented in a very similar code so they can be added to this one easily.
 Implemented spherical harmonics perturbations with l=2,m=2 that follow the ones used in arXiv:1801.09711 (Chesler,Lowe). Adding these to initial data makes the data violate the constraints, so only small perturbations can be used and one needs to check that the constraint-damping terms take the evolution back to a solution of the Einstein equations.

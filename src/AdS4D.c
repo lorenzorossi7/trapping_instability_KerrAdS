@@ -3196,6 +3196,10 @@ void AdS4D_t0_cnst_data(void)
     }
     else
     {   
+    	if (ief_bh_r0>pow(10,-10)) 
+    	{
+    		AMRD_stop("The option of solving the constraints on black hole backgrounds is not implemented.\n Before implementing this, a momentum constraint solver is needed: black hole metrics in horizon penetrating-coordinates (needed to ensure we can excise a region well-inside the event horizon, and thus not lose convergence) have g_ti!=0, so they do not trivially satisfy the momentum constraint.\n If you wish to use a black hole background, perturbations can only be added without solving the constraints. Set skip_constraints=0 to skip the Hamiltonian constraint solver.","");   
+    	}
         if (gb_xx_nm1) //"np1,n,nm1" variables only allocated on finest MG level
         {   
 
