@@ -21945,7 +21945,7 @@ real AdS4D_evo_residual(void)
     l2norm_hb_t=norm_l2(hb_t_res,mask,chr);
     l2norm_hb_i=norm_l2(hb_i_res,mask,chr); 
     l2norm=l2norm_phi1; 
-    if (!background) l2norm+=(l2norm_gb+l2norm_hb_t+l2norm_hb_i);   
+    if (!background) l2norm+=(l2norm_gb+l2norm_hb_t+l2norm_hb_i+l2norm_phi1);   
     check_nan_(&l2norm,&is_nan);    
     if (is_nan)
     {
