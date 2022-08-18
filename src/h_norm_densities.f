@@ -32,6 +32,8 @@ c-----------------------------------------------------------------------
      &                  sqrth0spnormdensity_f,
      &                  sp,hnorm_argtype,
      &                  f1_np1,f1_n,f1_nm1,
+     &                  AH_R,AH_xc,
+     &                  AH_Ntheta,AH_Nphi,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
      &                  ief_bh_r0,a_rot,kerrads_background)
@@ -47,6 +49,14 @@ c-----------------------------------------------------------------------
         real*8 chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
+        integer AH_Ntheta,AH_Nphi
+        real*8 AH_R(AH_Ntheta,AH_Nphi)
+        real*8 AH_xc(3)
+        real*8 xp,yp,zp,rhop,thetap,phip
+        integer i0,j0
+        real*8 dahtheta,dahphi
+        real*8 ft,fp
+        real*8 AH_Rp,rhostop
         real*8 f1_np1(Nx,Ny,Nz),f1_n(Nx,Ny,Nz),f1_nm1(Nx,Ny,Nz)
         real*8 sqrth0spnormdensity_f(Nx,Ny,Nz)
         real*8 h0spnormdensity_f0
@@ -120,51 +130,6 @@ c-----------------------------------------------------------------------
           stop
         end if
 
-      !event horizon radius in Boyer-Lindquist coordinates rotating at the boundary (non-spherical coordinates)
-        rblhor=(Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     - (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -   4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333) + 
-     -    Sqrt(-4*a_rot**2 - 4*L**2 - 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -             4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                 54*L**4*M0**2)**2)/2.)**0.3333333333333333 - 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -      (12*Sqrt(3.)*L**2*M0)/
-     -       Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
-     -             54*L**4*M0**2 + 
-     -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                    54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -    (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  +L**6+54*L**4*M0**2+
-     -            Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -               4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                   54*L**4*M0**2)**2)/2.)**0.3333333333333333)))/
-     -  (2.*Sqrt(3.))
-
 
         dx=(x(2)-x(1))
         dy=(y(2)-y(1))
@@ -187,7 +152,7 @@ c-----------------------------------------------------------------------
         if (ghost_width(6).gt.0) ke=ke-(ghost_width(6)-1)
 
 
-        ! (MAIN LOOP) loop through spacetime points x(i),y(j)
+        ! (MAIN LOOP) loop through spacetime points x(i),y(j),z(k)
         do i=is,ie
           do j=js,je
            do k=ks,ke
@@ -202,24 +167,70 @@ c-----------------------------------------------------------------------
               else
                phi0=atan2(z0,y0)
               end if
-              !uncompactified quasi-sherical Kerr-Schild radial coordinate
+
+              !uncompactified quasi-spherical Kerr-Schild radial coordinate
               Rad0=2*rho0/(1-rho0**2)
               drho_dRad=((1-rho0**2)**2)/(2*(1+rho0**2))
               dRad_drho=(-1 + rho0)**(-2) 
      &           + (1 + rho0)**(-2)
 
-            !position of event horizon in uncompactified spherical coordinates (non-rotating at the boundary)
-            Radhor=(Sqrt(2.)*L*
-     -       Sqrt(rblhor**2*(a_rot**2 + rblhor**2)))/
-     -       Sqrt(2*L**2*rblhor**2 + a_rot**2*(L**2 - rblhor**2) 
-     -       + a_rot**2*(L**2 + rblhor**2)*Cos(2*theta0))
+              !determine radius at which we stop computing the norms. This is the apparent horizon (AH) radius.
 
-            !position of event horizon in compactified spherical coordinates: rho=sqrt(x**2+y**2+z**2) where x,y,z are the code coordinates
-            rhohor=(-1 + Sqrt(1 + Radhor**2))/
-     -            Radhor
+              !Cartesian coordinates of grid point p=(i,j,k) w.r.t. the centre of the AH
+              xp=x0-AH_xc(1)
+              yp=y0-AH_xc(2)
+              zp=z0-AH_xc(3)
 
-            if ((rho0.gt.rhohor).and.
-     &         (chr(i,j,k).ne.ex)) then
+              !The center of the AH xp=yp=zp=0 will be excluded or included depending on the excision mask chr(i,j,k), 
+              !so no need to force inclusion or exclusion via the value of rhostop. 
+              !In fact, xp=yp=zp=0 is also the centre of the grid if there is no AH (also if the AH is centred at the origin), 
+              !so we should include it if we want to compute these norms in the case of no horizon.
+              !For this reason, it's best to leave the inclusion or exclusion of that point to the excision mask chr(i,j,k).
+              if ((abs(xp).lt.10.0d0**(-12)).and.
+     &            (abs(yp).lt.10.0d0**(-12)).and.  
+     &            (abs(zp).lt.10.0d0**(-12)) ) then
+                rhostop=-1
+              else
+                !corresponding spherical coordinates of point p
+                !thetap,phip is in general NOT on the AH_Ntheta,AH_Nphi grid.
+                rhop=sqrt(xp**2+yp**2+zp**2)
+                thetap=acos(xp/rhop)
+                if (zp.lt.0) then
+                    phip=atan2(zp,yp)+2*PI
+                else
+                    phip=atan2(zp,yp)
+                end if
+
+                ! i0 is the index of the point with chi value closest to chip on the AH_Nchi grid (indices going from 0 to AH_Ntheta-1),
+                ! and larger than chip (except if thetap=Pi, then it is smaller)
+                ! similarly for j0
+                dahtheta=PI/(AH_Ntheta-1)
+                dahphi=2*PI/(AH_Nphi-1)
+                i0=floor(thetap/dahtheta+1)
+                if (AH_Ntheta-1<i0) i0=AH_Ntheta-1
+                j0=floor(phip/dahphi+1)
+                if (AH_Nphi-1<j0) j0=AH_Nphi-1
+                ft=((thetap-(i0-1)*dahtheta))/dahtheta
+                fp=((phip-(j0-1)*dahphi))/dahphi
+
+                !bi-linear interpolated value of AH radius at (thetap,phip)
+                AH_Rp=  AH_R(i0,j0)*(1-ft)*(1-fp)+
+     &                  AH_R(i0+1,j0)*(ft)*(1-fp)+
+     &                  AH_R(i0,j0+1)*(1-ft)*(fp)+
+     &                  AH_R(i0+1,j0+1)*(ft)*(fp)
+
+                if (abs(AH_Rp-1).gt.10.0d0**(-10)) then 
+                    rhostop=AH_Rp
+                else
+                    rhostop=-1.0d0
+                end if
+              end if
+
+
+            if (
+     &          (rho0.ge.rhostop).and.
+     &          (chr(i,j,k).ne.ex)
+     &          ) then
 
                 ! set f1 value
                 f10=f1_n(i,j,k)
@@ -318,22 +329,22 @@ c-----------------------------------------------------------------------
                 end if
 
                 if (ltrace) then
-                 if ((abs(x0).gt.10.0d0**(-1.0d0)).and.
-     &               (abs(y0).gt.10.0d0**(-1.0d0)).and.
-     &               (abs(z0).gt.10.0d0**(-1.0d0)).and.
-     &                (rho0.lt.0.9)  ) then
+!                 if ((abs(x0).gt.10.0d0**(-1.0d0)).and.
+!     &               (abs(y0).gt.10.0d0**(-1.0d0)).and.
+!     &               (abs(z0).gt.10.0d0**(-1.0d0)).and.
+!     &                (rho0.lt.0.9)  ) then
                    write(*,*) 'sqrth0spnormdensity_func '
                    write(*,*) 'sp,hnorm_argtype= ',sp,hnorm_argtype
                    write(*,*) 'at i,j,k= ', i,j,k
-                   write(*,*) 'i.e., x,y,z=', x(i),y(j),z(k)
+                   write(*,*) 'i.e., x,y,z,rho=', x0,y0,z0,rho0
                    write(*,*) ' sqrth0spnormdensity_f = ',
      &                  sqrth0spnormdensity_f(i,j,k)
                    return
-                 end if
+!                 end if
                 end if
 
 
-            else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
+            else !i.e., the point is either excised or inside the apparent horizon
                sqrth0spnormdensity_f(i,j,k)=0.0d0
             end if
 
@@ -369,6 +380,8 @@ c-----------------------------------------------------------------------
      &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &                  phi1_np1,phi1_n,phi1_nm1,
+     &                  AH_R,AH_xc,
+     &                  AH_Ntheta,AH_Nphi,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
      &                  ief_bh_r0,a_rot,kerrads_background)
@@ -390,6 +403,14 @@ c-----------------------------------------------------------------------
         real*8 chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
+        integer AH_Ntheta,AH_Nphi
+        real*8 AH_R(AH_Ntheta,AH_Nphi)
+        real*8 AH_xc(3)
+        real*8 xp,yp,zp,rhop,thetap,phip
+        integer i0,j0
+        real*8 dahtheta,dahphi
+        real*8 ft,fp
+        real*8 AH_Rp,rhostop
         real*8 f1_np1(Nx,Ny,Nz),f1_n(Nx,Ny,Nz),f1_nm1(Nx,Ny,Nz)
         real*8 sqrth1spnormdensity_f(Nx,Ny,Nz)
         real*8 h1spnormdensity_f0
@@ -399,8 +420,6 @@ c-----------------------------------------------------------------------
         real*8 f1_t,f1_x,f1_y,f1_z
         real*8 f1_rho,f1_theta,f1_phi
         real*8 df_dRad,df_dtheta,df_dphi
-
-        real*8 rblhor,Radhor,rhohor
 
         logical ltrace
         parameter (ltrace=.false.)
@@ -443,11 +462,11 @@ c-----------------------------------------------------------------------
         ! variables for tensor manipulations 
         !(indices are t,x,y,theta,phi)
         !--------------------------------------------------------------
-        real*8 gkerrads_ll(4,4),gkerrads_uu(4,4)
-        real*8 gkerrads_ll_x(4,4,4),gkerrads_uu_x(4,4,4)
-        real*8 gkerrads_ll_xx(4,4,4,4)
-        real*8 Hkerrads_l(4)
-        real*8 phi1kerrads, phi1kerrads_x(4)
+        real*8 gads_ll(4,4),gads_uu(4,4)
+        real*8 gads_ll_x(4,4,4),gads_uu_x(4,4,4)
+        real*8 gads_ll_xx(4,4,4,4)
+        real*8 Hads_l(4)
+        real*8 phi1ads, phi1ads_x(4)
 
         real*8 g0_ll(4,4),g0_uu(4,4),detg0
         real*8 g0_ll_x(4,4,4),g0_uu_x(4,4,4),g0_ll_xx(4,4,4,4)
@@ -473,11 +492,11 @@ c-----------------------------------------------------------------------
         data dx,dy,dz/0.0,0.0,0.0/
         data x0,y0,z0,rho0/0.0,0.0,0.0,0.0/    
 
-        data gkerrads_ll,gkerrads_uu/16*0.0,16*0.0/
-        data gkerrads_ll_x,gkerrads_uu_x/64*0.0,64*0.0/
-        data gkerrads_ll_xx/256*0.0/
-        data Hkerrads_l/4*0.0/
-        data phi1kerrads_x/4*0.0/
+        data gads_ll,gads_uu/16*0.0,16*0.0/
+        data gads_ll_x,gads_uu_x/64*0.0,64*0.0/
+        data gads_ll_xx/256*0.0/
+        data Hads_l/4*0.0/
+        data phi1ads_x/4*0.0/
 
         data g0_ll,g0_uu/16*0.0,16*0.0/
         data g0_ll_x,g0_uu_x/64*0.0,64*0.0/
@@ -525,51 +544,6 @@ c-----------------------------------------------------------------------
           stop
         end if
 
-      !event horizon radius in Boyer-Lindquist coordinates rotating at the boundary (non-spherical coordinates)
-        rblhor=(Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     - (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -   4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333) + 
-     -    Sqrt(-4*a_rot**2 - 4*L**2 - 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -             4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                 54*L**4*M0**2)**2)/2.)**0.3333333333333333 - 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -      (12*Sqrt(3.)*L**2*M0)/
-     -       Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
-     -             54*L**4*M0**2 + 
-     -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                    54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -    (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  +L**6+54*L**4*M0**2+
-     -            Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -               4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                   54*L**4*M0**2)**2)/2.)**0.3333333333333333)))/
-     -  (2.*Sqrt(3.))
-
 
         dx=(x(2)-x(1))
         dy=(y(2)-y(1))
@@ -607,23 +581,67 @@ c-----------------------------------------------------------------------
               else
                phi0=atan2(z0,y0)
               end if
-              !uncompactified quasi-sherical Kerr-Schild radial coordinate
+              !uncompactified quasi-spherical Kerr-Schild radial coordinate
               Rad0=2*rho0/(1-rho0**2)
               drho_dRad=((1-rho0**2)**2)/(2*(1+rho0**2))
               dRad_drho=(-1 + rho0)**(-2) 
      &           + (1 + rho0)**(-2)
 
-            !position of event horizon in uncompactified spherical coordinates (non-rotating at the boundary)
-            Radhor=(Sqrt(2.)*L*
-     -       Sqrt(rblhor**2*(a_rot**2 + rblhor**2)))/
-     -       Sqrt(2*L**2*rblhor**2 + a_rot**2*(L**2 - rblhor**2) 
-     -       + a_rot**2*(L**2 + rblhor**2)*Cos(2*theta0))
+              !determine radius at which we stop computing the norms. This is the apparent horizon (AH) radius.
 
-            !position of event horizon in compactified spherical coordinates: rho=sqrt(x**2+y**2+z**2) where x,y,z are the code coordinates
-            rhohor=(-1 + Sqrt(1 + Radhor**2))/
-     -            Radhor
+              !Cartesian coordinates of grid point p=(i,j,k) w.r.t. the centre of the AH
+              xp=x0-AH_xc(1)
+              yp=y0-AH_xc(2)
+              zp=z0-AH_xc(3)
 
-           if ((rho0.gt.rhohor).and.
+              !The center of the AH xp=yp=zp=0 will be excluded or included depending on the excision mask chr(i,j,k), 
+              !so no need to force inclusion or exclusion via the value of rhostop. 
+              !In fact, xp=yp=zp=0 is also the centre of the grid if there is no AH (also if the AH is centred at the origin), 
+              !so we should include it if we want to compute these norms in the case of no horizon.
+              !For this reason, it's best to leave the inclusion or exclusion of that point to the excision mask chr(i,j,k).
+              if ((abs(xp).lt.10.0d0**(-12)).and.
+     &            (abs(yp).lt.10.0d0**(-12)).and.  
+     &            (abs(zp).lt.10.0d0**(-12)) ) then
+                rhostop=-1
+              else
+                !corresponding spherical coordinates of point p
+                !thetap,phip is in general NOT on the AH_Ntheta,AH_Nphi grid.
+                rhop=sqrt(xp**2+yp**2+zp**2)
+                thetap=acos(xp/rhop)
+                if (zp.lt.0) then
+                    phip=atan2(zp,yp)+2*PI
+                else
+                    phip=atan2(zp,yp)
+                end if
+
+                ! i0 is the index of the point with chi value closest to chip on the AH_Nchi grid (indices going from 0 to AH_Ntheta-1),
+                ! and larger than chip (except if thetap=Pi, then it is smaller)
+                ! similarly for j0
+                dahtheta=PI/(AH_Ntheta-1)
+                dahphi=2*PI/(AH_Nphi-1)
+                i0=floor(thetap/dahtheta+1)
+                if (AH_Ntheta-1<i0) i0=AH_Ntheta-1
+                j0=floor(phip/dahphi+1)
+                if (AH_Nphi-1<j0) j0=AH_Nphi-1
+                ft=((thetap-(i0-1)*dahtheta))/dahtheta
+                fp=((phip-(j0-1)*dahphi))/dahphi
+
+                !bi-linear interpolated value of AH radius at (thetap,phip)
+                AH_Rp=  AH_R(i0,j0)*(1-ft)*(1-fp)+
+     &                  AH_R(i0+1,j0)*(ft)*(1-fp)+
+     &                  AH_R(i0,j0+1)*(1-ft)*(fp)+
+     &                  AH_R(i0+1,j0+1)*(ft)*(fp)
+
+                if (AH_Rp.lt.1) then 
+                    rhostop=AH_Rp
+                else
+                    rhostop=-1
+                end if
+              end if
+
+
+
+            if ((rho0.ge.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 ! set f1 value
@@ -647,10 +665,10 @@ c-----------------------------------------------------------------------
      &                Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &                phi1_np1,phi1_n,phi1_nm1,
      &                g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                gkerrads_ll,gkerrads_uu,
-     &                gkerrads_ll_x,gkerrads_uu_x,gkerrads_ll_xx,
+     &                gads_ll,gads_uu,
+     &                gads_ll_x,gads_uu_x,gads_ll_xx,
      &                h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                A_l,A_l_x,Hkerrads_l,
+     &                A_l,A_l_x,Hads_l,
      &                gamma_ull,gamma_ull_x,
      &                riemann_ulll,ricci_ll,ricci_lu,ricci,
      &                einstein_ll,set_ll,
@@ -953,7 +971,7 @@ c-----------------------------------------------------------------------
                 end if
 
 
-           else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
+           else !i.e., the point is either excised or inside the apparent horizon
                sqrth1spnormdensity_f(i,j,k)=0.0d0
            end if
 
@@ -990,6 +1008,8 @@ c-----------------------------------------------------------------------
      &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &                  phi1_np1,phi1_n,phi1_nm1,
+     &                  AH_R,AH_xc,
+     &                  AH_Ntheta,AH_Nphi,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
      &                  ief_bh_r0,a_rot,kerrads_background)
@@ -1010,6 +1030,14 @@ c-----------------------------------------------------------------------
         real*8 chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
+        integer AH_Ntheta,AH_Nphi
+        real*8 AH_R(AH_Ntheta,AH_Nphi)
+        real*8 AH_xc(3)
+        real*8 xp,yp,zp,rhop,thetap,phip
+        integer i0,j0
+        real*8 dahtheta,dahphi
+        real*8 ft,fp
+        real*8 AH_Rp,rhostop
         real*8 f1_np1(Nx,Ny,Nz),f1_n(Nx,Ny,Nz),f1_nm1(Nx,Ny,Nz)
         real*8 sqrth2spnormdensity_f(Nx,Ny,Nz)
         real*8 h2spnormdensity_f0
@@ -1025,8 +1053,6 @@ c-----------------------------------------------------------------------
         real*8 d2f_dRaddRad,d2f_dRaddtheta,d2f_dRaddphi
         real*8 gamma2dim_ull_qssph(2,2,2)
         real*8 nablanablaf_qssph_trhocons_xx(2,2)
-
-        real*8 rblhor,Radhor,rhohor
 
         logical ltrace
         parameter (ltrace=.false.)
@@ -1070,11 +1096,11 @@ c-----------------------------------------------------------------------
         ! variables for tensor manipulations 
         !(indices are t,x,y,theta,phi)
         !--------------------------------------------------------------
-        real*8 gkerrads_ll(4,4),gkerrads_uu(4,4)
-        real*8 gkerrads_ll_x(4,4,4),gkerrads_uu_x(4,4,4)
-        real*8 gkerrads_ll_xx(4,4,4,4)
-        real*8 Hkerrads_l(4)
-        real*8 phi1kerrads, phi1kerrads_x(4)
+        real*8 gads_ll(4,4),gads_uu(4,4)
+        real*8 gads_ll_x(4,4,4),gads_uu_x(4,4,4)
+        real*8 gads_ll_xx(4,4,4,4)
+        real*8 Hads_l(4)
+        real*8 phi1ads, phi1ads_x(4)
 
         real*8 g0_ll(4,4),g0_uu(4,4),detg0
         real*8 g0_ll_x(4,4,4),g0_uu_x(4,4,4),g0_ll_xx(4,4,4,4)
@@ -1104,11 +1130,11 @@ c-----------------------------------------------------------------------
         data x0,y0,z0,rho0/0.0,0.0,0.0,0.0/    
 
 
-        data gkerrads_ll,gkerrads_uu/16*0.0,16*0.0/
-        data gkerrads_ll_x,gkerrads_uu_x/64*0.0,64*0.0/
-        data gkerrads_ll_xx/256*0.0/
-        data Hkerrads_l/4*0.0/
-        data phi1kerrads_x/4*0.0/
+        data gads_ll,gads_uu/16*0.0,16*0.0/
+        data gads_ll_x,gads_uu_x/64*0.0,64*0.0/
+        data gads_ll_xx/256*0.0/
+        data Hads_l/4*0.0/
+        data phi1ads_x/4*0.0/
 
         data g0_ll,g0_uu/16*0.0,16*0.0/
         data g0_ll_x,g0_uu_x/64*0.0,64*0.0/
@@ -1163,51 +1189,6 @@ c-----------------------------------------------------------------------
           stop
         end if
 
-      !event horizon radius in Boyer-Lindquist coordinates rotating at the boundary (non-spherical coordinates)
-        rblhor=(Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     - (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -   4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333) + 
-     -    Sqrt(-4*a_rot**2 - 4*L**2 - 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -             4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                 54*L**4*M0**2)**2)/2.)**0.3333333333333333 - 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -      (12*Sqrt(3.)*L**2*M0)/
-     -       Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
-     -             54*L**4*M0**2 + 
-     -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                    54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -    (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  +L**6+54*L**4*M0**2+
-     -            Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -               4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                   54*L**4*M0**2)**2)/2.)**0.3333333333333333)))/
-     -  (2.*Sqrt(3.))
-
 
         dx=(x(2)-x(1))
         dy=(y(2)-y(1))
@@ -1251,17 +1232,61 @@ c-----------------------------------------------------------------------
               dRad_drho=(-1 + rho0)**(-2) 
      &           + (1 + rho0)**(-2)
 
-            !position of event horizon in uncompactified spherical coordinates (non-rotating at the boundary)
-            Radhor=(Sqrt(2.)*L*
-     -       Sqrt(rblhor**2*(a_rot**2 + rblhor**2)))/
-     -       Sqrt(2*L**2*rblhor**2 + a_rot**2*(L**2 - rblhor**2) 
-     -       + a_rot**2*(L**2 + rblhor**2)*Cos(2*theta0))
+              !determine radius at which we stop computing the norms. This is the apparent horizon (AH) radius.
 
-            !position of event horizon in compactified spherical coordinates: rho=sqrt(x**2+y**2+z**2) where x,y,z are the code coordinates
-            rhohor=(-1 + Sqrt(1 + Radhor**2))/
-     -            Radhor
+              !Cartesian coordinates of grid point p=(i,j,k) w.r.t. the centre of the AH
+              xp=x0-AH_xc(1)
+              yp=y0-AH_xc(2)
+              zp=z0-AH_xc(3)
 
-            if ((rho0.gt.rhohor).and.
+              !The center of the AH xp=yp=zp=0 will be excluded or included depending on the excision mask chr(i,j,k), 
+              !so no need to force inclusion or exclusion via the value of rhostop. 
+              !In fact, xp=yp=zp=0 is also the centre of the grid if there is no AH (also if the AH is centred at the origin), 
+              !so we should include it if we want to compute these norms in the case of no horizon.
+              !For this reason, it's best to leave the inclusion or exclusion of that point to the excision mask chr(i,j,k).
+              if ((abs(xp).lt.10.0d0**(-12)).and.
+     &            (abs(yp).lt.10.0d0**(-12)).and.  
+     &            (abs(zp).lt.10.0d0**(-12)) ) then
+                rhostop=-1
+              else
+                !corresponding spherical coordinates of point p
+                !thetap,phip is in general NOT on the AH_Ntheta,AH_Nphi grid.
+                rhop=sqrt(xp**2+yp**2+zp**2)
+                thetap=acos(xp/rhop)
+                if (zp.lt.0) then
+                    phip=atan2(zp,yp)+2*PI
+                else
+                    phip=atan2(zp,yp)
+                end if
+
+                ! i0 is the index of the point with chi value closest to chip on the AH_Nchi grid (indices going from 0 to AH_Ntheta-1),
+                ! and larger than chip (except if thetap=Pi, then it is smaller)
+                ! similarly for j0
+                dahtheta=PI/(AH_Ntheta-1)
+                dahphi=2*PI/(AH_Nphi-1)
+                i0=floor(thetap/dahtheta+1)
+                if (AH_Ntheta-1<i0) i0=AH_Ntheta-1
+                j0=floor(phip/dahphi+1)
+                if (AH_Nphi-1<j0) j0=AH_Nphi-1
+                ft=((thetap-(i0-1)*dahtheta))/dahtheta
+                fp=((phip-(j0-1)*dahphi))/dahphi
+
+                !bi-linear interpolated value of AH radius at (thetap,phip)
+                AH_Rp=  AH_R(i0,j0)*(1-ft)*(1-fp)+
+     &                  AH_R(i0+1,j0)*(ft)*(1-fp)+
+     &                  AH_R(i0,j0+1)*(1-ft)*(fp)+
+     &                  AH_R(i0+1,j0+1)*(ft)*(fp)
+
+                if (AH_Rp.lt.1) then 
+                    rhostop=AH_Rp
+                else
+                    rhostop=-1
+                end if
+              end if
+
+
+
+            if ((rho0.ge.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 ! set f1 value
@@ -1285,10 +1310,10 @@ c-----------------------------------------------------------------------
      &                Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &                phi1_np1,phi1_n,phi1_nm1,
      &                g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                gkerrads_ll,gkerrads_uu,
-     &                gkerrads_ll_x,gkerrads_uu_x,gkerrads_ll_xx,
+     &                gads_ll,gads_uu,
+     &                gads_ll_x,gads_uu_x,gads_ll_xx,
      &                h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                A_l,A_l_x,Hkerrads_l,
+     &                A_l,A_l_x,Hads_l,
      &                gamma_ull,gamma_ull_x,
      &                riemann_ulll,ricci_ll,ricci_lu,ricci,
      &                einstein_ll,set_ll,
@@ -1663,7 +1688,7 @@ c-----------------------------------------------------------------------
                 end if
 
 
-            else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
+            else !i.e., the point is either excised or inside the apparent horizon
                sqrth2spnormdensity_f(i,j,k)=0.0d0
             end if
 
@@ -1698,6 +1723,8 @@ c-----------------------------------------------------------------------
      &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &                  phi1_np1,phi1_n,phi1_nm1,
+     &                  AH_R,AH_xc,
+     &                  AH_Ntheta,AH_Nphi,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
      &                  ief_bh_r0,a_rot,kerrads_background)
@@ -1713,14 +1740,20 @@ c-----------------------------------------------------------------------
         real*8 chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
+        integer AH_Ntheta,AH_Nphi
+        real*8 AH_R(AH_Ntheta,AH_Nphi)
+        real*8 AH_xc(3)
+        real*8 xp,yp,zp,rhop,thetap,phip
+        integer i0,j0
+        real*8 dahtheta,dahphi
+        real*8 ft,fp
+        real*8 AH_Rp,rhostop
         real*8 f1_np1(Nx,Ny,Nz),f1_n(Nx,Ny,Nz),f1_nm1(Nx,Ny,Nz)
         real*8 sqrten1density_f(Nx,Ny,Nz)
         real*8 en1dens_f0
         integer sp,hnorm_argtype
         real*8 sqrth10normdensity_f(Nx,Ny,Nz)
         real*8 sqrth0m2normdensity_dfdt(Nx,Ny,Nz)
-
-        real*8 rblhor,Radhor,rhohor
 
         logical ltrace
         parameter (ltrace=.false.)
@@ -1793,50 +1826,6 @@ c-----------------------------------------------------------------------
           stop
         end if
 
-      !event horizon radius in Boyer-Lindquist coordinates rotating at the boundary (non-spherical coordinates)
-        rblhor=(Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     - (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -   4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333) + 
-     -    Sqrt(-4*a_rot**2 - 4*L**2 - 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -             4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                 54*L**4*M0**2)**2)/2.)**0.3333333333333333 - 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -      (12*Sqrt(3.)*L**2*M0)/
-     -       Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
-     -             54*L**4*M0**2 + 
-     -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                    54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -    (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  +L**6+54*L**4*M0**2+
-     -            Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -               4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                   54*L**4*M0**2)**2)/2.)**0.3333333333333333)))/
-     -  (2.*Sqrt(3.))
 
         sp=0
         hnorm_argtype=0
@@ -1859,6 +1848,8 @@ c-----------------------------------------------------------------------
      &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &          phi1_np1,phi1_n,phi1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -1869,6 +1860,8 @@ c-----------------------------------------------------------------------
      &          sqrth0m2normdensity_dfdt,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -1916,17 +1909,61 @@ c-----------------------------------------------------------------------
               dRad_drho=(-1 + rho0)**(-2) 
      &           + (1 + rho0)**(-2)
 
-            !position of event horizon in uncompactified spherical coordinates (non-rotating at the boundary)
-            Radhor=(Sqrt(2.)*L*
-     -       Sqrt(rblhor**2*(a_rot**2 + rblhor**2)))/
-     -       Sqrt(2*L**2*rblhor**2 + a_rot**2*(L**2 - rblhor**2) 
-     -       + a_rot**2*(L**2 + rblhor**2)*Cos(2*theta0))
+              !determine radius at which we stop computing the norms. This is the apparent horizon (AH) radius.
 
-            !position of event horizon in compactified spherical coordinates: rho=sqrt(x**2+y**2+z**2) where x,y,z are the code coordinates
-            rhohor=(-1 + Sqrt(1 + Radhor**2))/
-     -            Radhor
+              !Cartesian coordinates of grid point p=(i,j,k) w.r.t. the centre of the AH
+              xp=x0-AH_xc(1)
+              yp=y0-AH_xc(2)
+              zp=z0-AH_xc(3)
 
-            if ((rho0.gt.rhohor).and.
+              !The center of the AH xp=yp=zp=0 will be excluded or included depending on the excision mask chr(i,j,k), 
+              !so no need to force inclusion or exclusion via the value of rhostop. 
+              !In fact, xp=yp=zp=0 is also the centre of the grid if there is no AH (also if the AH is centred at the origin), 
+              !so we should include it if we want to compute these norms in the case of no horizon.
+              !For this reason, it's best to leave the inclusion or exclusion of that point to the excision mask chr(i,j,k).
+              if ((abs(xp).lt.10.0d0**(-12)).and.
+     &            (abs(yp).lt.10.0d0**(-12)).and.  
+     &            (abs(zp).lt.10.0d0**(-12)) ) then
+                rhostop=-1
+              else
+                !corresponding spherical coordinates of point p
+                !thetap,phip is in general NOT on the AH_Ntheta,AH_Nphi grid.
+                rhop=sqrt(xp**2+yp**2+zp**2)
+                thetap=acos(xp/rhop)
+                if (zp.lt.0) then
+                    phip=atan2(zp,yp)+2*PI
+                else
+                    phip=atan2(zp,yp)
+                end if
+
+                ! i0 is the index of the point with chi value closest to chip on the AH_Nchi grid (indices going from 0 to AH_Ntheta-1),
+                ! and larger than chip (except if thetap=Pi, then it is smaller)
+                ! similarly for j0
+                dahtheta=PI/(AH_Ntheta-1)
+                dahphi=2*PI/(AH_Nphi-1)
+                i0=floor(thetap/dahtheta+1)
+                if (AH_Ntheta-1<i0) i0=AH_Ntheta-1
+                j0=floor(phip/dahphi+1)
+                if (AH_Nphi-1<j0) j0=AH_Nphi-1
+                ft=((thetap-(i0-1)*dahtheta))/dahtheta
+                fp=((phip-(j0-1)*dahphi))/dahphi
+
+                !bi-linear interpolated value of AH radius at (thetap,phip)
+                AH_Rp=  AH_R(i0,j0)*(1-ft)*(1-fp)+
+     &                  AH_R(i0+1,j0)*(ft)*(1-fp)+
+     &                  AH_R(i0,j0+1)*(1-ft)*(fp)+
+     &                  AH_R(i0+1,j0+1)*(ft)*(fp)
+
+                if (AH_Rp.lt.1) then 
+                    rhostop=AH_Rp
+                else
+                    rhostop=-1
+                end if
+              end if
+
+
+
+            if ((rho0.ge.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 en1dens_f0=sqrth10normdensity_f(i,j,k)**2
@@ -1964,7 +2001,7 @@ c-----------------------------------------------------------------------
                 end if
 
 
-            else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
+            else !i.e., the point is either excised or inside the apparent horizon
                sqrten1density_f(i,j,k)=0.0d0
             end if
 
@@ -1999,6 +2036,8 @@ c-----------------------------------------------------------------------
      &                  Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &                  Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &                  phi1_np1,phi1_n,phi1_nm1,
+     &                  AH_R,AH_xc,
+     &                  AH_Ntheta,AH_Nphi,
      &                  x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &                  phys_bdy,ghost_width,
      &                  ief_bh_r0,a_rot,kerrads_background)
@@ -2014,6 +2053,14 @@ c-----------------------------------------------------------------------
         real*8 chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,ct,L
         real*8 lambda4
+        integer AH_Ntheta,AH_Nphi
+        real*8 AH_R(AH_Ntheta,AH_Nphi)
+        real*8 AH_xc(3)
+        real*8 xp,yp,zp,rhop,thetap,phip
+        integer i0,j0
+        real*8 dahtheta,dahphi
+        real*8 ft,fp
+        real*8 AH_Rp,rhostop
         real*8 f1_np1(Nx,Ny,Nz),f1_n(Nx,Ny,Nz),f1_nm1(Nx,Ny,Nz)
         real*8 sqrten2density_f(Nx,Ny,Nz)
         real*8 en2dens_f0
@@ -2024,8 +2071,6 @@ c-----------------------------------------------------------------------
         real*8 sqrth10normdensity_m2f(Nx,Ny,Nz)
         real*8 sqrth10normdensity_m3f(Nx,Ny,Nz)
         real*8 sqrth0m2normdensity_d2fdtdt(Nx,Ny,Nz)
-
-        real*8 rblhor,Radhor,rhohor
 
         logical ltrace
         parameter (ltrace=.false.)
@@ -2098,52 +2143,6 @@ c-----------------------------------------------------------------------
           stop
         end if
 
-      !event horizon radius in Boyer-Lindquist coordinates rotating at the boundary (non-spherical coordinates)
-        rblhor=(Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     - (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -   4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333) + 
-     -    Sqrt(-4*a_rot**2 - 4*L**2 - 
-     -      (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 +
-     -          Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -             4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                 54*L**4*M0**2)**2)/2.)**0.3333333333333333 - 
-     -   (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 
-     -  + 54*L**4*M0**2 + 
-     -         Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -            4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -      (12*Sqrt(3.)*L**2*M0)/
-     -       Sqrt(-2*a_rot**2 - 2*L**2 + 
-     -         (a_rot**4 + 14*a_rot**2*L**2 + L**4)/
-     -          (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 + L**6 +
-     -             54*L**4*M0**2 + 
-     -             Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -                4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                    54*L**4*M0**2)**2)/2.)**0.3333333333333333 + 
-     -    (a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  +L**6+54*L**4*M0**2+
-     -            Sqrt(-4*(a_rot**4 + 14*a_rot**2*L**2 + L**4)**3 + 
-     -               4*(a_rot**6 - 33*a_rot**4*L**2 - 33*a_rot**2*L**4 
-     -  + L**6 + 
-     -                   54*L**4*M0**2)**2)/2.)**0.3333333333333333)))/
-     -  (2.*Sqrt(3.))
-
-
         sp=0
         hnorm_argtype=0
         call sqrth2spnormdensity_func(
@@ -2165,6 +2164,8 @@ c-----------------------------------------------------------------------
      &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &          phi1_np1,phi1_n,phi1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -2190,6 +2191,8 @@ c-----------------------------------------------------------------------
      &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &          phi1_np1,phi1_n,phi1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -2215,6 +2218,8 @@ c-----------------------------------------------------------------------
      &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &          phi1_np1,phi1_n,phi1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -2240,6 +2245,8 @@ c-----------------------------------------------------------------------
      &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &          phi1_np1,phi1_n,phi1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -2265,6 +2272,8 @@ c-----------------------------------------------------------------------
      &          Hb_y_np1,Hb_y_n,Hb_y_nm1,
      &          Hb_z_np1,Hb_z_n,Hb_z_nm1,
      &          phi1_np1,phi1_n,phi1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -2275,6 +2284,8 @@ c-----------------------------------------------------------------------
      &          sqrth0m2normdensity_d2fdtdt,
      &          sp,hnorm_argtype,
      &          f1_np1,f1_n,f1_nm1,
+     &          AH_R,AH_xc,
+     &          AH_Ntheta,AH_Nphi,
      &          x,y,z,dt,ct,chr,L,ex,Nx,Ny,Nz,
      &          phys_bdy,ghost_width,
      &          ief_bh_r0,a_rot,kerrads_background)
@@ -2321,17 +2332,61 @@ c-----------------------------------------------------------------------
               dRad_drho=(-1 + rho0)**(-2) 
      &           + (1 + rho0)**(-2)
 
-            !position of event horizon in uncompactified spherical coordinates (non-rotating at the boundary)
-            Radhor=(Sqrt(2.)*L*
-     -       Sqrt(rblhor**2*(a_rot**2 + rblhor**2)))/
-     -       Sqrt(2*L**2*rblhor**2 + a_rot**2*(L**2 - rblhor**2) 
-     -       + a_rot**2*(L**2 + rblhor**2)*Cos(2*theta0))
+              !determine radius at which we stop computing the norms. This is the apparent horizon (AH) radius.
 
-            !position of event horizon in compactified spherical coordinates: rho=sqrt(x**2+y**2+z**2) where x,y,z are the code coordinates
-            rhohor=(-1 + Sqrt(1 + Radhor**2))/
-     -            Radhor
+              !Cartesian coordinates of grid point p=(i,j,k) w.r.t. the centre of the AH
+              xp=x0-AH_xc(1)
+              yp=y0-AH_xc(2)
+              zp=z0-AH_xc(3)
 
-            if ((rho0.gt.rhohor).and.
+              !The center of the AH xp=yp=zp=0 will be excluded or included depending on the excision mask chr(i,j,k), 
+              !so no need to force inclusion or exclusion via the value of rhostop. 
+              !In fact, xp=yp=zp=0 is also the centre of the grid if there is no AH (also if the AH is centred at the origin), 
+              !so we should include it if we want to compute these norms in the case of no horizon.
+              !For this reason, it's best to leave the inclusion or exclusion of that point to the excision mask chr(i,j,k).
+              if ((abs(xp).lt.10.0d0**(-12)).and.
+     &            (abs(yp).lt.10.0d0**(-12)).and.  
+     &            (abs(zp).lt.10.0d0**(-12)) ) then
+                rhostop=-1
+              else
+                !corresponding spherical coordinates of point p
+                !thetap,phip is in general NOT on the AH_Ntheta,AH_Nphi grid.
+                rhop=sqrt(xp**2+yp**2+zp**2)
+                thetap=acos(xp/rhop)
+                if (zp.lt.0) then
+                    phip=atan2(zp,yp)+2*PI
+                else
+                    phip=atan2(zp,yp)
+                end if
+
+                ! i0 is the index of the point with chi value closest to chip on the AH_Nchi grid (indices going from 0 to AH_Ntheta-1),
+                ! and larger than chip (except if thetap=Pi, then it is smaller)
+                ! similarly for j0
+                dahtheta=PI/(AH_Ntheta-1)
+                dahphi=2*PI/(AH_Nphi-1)
+                i0=floor(thetap/dahtheta+1)
+                if (AH_Ntheta-1<i0) i0=AH_Ntheta-1
+                j0=floor(phip/dahphi+1)
+                if (AH_Nphi-1<j0) j0=AH_Nphi-1
+                ft=((thetap-(i0-1)*dahtheta))/dahtheta
+                fp=((phip-(j0-1)*dahphi))/dahphi
+
+                !bi-linear interpolated value of AH radius at (thetap,phip)
+                AH_Rp=  AH_R(i0,j0)*(1-ft)*(1-fp)+
+     &                  AH_R(i0+1,j0)*(ft)*(1-fp)+
+     &                  AH_R(i0,j0+1)*(1-ft)*(fp)+
+     &                  AH_R(i0+1,j0+1)*(ft)*(fp)
+
+                if (AH_Rp.lt.1) then 
+                    rhostop=AH_Rp
+                else
+                    rhostop=-1
+                end if
+              end if
+
+
+
+            if ((rho0.ge.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 en2dens_f0=sqrth20normdensity_f(i,j,k)**2
@@ -2382,7 +2437,7 @@ c-----------------------------------------------------------------------
                 end if
 
 
-            else !i.e., the point is either excised or inside the Kerr-AdS analytic horizon
+            else !i.e., the point is either excised or inside the apparent horizon
                sqrten2density_f(i,j,k)=0.0d0
             end if
 

@@ -2861,45 +2861,42 @@ void AdS4D_var_post_init(char *pfile)
     else
     {
         if (my_rank==0) printf("\nInitial data with no black hole\n");
-//        for (i0=0;i0<AH_Nchi[0];i0++)
-//        {
-//       		for (j0=0;j0<AH_Nphi[0];j0++)
-//        	{
-//        		ind0=i0+AH_Nchi[0]*j0;
-//        		AH_R[0][ind0]=1;
-//        		if (excision_type==3) {AH_R_for_ex_mask[0][ind0]=AH_R[0][ind0];}
-//        	}
-//        }
+        for (i0=0;i0<AH_Nchi[0];i0++)
+        {
+       		for (j0=0;j0<AH_Nphi[0];j0++)
+        	{
+        		ind0=i0+AH_Nchi[0]*j0;
+        		AH_R[0][ind0]=1;
+        		if (excision_type==3) {AH_R_for_ex_mask[0][ind0]=AH_R[0][ind0];}
+        	}
+        }
         min_AH_R0=1;
         max_AH_R0=1;
         
         if (ah_finder_is_off)
         {
-            if (my_rank==0) printf("\n ... AH finder is off so we excise, AT ALL TIME STEPS, points with compactified radius smaller than (1-ex_rbuf[0])=%lf ... \n",(1-ex_rbuf[0]));
             if (excision_type==0) //no excision
        		{
+       			if (my_rank==0) printf("\n ... AH finder is off and we are not excising ... \n");
        			ex_r[0][0]=0; //excision ellipse x-semiaxis
        			ex_r[0][1]=0; //excision ellipse y-semiaxis
        			ex_r[0][2]=0; //excision ellipse z-semiaxis
        		}
        		else
        		{
+       			if (my_rank==0) 
+       			{
+       				printf("\n ... AH finder is off so we excise, AT ALL TIME STEPS, points with compactified radius smaller than (1-ex_rbuf[0])=%lf ... \n",(1-ex_rbuf[0]));
+       				printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence. Set excision_type=0 to turn off excision.\n");
+       			}
        			ex_r[0][0]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse x-semiaxis
        			ex_r[0][1]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse y-semiaxis
        			ex_r[0][2]=min_AH_R0*(1-ex_rbuf[0]); //excision ellipse z-semiaxis
-		        for (i0=0;i0<AH_Nchi[0];i0++)
-		        {
-		       		for (j0=0;j0<AH_Nphi[0];j0++)
-		        	{
-		        		ind0=i0+AH_Nchi[0]*j0;
-		        		AH_R[0][ind0]=1;
-		        		if (excision_type==3) {AH_R_for_ex_mask[0][ind0]=AH_R[0][ind0];}
-		        	}
-		        }
        		}
         }
         else
         {
+        	if (my_rank==0) printf("\n ... AH finder is on. Once an apparent horizon is found, we excised points with compactified radius smaller than AH_R(i0,j0)*(1-ex_rbuf[0])=AH_R(i0,j0)*(1-%lf)\n",ex_rbuf[0]);
         	ex_r[0][0]=0; //excision ellipse x-semiaxis
        		ex_r[0][1]=0; //excision ellipse y-semiaxis
        		ex_r[0][2]=0; //excision ellipse z-semiaxis
@@ -2914,13 +2911,11 @@ void AdS4D_var_post_init(char *pfile)
 	    	if (excision_type==0) printf("\nNo internal excision\n");
 		    else if (excision_type==1)
 		    {
-		    	if ((ah_finder_is_off)&&(fabs(min_AH_R0-1)<pow(10,-12))) printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence. Set excision_type=0 to turn off excision.\n");
 		    	printf("\nSpherical excised region with radius min_AH_R0*(1-ex_rbuf[l])=%lf\n",min_AH_R0*(1-ex_rbuf[l]));
 		    	if ((AMRD_cp_restart)&&(excise_prev_run_ex_pts)) printf("WARNING: excision of pre-checkpoint excised points that would not be excised in the current run can be activated only for elliptic-type excision. This will be ignored\n");
 		    }
 	    	else if (excision_type==2)
 	    	{
-	    		if ((ah_finder_is_off)&&(fabs(min_AH_R0-1)<pow(10,-12))) printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence. Set excision_type=0 to turn off excision.\n");
 	    		printf("\nExcision ellipse semiaxes: (ex_r[l][0],ex_r[l][1],ex_r[l][2])=(%lf,%lf,%lf)\n",ex_r[l][0],ex_r[l][1],ex_r[l][2]);
 	    		if ((AMRD_cp_restart)&&(excise_prev_run_ex_pts))
 	        	{     
@@ -2937,7 +2932,6 @@ void AdS4D_var_post_init(char *pfile)
 			}
 	   		else if (excision_type==3)
 	   		{
-	   			if ((ah_finder_is_off)&&(fabs(min_AH_R0-1)<pow(10,-12))) printf("\nWARNING...excising with respect to the boundary! This is not safe: if we do not excise a region inside an apparent horizon, we lose convergence. Set excision_type=0 to turn off excision.\n");
 	   			printf("AH-shaped excised region: minimum and maximum of AH radius: min_AH_R0=%lf, max_AH_R0=%lf\n",min_AH_R0,max_AH_R0);
 	   			if ((AMRD_cp_restart)&&(excise_prev_run_ex_pts)) printf("WARNING: excision of pre-checkpoint excised points that would not be excised in the current run can be activated only for elliptic-type excision. This will be ignored\n");
 	   		}
@@ -3328,9 +3322,10 @@ void AdS4D_t0_cnst_data(void)
         }
     }   
 
-    //compute relative Kretschmann scalar of initial data
+
     if (gb_xx_nm1)
     {
+    	//compute relative Kretschmann scalar of initial data
         if (output_kretsch||output_riemanncube)
         {
             kretsch_riemanncube_(kretsch_n,
@@ -3377,7 +3372,7 @@ void AdS4D_t0_cnst_data(void)
 
         if (output_sqrth10normdensity_phi)
         {
-        	//TEST NORMS
+//        	//TEST NORMS
 //        	printf("TEST RUN: Set phi1_n to function chosen for test\n");
 //        	printf("Nx=%i,Ny=%i,Nz=%i\n",Nx,Ny,Nz);
 //			   for (i=0; i<Nx; i++)
@@ -3403,8 +3398,10 @@ void AdS4D_t0_cnst_data(void)
 //        	hnorm_argtype=0;
 //			sqrth0spnormdensity_func_(sqrth10normdensity_phi_n,&sp,&hnorm_argtype,
 //                    phi1_np1,phi1_n,phi1_nm1,
+//		              AH_R[0],AH_xc[0],
+//        			  &AH_Nchi[0],&AH_Nphi[0],
 //                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
-//                    &ief_bh_r0,&a_rot0);
+//                    &ief_bh_r0,&a_rot0,&kerrads_background);
 			sp=0;
         	hnorm_argtype=0;
             sqrth1spnormdensity_func_(sqrth10normdensity_phi_n,&sp,&hnorm_argtype,
@@ -3424,6 +3421,8 @@ void AdS4D_t0_cnst_data(void)
                     Hb_y_np1,Hb_y_n,Hb_y_nm1,
                     Hb_z_np1,Hb_z_n,Hb_z_nm1,
                     phi1_np1,phi1_n,phi1_nm1,
+		            AH_R[0],AH_xc[0],
+        			&AH_Nchi[0],&AH_Nphi[0],
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0,&kerrads_background);
 //            sp=0;
@@ -3445,6 +3444,8 @@ void AdS4D_t0_cnst_data(void)
 //                    Hb_y_np1,Hb_y_n,Hb_y_nm1,
 //                    Hb_z_np1,Hb_z_n,Hb_z_nm1,
 //                    phi1_np1,phi1_n,phi1_nm1,
+//		              AH_R,AH_xc,
+//        			  &AH_Nchi[0],&AH_Nphi[0],
 //                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
 //                    &ief_bh_r0,&a_rot0,&kerrads_background);
 //
@@ -3465,6 +3466,8 @@ void AdS4D_t0_cnst_data(void)
 //                    Hb_y_np1,Hb_y_n,Hb_y_nm1,
 //                    Hb_z_np1,Hb_z_n,Hb_z_nm1,
 //                    phi1_np1,phi1_n,phi1_nm1,
+//		              AH_R[0],AH_xc[0],
+//        			  &AH_Nchi[0],&AH_Nphi[0],
 //                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
 //                    &ief_bh_r0,&a_rot0,&kerrads_background);
 //
@@ -3485,6 +3488,8 @@ void AdS4D_t0_cnst_data(void)
 //                    Hb_y_np1,Hb_y_n,Hb_y_nm1,
 //                    Hb_z_np1,Hb_z_n,Hb_z_nm1,
 //                    phi1_np1,phi1_n,phi1_nm1,
+//		              AH_R[0],AH_xc[0],
+//        			  &AH_Nchi[0],&AH_Nphi[0],
 //                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
 //                    &ief_bh_r0,&a_rot0,&kerrads_background);
 
@@ -3509,6 +3514,8 @@ void AdS4D_t0_cnst_data(void)
                     Hb_y_np1,Hb_y_n,Hb_y_nm1,
                     Hb_z_np1,Hb_z_n,Hb_z_nm1,
                     phi1_np1,phi1_n,phi1_nm1,
+        			AH_R[0],AH_xc[0],
+        			&AH_Nchi[0],&AH_Nphi[0],
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0,&kerrads_background);
         }
@@ -22280,8 +22287,19 @@ void AdS4D_evolve(int iter)
                 &interptype,&i_shift,&regtype,
                 &diss_kmax,tfunction,
                 &ief_bh_r0,&a_rot0,&kerrads_background);
-        if (output_sqrth10normdensity_phi)
-        {
+
+   	} //closes !(background) condition
+
+    if (output_sqrth10normdensity_phi)
+    {
+//    	sp=0;
+//    	hnorm_argtype=0;
+//		sqrth0spnormdensity_func_(sqrth10normdensity_phi_np1,&sp,&hnorm_argtype,
+//                phi1_np1,phi1_n,phi1_nm1,
+//            	AH_R[0],AH_xc[0],
+//    			&AH_Nchi[0],&AH_Nphi[0],
+//                x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+//                &ief_bh_r0,&a_rot0,&kerrads_background);
         	sp=0;
         	hnorm_argtype=0;
             sqrth1spnormdensity_func_(sqrth10normdensity_phi_np1,&sp,&hnorm_argtype,
@@ -22301,9 +22319,10 @@ void AdS4D_evolve(int iter)
                     Hb_y_np1,Hb_y_n,Hb_y_nm1,
                     Hb_z_np1,Hb_z_n,Hb_z_nm1,
                     phi1_np1,phi1_n,phi1_nm1,
+                    AH_R[0],AH_xc[0],
+        			  &AH_Nchi[0],&AH_Nphi[0],
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0,&kerrads_background);
-        }
     }
 
     return;
@@ -22424,7 +22443,7 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
                     }
                     else if (excision_type==3) //AH-shaped excised region
                     {
-                        	//Cartesian coordinates of point p w.r.t. the centre of the AH
+                        	//Cartesian coordinates of point p w.r.t. the centre of the excised region
                             xp=(x-ex_xc[l][0]);
                             yp=(y-ex_xc[l][1]);
                             zp=(z-ex_xc[l][2]);
@@ -22437,7 +22456,7 @@ void AdS4D_fill_ex_mask(real *mask, int dim, int *shape, real *bbox, real excise
 	                 			phip=atan2(zp,yp);
 	                 			if (phip<0) {phip=phip+2*M_PI;}
 	            		//chip,phip is in general NOT on the AH_Nchi,AH_Nphi grid.
-	            		// i0 is the index of the point with chi value, closest to chip on the AH_Nchi grid (indices going from 0 to AH_Nchi-1),
+	            		// i0 is the index of the point with chi value closest to chip on the AH_Nchi grid (indices going from 0 to AH_Nchi-1),
 	            		// and larger than chip (except if chip=Pi, then it is smaller)
 	            		// similarly for j0
 	                 			dahchi=M_PI/(AH_Nchi[l]-1);

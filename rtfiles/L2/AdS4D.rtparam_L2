@@ -7,10 +7,10 @@ kerrads_background := 1
 #------ Initial Data -------------------------------------------------------
 
 #scalar field ID#
-phi1_amp_1 := 1.0
+phi1_amp_1 := 0.2
 phi1_r0_1 := 0.0
 phi1_delta_1 := 0.2
-phi1_x0_1 := [0.0 0.0 0.0]
+phi1_x0_1 := [0.0 0.7 0.0]
 phi1_ecc_1 := [0.2 0.2 0.2]
 phi1_B_1 := 0.0
 phi1_C_1 := 0.0
@@ -48,14 +48,14 @@ a_rot0 := 0.2
 #AH_Lmax := 2
 AH_rsteps := 10
 AH_eps := 0.0
-AH_max_iter := 10000
+AH_max_iter := 100000
 AH_lambda := 0.001
 AH_tol := 1e-2
 AH_r0 := 0.1
 AH_r1 := 0.4
 #AH_analytic_kerrads to use AH finder with analytic Kerr-AdS horizon radius as initial guess (not needed when evolving a pure AdS background)
 AH_analytic_kerrads := 1
-#To use max and min of analytic Kerr-AdS horizon radius as range of sample spheres for AH finder (only if AH_analytic_kerrads=0. This flag is not used in the case of Schwarzschild-AdS background.)
+#To use max and min of analytic Kerr-AdS horizon radius as range of sample spheres for AH finder, in case AH_analytic_kerrads=0. (This flag does nothing in the case of Schwarzschild-AdS background.)
 AH_rsample_maxminkerrads := 0
 AH_xc := [0.0 0.0 0.0]
 AH_Nchi := 9
@@ -180,8 +180,8 @@ reduction_factor := 2
 
 #base_shape := [11 11 11]
 #base_shape := [19 19 19]
-base_shape := [33 33 33]
-#base_shape := [65 65 65]
+#base_shape := [33 33 33]
+base_shape := [65 65 65]
 #base_shape := [129 129 129]
 max_lev := 1
 lambda := 0.2
@@ -312,12 +312,12 @@ max_t_interp_order := 3
 
 #------- IO ---------------------------------------------------------------
 
-num_save_1_vars := 2
-save_1_vars := [ "efe_all_ires" "ghconstr_all" ]
+num_save_1_vars := 3
+save_1_vars := [ "efe_all_ires" "ghconstr_all" "chr" ]
 #save_1_vars := [ "efe_all_ires" "ghconstr_all" "gb_res" "kg_ires" "chr" ]
 
-num_save_2_vars := 1
-save_2_vars := [ "phi1" ]
+num_save_2_vars := 3
+save_2_vars := [ "phi1" "sqrth10normdensity_phi" "sqrten2density_phi" ]
 #save_2_vars := [ "sqrten2density_phi" ]
 #save_2_vars := [ "sqrth10normdensity_phi" ]
 #save_2_vars := [ "phi1" "sqrth1normdensity_phi" ]

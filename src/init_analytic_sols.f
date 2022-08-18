@@ -313,7 +313,7 @@ c----------------------------------------------------------------------
         real*8 AH_R(AH_Nchi,AH_Nphi),AH_xc(3),AH_semiax(3)
         real*8 min_AH_R,max_AH_R
         real*8 AH_chi,AH_phi
-        real*8 yipshor(AH_Nchi,AH_Nphi),rhohor(AH_Nchi,AH_Nphi)
+        real*8 yipshor,rhohor
         real*8 L
         real*8 dahchi,dahphi
         real*8 min_AH_x,max_AH_x
@@ -420,16 +420,16 @@ c----------------------------------------------------------------------
             AH_phi=(j-1)*dahphi
 
             !position of event horizon in uncompactified spherical coordinates (non-rotating at the boundary)
-            yipshor(i,j)=(Sqrt(2.)*L*
+            yipshor=(Sqrt(2.)*L*
      -       Sqrt(rblhor**2*(a_rot**2 + rblhor**2)))/
      -       Sqrt(2*L**2*rblhor**2 + a_rot**2*(L**2 - rblhor**2) 
      -       + a_rot**2*(L**2 + rblhor**2)*Cos(2*AH_chi))
 
             !position of event horizon in compactified spherical coordinates: rho=sqrt(x**2+y**2+z**2) where x,y,z are the code coordinates
-            rhohor(i,j)=(-1 + Sqrt(1 + yipshor(i,j)**2))/
-     -            yipshor(i,j)
+            rhohor=(-1 + Sqrt(1 + yipshor**2))/
+     -            yipshor
 
-            AH_R(i,j)=rhohor(i,j)
+            AH_R(i,j)=rhohor
 
             if (AH_R(i,j).gt.max_AH_R) max_AH_R=AH_R(i,j)
             if (AH_R(i,j).lt.min_AH_R) min_AH_R=AH_R(i,j)
@@ -490,7 +490,6 @@ c----------------------------------------------------------------------
         integer phys_bdy(6)
         real*8 ief_bh_r0,a_rot,M0,M0_min
         real*8 rblhor
-        real*8 yipshor(Nx,Ny,Nz),rhohor(Ny,Nx,Nz)
         real*8 dt,ex,L
         real*8 chr(Nx,Ny,Nz)
         real*8 Hb_t(Nx,Ny,Nz),Hb_x(Nx,Ny,Nz)

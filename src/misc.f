@@ -1207,7 +1207,9 @@ c----------------------------------------------------------------------
         !--------------------------------------------------------------
 
         if (chr(i,j,k).eq.ex) then
-          write(*,*) 'df1_int: error ... point excised'
+          write(*,*) "df1_int: error ... point excised: 
+     &     i,j,k,x,y,z,rho=",
+     &      i,j,k,x(i),y(j),z(k),x(i)**2+y(j)**2+z(k)**2
           stop
         end if
 
