@@ -52,7 +52,10 @@ c
 c is_ex is set to 1 if couldn't compute expansion an some point due
 c to closeness of an excised region.
 c----------------------------------------------------------------------
-        subroutine calc_exp(theta,f,is0,ie0,js0,je0,ks0,ke0,is_ex,
+        subroutine calc_exp_metric(theta,f,
+     &                    g0_xx,g0_xy,g0_xz,
+     &                    g0_yy,g0_yz,g0_zz,
+     &                    is0,ie0,js0,je0,ks0,ke0,is_ex,
      &                    gb_tt_np1,gb_tt_n,gb_tt_nm1,
      &                    gb_tx_np1,gb_tx_n,gb_tx_nm1,
      &                    gb_ty_np1,gb_ty_n,gb_ty_nm1,
@@ -83,6 +86,13 @@ c----------------------------------------------------------------------
         integer is_ex
         real*8 theta(Nx,Ny,Nz),f(Nx,Ny,Nz),chr(Nx,Ny,Nz),ex
         real*8 x(Nx),y(Ny),z(Nz),dt,L
+
+        real*8 g0_xx(Nx,Ny,Nz)
+        real*8 g0_xy(Nx,Ny,Nz)
+        real*8 g0_xz(Nx,Ny,Nz)
+        real*8 g0_yy(Nx,Ny,Nz)
+        real*8 g0_yz(Nx,Ny,Nz)
+        real*8 g0_zz(Nx,Ny,Nz)
 
         real*8 gb_tt_np1(Nx,Ny,Nz),gb_tt_n(Nx,Ny,Nz),gb_tt_nm1(Nx,Ny,Nz)
         real*8 gb_tx_np1(Nx,Ny,Nz),gb_tx_n(Nx,Ny,Nz),gb_tx_nm1(Nx,Ny,Nz)
@@ -201,14 +211,20 @@ c----------------------------------------------------------------------
 
 !----------------------------------------------------------------------
 
-        if (ltrace) write(*,*) 'calc_exp ... N=',Nx,Ny,Nz
+        if (ltrace) write(*,*) 'calc_exp_metric ... N=',Nx,Ny,Nz
 
         is_ex=0
 
         do i=is0,ie0
           do j=js0,je0
            do k=ks0,ke0 
-           theta(i,j,k)=1.0d0
+            theta(i,j,k)=1.0d0
+            g0_xx(i,j,k)=1.0d0
+            g0_xy(i,j,k)=1.0d0
+            g0_xz(i,j,k)=1.0d0
+            g0_yy(i,j,k)=1.0d0
+            g0_yz(i,j,k)=1.0d0
+            g0_zz(i,j,k)=1.0d0
            end do
           end do
         end do
@@ -282,6 +298,13 @@ c----------------------------------------------------------------------
      &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
      &                 ief_bh_r0,a_rot,kerrads_background,
      &                 calc_der,calc_adv_quant)
+
+                g0_xx(i,j,k)=g0_ll(2,2)
+                g0_xy(i,j,k)=g0_ll(2,3)
+                g0_xz(i,j,k)=g0_ll(2,4)
+                g0_yy(i,j,k)=g0_ll(3,3)
+                g0_yz(i,j,k)=g0_ll(3,4)
+                g0_zz(i,j,k)=g0_ll(4,4)
 
             end if
 
@@ -443,7 +466,7 @@ c----------------------------------------------------------------------
 
               ! if theta is nan, then set it to the following instead
               if (.not.(theta(i,j,k).le.abs(theta(i,j,k)))) then
-                 theta(i,j,k)=0.0d0
+                 theta(i,j,k)=1000.0d0
               end if
  
             end if
@@ -973,9 +996,6 @@ c-----------------------------------------------------------------------
 
         real*8  ief_bh_r0,a_rot,M0,M0_min
         integer kerrads_background
-        logical calc_der,calc_adv_quant
-        data calc_der/.false./
-        data calc_adv_quant/.false./
 
         integer axisym
         integer Nx,Ny,Nz,i0,j0,AH_Nchi,AH_Nphi,do_ex
@@ -1063,6 +1083,13 @@ c-----------------------------------------------------------------------
         real*8 einstein_ll(4,4),set_ll(4,4)
         real*8 Hads_l(4),A_l(4),A_l_x(4,4)
         real*8 phi10_x(4),phi10_xx(4,4)
+
+        real*8 g0_xx(Nx,Ny,Nz)
+        real*8 g0_xy(Nx,Ny,Nz)
+        real*8 g0_xz(Nx,Ny,Nz)
+        real*8 g0_yy(Nx,Ny,Nz)
+        real*8 g0_yz(Nx,Ny,Nz)
+        real*8 g0_zz(Nx,Ny,Nz)
 
         real*8 g0_xx_ijk
         real*8 g0_xx_ip1jk
@@ -1285,7 +1312,7 @@ c-----------------------------------------------------------------------
                 do j1=js,je
                    do k1=ks,ke
                       if (chr(i1,j1,k1).eq.ex) then
-                         write(*,*) ' calc_exp0: pt i1,j1,k1 is excised'
+                  write(*,*) ' calc_exp_metric0: pt i1,j1,k1 is excised'
                          write(*,*) ' i0,j0=',i0,j0
                          write(*,*) ' AH_Nchi,AH_Nphi=',AH_Nchi,AH_Nphi
                          write(*,*) ' AH_chi,AH_phi=',AH_chi,AH_phi
@@ -1308,7 +1335,10 @@ c-----------------------------------------------------------------------
              end do
           end if
 
-          call calc_exp(theta,f,is,ie,js,je,ks,ke,is_ex,
+          call calc_exp_metric(theta,f,
+     &               g0_xx,g0_xy,g0_xz,
+     &               g0_yy,g0_yz,g0_zz,
+     &               is,ie,js,je,ks,ke,is_ex,
      &               gb_tt_np1,gb_tt_n,gb_tt_nm1,
      &               gb_tx_np1,gb_tx_n,gb_tx_nm1,
      &               gb_ty_np1,gb_ty_n,gb_ty_nm1,
@@ -1360,363 +1390,62 @@ c-----------------------------------------------------------------------
         end if
 
 
-        rho0=sqrt(x0**2+y0**2+z0**2)
-
-               ! computes tensors at point i,j,k 
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ijk=g0_ll(2,2)
-                g0_xy_ijk=g0_ll(2,3)
-                g0_xz_ijk=g0_ll(2,4)
-                g0_yy_ijk=g0_ll(3,3)
-                g0_yz_ijk=g0_ll(3,4)
-                g0_zz_ijk=g0_ll(4,4)
-
-               ! computes tensors at point i+1,j,k 
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i+1,j,k,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ip1jk=g0_ll(2,2)
-                g0_xy_ip1jk=g0_ll(2,3)
-                g0_xz_ip1jk=g0_ll(2,4)
-                g0_yy_ip1jk=g0_ll(3,3)
-                g0_yz_ip1jk=g0_ll(3,4)
-                g0_zz_ip1jk=g0_ll(4,4)
-
-               ! computes tensors at point i,j+1,k 
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j+1,k,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ijp1k=g0_ll(2,2)
-                g0_xy_ijp1k=g0_ll(2,3)
-                g0_xz_ijp1k=g0_ll(2,4)
-                g0_yy_ijp1k=g0_ll(3,3)
-                g0_yz_ijp1k=g0_ll(3,4)
-                g0_zz_ijp1k=g0_ll(4,4)
-
-               ! computes tensors at point i+1,j+1,k 
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i+1,j+1,k,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ip1jp1k=g0_ll(2,2)
-                g0_xy_ip1jp1k=g0_ll(2,3)
-                g0_xz_ip1jp1k=g0_ll(2,4)
-                g0_yy_ip1jp1k=g0_ll(3,3)
-                g0_yz_ip1jp1k=g0_ll(3,4)
-                g0_zz_ip1jp1k=g0_ll(4,4)
-
-               ! computes tensors at point i,j,k+1
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j,k+1,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ijkp1=g0_ll(2,2)
-                g0_xy_ijkp1=g0_ll(2,3)
-                g0_xz_ijkp1=g0_ll(2,4)
-                g0_yy_ijkp1=g0_ll(3,3)
-                g0_yz_ijkp1=g0_ll(3,4)
-                g0_zz_ijkp1=g0_ll(4,4)
-
-
-               ! computes tensors at point i+1,j,k+1 
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i+1,j,k+1,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ip1jkp1=g0_ll(2,2)
-                g0_xy_ip1jkp1=g0_ll(2,3)
-                g0_xz_ip1jkp1=g0_ll(2,4)
-                g0_yy_ip1jkp1=g0_ll(3,3)
-                g0_yz_ip1jkp1=g0_ll(3,4)
-                g0_zz_ip1jkp1=g0_ll(4,4)
-
-
-               ! computes tensors at point i,j+1,k+1 
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i,j+1,k+1,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ijp1kp1=g0_ll(2,2)
-                g0_xy_ijp1kp1=g0_ll(2,3)
-                g0_xz_ijp1kp1=g0_ll(2,4)
-                g0_yy_ijp1kp1=g0_ll(3,3)
-                g0_yz_ijp1kp1=g0_ll(3,4)
-                g0_zz_ijp1kp1=g0_ll(4,4)
-
-
-               ! computes tensors at point i+1,j+1,k+1 
-               call tensor_init(
-     &                 gb_tt_np1,gb_tt_n,gb_tt_nm1,
-     &                 gb_tx_np1,gb_tx_n,gb_tx_nm1,
-     &                 gb_ty_np1,gb_ty_n,gb_ty_nm1,
-     &                 gb_tz_np1,gb_tz_n,gb_tz_nm1,
-     &                 gb_xx_np1,gb_xx_n,gb_xx_nm1,
-     &                 gb_xy_np1,gb_xy_n,gb_xy_nm1,
-     &                 gb_xz_np1,gb_xz_n,gb_xz_nm1,
-     &                 gb_yy_np1,gb_yy_n,gb_yy_nm1,
-     &                 gb_yz_np1,gb_yz_n,gb_yz_nm1,
-     &                 gb_zz_np1,gb_zz_n,gb_zz_nm1,
-     &                 Hb_t_np1,Hb_t_n,Hb_t_nm1,
-     &                 Hb_x_np1,Hb_x_n,Hb_x_nm1,
-     &                 Hb_y_np1,Hb_y_n,Hb_y_nm1,
-     &                 Hb_z_np1,Hb_z_n,Hb_z_nm1,
-     &                 phi1_np1,phi1_n,phi1_nm1,
-     &                 g0_ll,g0_uu,g0_ll_x,g0_uu_x,g0_ll_xx,
-     &                 gads_ll,gads_uu,gads_ll_x,gads_uu_x,gads_ll_xx,
-     &                 h0_ll,h0_uu,h0_ll_x,h0_uu_x,h0_ll_xx,
-     &                 A_l,A_l_x,Hads_l,
-     &                 gamma_ull,gamma_ull_x,
-     &                 riemann_ulll,ricci_ll,ricci_lu,ricci,
-     &                 einstein_ll,set_ll,
-     &                 phi10_x,phi10_xx,
-     &                 x,y,z,dt,chr,L,ex,Nx,Ny,Nz,i+1,j+1,k+1,
-     &                 ief_bh_r0,a_rot,kerrads_background,
-     &                 calc_der,calc_adv_quant)
-
-
-                g0_xx_ip1jp1kp1=g0_ll(2,2)
-                g0_xy_ip1jp1kp1=g0_ll(2,3)
-                g0_xz_ip1jp1kp1=g0_ll(2,4)
-                g0_yy_ip1jp1kp1=g0_ll(3,3)
-                g0_yz_ip1jp1kp1=g0_ll(3,4)
-                g0_zz_ip1jp1kp1=g0_ll(4,4)
-
           ! interpolate metric components from 
           ! (i,j,k),(i+1,j,k),(i,j+1,k),(i+1,j+1,k),(i,j,k+1),(i+1,j,k+1),(i,j+1,k+1),(i+1,j+1,k+1)
 
-          AH_g0_xx(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_xx_ijk+
-     &                    (  fx)*(1-fy)*(1-fz)  *g0_xx_ip1jk+
-     &                    (1-fx)*(  fy)*(1-fz)  *g0_xx_ijp1k++
-     &                    (  fx)*(  fy)*(1-fz)  *g0_xx_ip1jp1k+
-     &                    (1-fx)*(1-fy)*(  fz)  *g0_xx_ijkp1+
-     &                    (  fx)*(1-fy)*(  fz)  *g0_xx_ip1jkp1+
-     &                    (1-fx)*(  fy)*(  fz)  *g0_xx_ijp1kp1+
-     &                    (  fx)*(  fy)*(  fz)  *g0_xx_ip1jp1kp1
+          AH_g0_xx(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_xx(i,j,k)+
+     &                    (  fx)*(1-fy)*(1-fz)  *g0_xx(i+1,j,k)+
+     &                    (1-fx)*(  fy)*(1-fz)  *g0_xx(i,j+1,k)+
+     &                    (  fx)*(  fy)*(1-fz)  *g0_xx(i+1,j+1,k)+
+     &                    (1-fx)*(1-fy)*(  fz)  *g0_xx(i,j,k+1)+
+     &                    (  fx)*(1-fy)*(  fz)  *g0_xx(i+1,j,k+1)+
+     &                    (1-fx)*(  fy)*(  fz)  *g0_xx(i,j+1,k+1)+
+     &                    (  fx)*(  fy)*(  fz)  *g0_xx(i+1,j+1,k+1)
 
-          AH_g0_xy(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_xy_ijk+
-     &                    (  fx)*(1-fy)*(1-fz)  *g0_xy_ip1jk+
-     &                    (1-fx)*(  fy)*(1-fz)  *g0_xy_ijp1k++
-     &                    (  fx)*(  fy)*(1-fz)  *g0_xy_ip1jp1k+
-     &                    (1-fx)*(1-fy)*(  fz)  *g0_xy_ijkp1+
-     &                    (  fx)*(1-fy)*(  fz)  *g0_xy_ip1jkp1+
-     &                    (1-fx)*(  fy)*(  fz)  *g0_xy_ijp1kp1+
-     &                    (  fx)*(  fy)*(  fz)  *g0_xy_ip1jp1kp1
+          AH_g0_xy(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_xy(i,j,k)+
+     &                    (  fx)*(1-fy)*(1-fz)  *g0_xy(i+1,j,k)+
+     &                    (1-fx)*(  fy)*(1-fz)  *g0_xy(i,j+1,k)+
+     &                    (  fx)*(  fy)*(1-fz)  *g0_xy(i+1,j+1,k)+
+     &                    (1-fx)*(1-fy)*(  fz)  *g0_xy(i,j,k+1)+
+     &                    (  fx)*(1-fy)*(  fz)  *g0_xy(i+1,j,k+1)+
+     &                    (1-fx)*(  fy)*(  fz)  *g0_xy(i,j+1,k+1)+
+     &                    (  fx)*(  fy)*(  fz)  *g0_xy(i+1,j+1,k+1)
 
-          AH_g0_xz(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_xz_ijk+
-     &                    (  fx)*(1-fy)*(1-fz)  *g0_xz_ip1jk+
-     &                    (1-fx)*(  fy)*(1-fz)  *g0_xz_ijp1k++
-     &                    (  fx)*(  fy)*(1-fz)  *g0_xz_ip1jp1k+
-     &                    (1-fx)*(1-fy)*(  fz)  *g0_xz_ijkp1+
-     &                    (  fx)*(1-fy)*(  fz)  *g0_xz_ip1jkp1+
-     &                    (1-fx)*(  fy)*(  fz)  *g0_xz_ijp1kp1+
-     &                    (  fx)*(  fy)*(  fz)  *g0_xz_ip1jp1kp1
+          AH_g0_xz(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_xz(i,j,k)+
+     &                    (  fx)*(1-fy)*(1-fz)  *g0_xz(i+1,j,k)+
+     &                    (1-fx)*(  fy)*(1-fz)  *g0_xz(i,j+1,k)+
+     &                    (  fx)*(  fy)*(1-fz)  *g0_xz(i+1,j+1,k)+
+     &                    (1-fx)*(1-fy)*(  fz)  *g0_xz(i,j,k+1)+
+     &                    (  fx)*(1-fy)*(  fz)  *g0_xz(i+1,j,k+1)+
+     &                    (1-fx)*(  fy)*(  fz)  *g0_xz(i,j+1,k+1)+
+     &                    (  fx)*(  fy)*(  fz)  *g0_xz(i+1,j+1,k+1)
 
-          AH_g0_yy(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_yy_ijk+
-     &                    (  fx)*(1-fy)*(1-fz)  *g0_yy_ip1jk+
-     &                    (1-fx)*(  fy)*(1-fz)  *g0_yy_ijp1k++
-     &                    (  fx)*(  fy)*(1-fz)  *g0_yy_ip1jp1k+
-     &                    (1-fx)*(1-fy)*(  fz)  *g0_yy_ijkp1+
-     &                    (  fx)*(1-fy)*(  fz)  *g0_yy_ip1jkp1+
-     &                    (1-fx)*(  fy)*(  fz)  *g0_yy_ijp1kp1+
-     &                    (  fx)*(  fy)*(  fz)  *g0_yy_ip1jp1kp1
+          AH_g0_yy(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_yy(i,j,k)+
+     &                    (  fx)*(1-fy)*(1-fz)  *g0_yy(i+1,j,k)+
+     &                    (1-fx)*(  fy)*(1-fz)  *g0_yy(i,j+1,k)+
+     &                    (  fx)*(  fy)*(1-fz)  *g0_yy(i+1,j+1,k)+
+     &                    (1-fx)*(1-fy)*(  fz)  *g0_yy(i,j,k+1)+
+     &                    (  fx)*(1-fy)*(  fz)  *g0_yy(i+1,j,k+1)+
+     &                    (1-fx)*(  fy)*(  fz)  *g0_yy(i,j+1,k+1)+
+     &                    (  fx)*(  fy)*(  fz)  *g0_yy(i+1,j+1,k+1)
 
-          AH_g0_yz(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_yz_ijk+
-     &                    (  fx)*(1-fy)*(1-fz)  *g0_yz_ip1jk+
-     &                    (1-fx)*(  fy)*(1-fz)  *g0_yz_ijp1k++
-     &                    (  fx)*(  fy)*(1-fz)  *g0_yz_ip1jp1k+
-     &                    (1-fx)*(1-fy)*(  fz)  *g0_yz_ijkp1+
-     &                    (  fx)*(1-fy)*(  fz)  *g0_yz_ip1jkp1+
-     &                    (1-fx)*(  fy)*(  fz)  *g0_yz_ijp1kp1+
-     &                    (  fx)*(  fy)*(  fz)  *g0_yz_ip1jp1kp1
+          AH_g0_yz(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_yz(i,j,k)+
+     &                    (  fx)*(1-fy)*(1-fz)  *g0_yz(i+1,j,k)+
+     &                    (1-fx)*(  fy)*(1-fz)  *g0_yz(i,j+1,k)+
+     &                    (  fx)*(  fy)*(1-fz)  *g0_yz(i+1,j+1,k)+
+     &                    (1-fx)*(1-fy)*(  fz)  *g0_yz(i,j,k+1)+
+     &                    (  fx)*(1-fy)*(  fz)  *g0_yz(i+1,j,k+1)+
+     &                    (1-fx)*(  fy)*(  fz)  *g0_yz(i,j+1,k+1)+
+     &                    (  fx)*(  fy)*(  fz)  *g0_yz(i+1,j+1,k+1)
 
-          AH_g0_zz(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_zz_ijk+
-     &                    (  fx)*(1-fy)*(1-fz)  *g0_zz_ip1jk+
-     &                    (1-fx)*(  fy)*(1-fz)  *g0_zz_ijp1k++
-     &                    (  fx)*(  fy)*(1-fz)  *g0_zz_ip1jp1k+
-     &                    (1-fx)*(1-fy)*(  fz)  *g0_zz_ijkp1+
-     &                    (  fx)*(1-fy)*(  fz)  *g0_zz_ip1jkp1+
-     &                    (1-fx)*(  fy)*(  fz)  *g0_zz_ijp1kp1+
-     &                    (  fx)*(  fy)*(  fz)  *g0_zz_ip1jp1kp1
+          AH_g0_zz(i0,j0)=(1-fx)*(1-fy)*(1-fz)  *g0_zz(i,j,k)+
+     &                    (  fx)*(1-fy)*(1-fz)  *g0_zz(i+1,j,k)+
+     &                    (1-fx)*(  fy)*(1-fz)  *g0_zz(i,j+1,k)+
+     &                    (  fx)*(  fy)*(1-fz)  *g0_zz(i+1,j+1,k)+
+     &                    (1-fx)*(1-fy)*(  fz)  *g0_zz(i,j,k+1)+
+     &                    (  fx)*(1-fy)*(  fz)  *g0_zz(i+1,j,k+1)+
+     &                    (1-fx)*(  fy)*(  fz)  *g0_zz(i,j+1,k+1)+
+     &                    (  fx)*(  fy)*(  fz)  *g0_zz(i+1,j+1,k+1)
 
 
 !         write (*,*) "i0,j0=",i0,j0
