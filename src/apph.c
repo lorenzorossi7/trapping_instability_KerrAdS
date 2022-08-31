@@ -852,7 +852,7 @@ int find_apph(real *M, real *J, real *area, real *c_equat, real *c_polar, real *
       {
          printf("\n ... found an AH (to within %lf) in %i iterations ... \n",
                 tol0,iter);
-         printf("     horizon area approximation (it overestimates the actual sum of all area elements da, due to overcounting from the many processes): %5.6lf,\n areal horizon radius (non-compactified): %5.6lf , horizon Schwarzschild-AdS mass with given area: %5.6lf \n",
+         printf("     horizon area approximation (calculating the area density and computing the integral over the apparent horizon, e.g., in Mathematica, is slightly more precise): %5.6lf,\n areal horizon radius (non-compactified): %5.6lf , horizon Schwarzschild-AdS mass with given area: %5.6lf \n",
               *area,sqrt((*area)/4/M_PI),*M);
          printf("     equat circum (x=0): %5.3lf,  polar circum 1 (y=0, i.e. phi=PI/2 && phi=3*PI/2): %5.3lf, and polar circum 2 (z=0, i.e. phi=0 && phi=PI): %5.3lf\n",
               *c_equat,*c_polar,*c_polar2);

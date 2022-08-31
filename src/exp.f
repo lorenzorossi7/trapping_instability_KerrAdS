@@ -999,7 +999,8 @@ c-----------------------------------------------------------------------
 
         integer axisym
         integer Nx,Ny,Nz,i0,j0,AH_Nchi,AH_Nphi,do_ex
-        real*8 theta(Nx,Ny,Nz),f(Nx,Ny,Nz),AH_xc(3),da,d_ceq,d_cp,d_cp2
+        real*8 theta(Nx,Ny,Nz),f(Nx,Ny,Nz),AH_xc(3)
+        real*8 da,da_full,d_ceq,d_cp,d_cp2
         real*8 AH_R(AH_Nchi,AH_Nphi),AH_theta(AH_Nchi,AH_Nphi)
         real*8 AH_gb_xx(AH_Nchi,AH_Nphi),AH_gb_xy(AH_Nchi,AH_Nphi)
         real*8 AH_gb_xz(AH_Nchi,AH_Nphi)
@@ -1554,10 +1555,17 @@ c-----------------------------------------------------------------------
               AH_det_g0=g0_chichi0*g0_phiphi0-g0_chiphi0**2
 
               ! horizon area element
+              ! to avoid overcounting when we compute the area as the sum of the area element over all MPI processes
+              ! we exclude the case j0=Nphi.
+              ! However, including j0=Nphi is useful when computing the area as an integral over the area density (=da/(dchi dphi) ),
+              ! as we do in Mathematica in post-processing. da_full includes the case j0=Nphi and is then saved in AH_da0(i0,j0), which
+              ! is the quantity that we output in sdf and ascii form in app_pre_tstep() and app_post_tstep()
               if (j0.ne.AH_Nphi) then
                da=sqrt(AH_det_g0)*dahchi*dahphi
+               da_full=sqrt(AH_det_g0)*dahchi*dahphi
               else
                da=0
+               da_full=sqrt(AH_det_g0)*dahchi*dahphi
               end if
               if (is_ex.eq.1) then
                da=-10000
@@ -1611,7 +1619,7 @@ c-----------------------------------------------------------------------
         AH_ahr(i0,j0)=AH_R(i0,j0)
         AH_dch(i0,j0)=dahr_dch
         AH_dph(i0,j0)=dahr_dph
-        AH_da0(i0,j0)=da
+        AH_da0(i0,j0)=da_full
         AH_dcq(i0,j0)=d_ceq
         AH_dcp(i0,j0)=d_cp
         AH_dcp2(i0,j0)=d_cp2
