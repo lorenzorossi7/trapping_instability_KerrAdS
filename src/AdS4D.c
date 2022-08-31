@@ -22677,6 +22677,7 @@ void AdS4D_pre_tstep(int L)
 
 	//MPI_Barrier(MPI_COMM_WORLD);
 	//if (my_rank==0) {printf("AdS4D_pre_tstep is called"); fflush(stdout);}
+
  
     ct=PAMR_get_time(L);    
     Lf=PAMR_get_max_lev(PAMR_AMRH);
@@ -22926,7 +22927,7 @@ void AdS4D_pre_tstep(int L)
 	            	size_name = snprintf(NULL, 0, "%sAH_t_chi_phi_R_x0_y0_z0_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps) + 1;
     				if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_pre_tstep...out of memory",""); 
 	            	sprintf(name,"%sAH_t_chi_phi_R_x0_y0_z0_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps);
-	            	fp = fopen (name, "w+");
+	            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 	            	for( j = 0; j < AH_Nchi[l]; j++ )
 				    {
 	                	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -22944,7 +22945,7 @@ void AdS4D_pre_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_theta_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_pre_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_theta_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -22963,7 +22964,7 @@ void AdS4D_pre_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_g0xx_g0xy_g0xz_g0yy_g0yz_g0zz_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_pre_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_g0xx_g0xy_g0xz_g0yy_g0yz_g0zz_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -22982,7 +22983,7 @@ void AdS4D_pre_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_g0chichi_g0chiphi_g0phiphi_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_pre_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_g0chichi_g0chiphi_g0phiphi_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23001,7 +23002,7 @@ void AdS4D_pre_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_kretsch_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_pre_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_kretsch_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23020,7 +23021,7 @@ void AdS4D_pre_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_riemanncube_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_pre_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_riemanncube_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23039,7 +23040,7 @@ void AdS4D_pre_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_ahr_ahrdchi_ahrdphi_da_dceq_dcp_dcp2_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_pre_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_ahr_ahrdchi_ahrdphi_da_dceq_dcp_dcp2_ind_%i_tstep%d.txt",AMRD_save_tag,l,lsteps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23385,7 +23386,7 @@ void AdS4D_post_tstep(int L)
 	            	size_name = snprintf(NULL, 0, "%sAH_t_chi_phi_R_x0_y0_z0_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps) + 1;
     				if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_post_tstep...out of memory",""); 
 	            	sprintf(name,"%sAH_t_chi_phi_R_x0_y0_z0_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps);
-	            	fp = fopen (name, "w+");
+	            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 	            	for( j = 0; j < AH_Nchi[l]; j++ )
 				    {
 	                	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23403,7 +23404,7 @@ void AdS4D_post_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_theta_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_post_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_theta_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23422,7 +23423,7 @@ void AdS4D_post_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_g0xx_g0xy_g0xz_g0yy_g0yz_g0zz_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_post_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_g0xx_g0xy_g0xz_g0yy_g0yz_g0zz_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23441,7 +23442,7 @@ void AdS4D_post_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_g0chichi_g0chiphi_g0phiphi_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_post_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_g0chichi_g0chiphi_g0phiphi_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23460,7 +23461,7 @@ void AdS4D_post_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_kretsch_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_post_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_kretsch_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23479,7 +23480,7 @@ void AdS4D_post_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_riemanncube_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_post_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_riemanncube_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 
@@ -23498,7 +23499,7 @@ void AdS4D_post_tstep(int L)
 	                	size_name = snprintf(NULL, 0, "%sAH_t_ahr_ahrdchi_ahrdphi_da_dceq_dcp_dcp2_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps) + 1;
     					if ( (name = malloc(size_name) )==NULL) AMRD_stop("app_post_tstep...out of memory",""); 
 	                	sprintf(name,"%sAH_t_ahr_ahrdchi_ahrdphi_da_dceq_dcp_dcp2_ind_%i_tstep%d.txt",AMRD_save_tag,l,lc_steps);
-		            	fp = fopen (name, "w+");
+		            	errno=0; if ( (fp = fopen(name, "w+") )==NULL) printf("ERROR opening file %s with error %d!\n",name,errno);
 		            	for( j = 0; j < AH_Nchi[l]; j++ )
 					    {
 	        	        	for( k = 0; k < AH_Nphi[l]; k++ ) 

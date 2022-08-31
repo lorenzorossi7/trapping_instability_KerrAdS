@@ -1554,7 +1554,11 @@ c-----------------------------------------------------------------------
               AH_det_g0=g0_chichi0*g0_phiphi0-g0_chiphi0**2
 
               ! horizon area element
-              da=sqrt(AH_det_g0)*dahchi*dahphi
+              if (j0.ne.AH_Nphi) then
+               da=sqrt(AH_det_g0)*dahchi*dahphi
+              else
+               da=0
+              end if
               if (is_ex.eq.1) then
                da=-10000
               end if
