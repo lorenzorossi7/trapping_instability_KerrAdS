@@ -816,5 +816,27 @@ void boost_perturb_(          real *phi1_np1, real *phi1_n, real *phi1_nm1, real
                               real *boost_ex, real *boost_ey, real *boost_ez,
                               real *AdS_L, real *x, real *y, real *z, real *dt, real *chr,real *exc, int *Nx, int *Ny, int *Nz);
 
+void sqrt_phienangmom_densities_(real *ssqrtphiendensity, real *sqrtphiangmomdensity,
+           real *gb_tt_np1, real *gb_tt_n, real *gb_tt_nm1, 
+           real *gb_tx_np1, real *gb_tx_n, real *gb_tx_nm1, 
+           real *gb_ty_np1, real *gb_ty_n, real *gb_ty_nm1,
+           real *gb_tz_np1, real *gb_tz_n, real *gb_tz_nm1,
+           real *gb_xx_np1, real *gb_xx_n, real *gb_xx_nm1,
+           real *gb_xy_np1, real *gb_xy_n, real *gb_xy_nm1,
+           real *gb_xz_np1, real *gb_xz_n, real *gb_xz_nm1,
+           real *gb_yy_np1, real *gb_yy_n, real *gb_yy_nm1,
+           real *gb_yz_np1, real *gb_yz_n, real *gb_yz_nm1,
+           real *gb_zz_np1, real *gb_zz_n, real *gb_zz_nm1,
+           real *Hb_t_np1, real *Hb_t_n, real *Hb_t_nm1,
+           real *Hb_x_np1, real *Hb_x_n, real *Hb_x_nm1,
+           real *Hb_y_np1, real *Hb_y_n, real *Hb_y_nm1,
+           real *Hb_z_np1, real *Hb_z_n, real *Hb_z_nm1,
+           real *phi1_np1, real *phi1_n, real *phi1_nm1,
+           real *AH_R, real *AH_xc,
+           int *AH_Nchi, int *AH_Nphi,
+           real *x, real *y, real *z, real *dt, real *ct, real *chr,
+           real *AdS_L, real *ex, int *Nx, int *Ny, int *Nz, int *phys_bdy, int *ghost_width,
+           real *ief_bh_r0,real *a_rot0, int *kerrads_background);
+
 
 #endif

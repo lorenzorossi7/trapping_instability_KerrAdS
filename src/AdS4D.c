@@ -101,6 +101,7 @@ int output_ires_ghconstr,output_kretschcentregrid;
 int output_kretsch,output_riemanncube;
 int sp;
 int output_sqrth10normdensity_phi,output_sqrten2density_phi,hnorm_argtype;
+int output_sqrtphienangmomdensity;
 int output_moreAHquant_sdf,output_metricAH_cart_sdf,output_metricAH_sph_sdf;
 int output_kretschAH_sdf,output_riemanncubeAH_sdf;
 int output_moreAHquant_ascii,output_AHtheta_ascii,output_metricAH_cart_ascii,output_metricAH_sph_ascii,output_kretschAH_ascii,output_riemanncubeAH_ascii,output_diagnosticAH_ascii;
@@ -205,6 +206,8 @@ real *kretsch,*kretsch_n,*kretsch_np1,*kretsch_nm1;
 real *riemanncube,*riemanncube_n,*riemanncube_np1,*riemanncube_nm1;
 real *sqrth10normdensity_phi,*sqrth10normdensity_phi_n,*sqrth10normdensity_phi_np1,*sqrth10normdensity_phi_nm1;
 real *sqrten2density_phi,*sqrten2density_phi_n,*sqrten2density_phi_np1,*sqrten2density_phi_nm1;
+real *sqrtphiendensity,*sqrtphiendensity_n,*sqrtphiendensity_np1,*sqrtphiendensity_nm1;
+real *sqrtphiangmomdensity,*sqrtphiangmomdensity_n,*sqrtphiangmomdensity_np1,*sqrtphiangmomdensity_nm1;
 
 real *w1,*mg_w1;
 real *w2,*mg_w2;
@@ -656,6 +659,9 @@ int kretsch_gfn,kretsch_n_gfn,kretsch_np1_gfn,kretsch_nm1_gfn;
 int riemanncube_gfn,riemanncube_n_gfn,riemanncube_np1_gfn,riemanncube_nm1_gfn;
 int sqrth10normdensity_phi_gfn,sqrth10normdensity_phi_n_gfn,sqrth10normdensity_phi_np1_gfn,sqrth10normdensity_phi_nm1_gfn;
 int sqrten2density_phi_gfn,sqrten2density_phi_n_gfn,sqrten2density_phi_np1_gfn,sqrten2density_phi_nm1_gfn;
+int sqrtphiendensity_gfn,sqrtphiendensity_n_gfn,sqrtphiendensity_np1_gfn,sqrtphiendensity_nm1_gfn;
+int sqrtphiangmomdensity_gfn,sqrtphiangmomdensity_n_gfn,sqrtphiangmomdensity_np1_gfn,sqrtphiangmomdensity_nm1_gfn;
+
 
 int mask_gfn,mask_mg_gfn,chr_gfn,chr_mg_gfn;
 
@@ -1737,6 +1743,14 @@ void set_gfns(void)
     if ((sqrten2density_phi_nm1_gfn   = PAMR_get_gfn("sqrten2density_phi",PAMR_AMRH,3))<0) AMRD_stop("set_gnfs error",0);
     if ((sqrten2density_phi_n_gfn   = PAMR_get_gfn("sqrten2density_phi",PAMR_AMRH,2))<0) AMRD_stop("set_gnfs error",0);
     if ((sqrten2density_phi_np1_gfn   = PAMR_get_gfn("sqrten2density_phi",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiendensity_gfn      = PAMR_get_gfn("sqrtphiendensity",PAMR_MGH, 0))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiendensity_nm1_gfn   = PAMR_get_gfn("sqrtphiendensity",PAMR_AMRH,3))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiendensity_n_gfn   = PAMR_get_gfn("sqrtphiendensity",PAMR_AMRH,2))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiendensity_np1_gfn   = PAMR_get_gfn("sqrtphiendensity",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiangmomdensity_gfn      = PAMR_get_gfn("sqrtphiangmomdensity",PAMR_MGH, 0))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiangmomdensity_nm1_gfn   = PAMR_get_gfn("sqrtphiangmomdensity",PAMR_AMRH,3))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiangmomdensity_n_gfn   = PAMR_get_gfn("sqrtphiangmomdensity",PAMR_AMRH,2))<0) AMRD_stop("set_gnfs error",0);
+    if ((sqrtphiangmomdensity_np1_gfn   = PAMR_get_gfn("sqrtphiangmomdensity",PAMR_AMRH,1))<0) AMRD_stop("set_gnfs error",0);
 
 
     if ((zeta_gfn     = PAMR_get_gfn("zeta",PAMR_MGH,0))<0) AMRD_stop("set_gnfs error",0);
@@ -2014,6 +2028,14 @@ void ldptr(void)
     sqrten2density_phi_n   = gfs[sqrten2density_phi_n_gfn-1];
     sqrten2density_phi_nm1   = gfs[sqrten2density_phi_nm1_gfn-1];
     sqrten2density_phi_np1   = gfs[sqrten2density_phi_np1_gfn-1];
+    sqrtphiendensity     = gfs[sqrtphiendensity_gfn-1];
+    sqrtphiendensity_n   = gfs[sqrtphiendensity_n_gfn-1];
+    sqrtphiendensity_nm1   = gfs[sqrtphiendensity_nm1_gfn-1];
+    sqrtphiendensity_np1   = gfs[sqrtphiendensity_np1_gfn-1];
+    sqrtphiangmomdensity     = gfs[sqrtphiangmomdensity_gfn-1];
+    sqrtphiangmomdensity_n   = gfs[sqrtphiangmomdensity_n_gfn-1];
+    sqrtphiangmomdensity_nm1   = gfs[sqrtphiangmomdensity_nm1_gfn-1];
+    sqrtphiangmomdensity_np1   = gfs[sqrtphiangmomdensity_np1_gfn-1];
 
     zeta     = gfs[zeta_gfn-1];
     zeta_lop = gfs[zeta_lop_gfn-1];
@@ -2445,6 +2467,7 @@ void AdS4D_var_post_init(char *pfile)
     output_riemanncube=0; AMRD_int_param(pfile,"output_riemanncube",&output_riemanncube,1);
     output_sqrth10normdensity_phi=0; AMRD_int_param(pfile,"output_sqrth10normdensity_phi",&output_sqrth10normdensity_phi,1);
     output_sqrten2density_phi=0; AMRD_int_param(pfile,"output_sqrten2density_phi",&output_sqrten2density_phi,1);
+    output_sqrtphienangmomdensity=0; AMRD_int_param(pfile,"output_sqrtphienangmomdensity",&output_sqrtphienangmomdensity,1);
 	output_moreAHquant_sdf=0; AMRD_int_param(pfile,"output_moreAHquant_sdf",&output_moreAHquant_sdf,1);
 	output_metricAH_cart_sdf=0; AMRD_int_param(pfile,"output_metricAH_cart_sdf",&output_metricAH_cart_sdf,1);
 	output_metricAH_sph_sdf=0; AMRD_int_param(pfile,"output_metricAH_sph_sdf",&output_metricAH_sph_sdf,1);
@@ -3515,6 +3538,51 @@ void AdS4D_t0_cnst_data(void)
                     Hb_z_np1,Hb_z_n,Hb_z_nm1,
                     phi1_np1,phi1_n,phi1_nm1,
         			AH_R[0],AH_xc[0],
+        			&AH_Nchi[0],&AH_Nphi[0],
+                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+                    &ief_bh_r0,&a_rot0,&kerrads_background);
+        }
+        if (output_sqrtphienangmomdensity)
+        {
+//        	//TEST NORMS
+//        	printf("TEST RUN: Set phi1_n to function chosen for test\n");
+//        	printf("Nx=%i,Ny=%i,Nz=%i\n",Nx,Ny,Nz);
+//			   for (i=0; i<Nx; i++)
+//			   {    
+//			   	  for (j=0; j<Ny; j++)
+//			      { 
+//			       for (k=0; k<Nz; k++)
+//			       {  
+//			       	if (sqrt(x[i]*x[i]+y[j]*y[j]+z[k]*z[k])>0.7)
+//			        {   
+//			         ind=i+Nx*(j+Ny*k);
+//			         phi1_np1[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
+//			         phi1_n[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
+//			         phi1_nm1[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
+//			        }
+//			       }
+//			      }
+//			   }
+            sqrt_phienangmom_densities_(sqrtphiendensity_n,sqrtphiangmomdensity_n,
+                    gb_tt_np1,gb_tt_n,gb_tt_nm1,
+                    gb_tx_np1,gb_tx_n,gb_tx_nm1,
+                    gb_ty_np1,gb_ty_n,gb_ty_nm1,
+                    gb_tz_np1,gb_tz_n,gb_tz_nm1,
+                    gb_xx_np1,gb_xx_n,gb_xx_nm1,
+                    gb_xy_np1,gb_xy_n,gb_xy_nm1,
+                    gb_xz_np1,gb_xz_n,gb_xz_nm1,
+                    gb_yy_np1,gb_yy_n,gb_yy_nm1,
+                    gb_yz_np1,gb_yz_n,gb_yz_nm1,
+                    gb_zz_np1,gb_zz_n,gb_zz_nm1,
+                    Hb_t_np1,Hb_t_n,Hb_t_nm1,
+                    Hb_x_np1,Hb_x_n,Hb_x_nm1,
+                    Hb_y_np1,Hb_y_n,Hb_y_nm1,
+                    Hb_z_np1,Hb_z_n,Hb_z_nm1,
+                    phi1_np1,phi1_n,phi1_nm1,
+		            AH_R[0],AH_xc[0],
         			&AH_Nchi[0],&AH_Nphi[0],
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0,&kerrads_background);
@@ -22321,6 +22389,51 @@ void AdS4D_evolve(int iter)
                     phi1_np1,phi1_n,phi1_nm1,
                     AH_R[0],AH_xc[0],
         			  &AH_Nchi[0],&AH_Nphi[0],
+                    x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
+                    &ief_bh_r0,&a_rot0,&kerrads_background);
+    }
+    if (output_sqrtphienangmomdensity)
+    {
+//        	//TEST NORMS
+//        	printf("TEST RUN: Set phi1_n to function chosen for test\n");
+//        	printf("Nx=%i,Ny=%i,Nz=%i\n",Nx,Ny,Nz);
+//			   for (i=0; i<Nx; i++)
+//			   {    
+//			   	  for (j=0; j<Ny; j++)
+//			      { 
+//			       for (k=0; k<Nz; k++)
+//			       {  
+//			       	if (sqrt(x[i]*x[i]+y[j]*y[j]+z[k]*z[k])>0.7)
+//			        {   
+//			         ind=i+Nx*(j+Ny*k);
+//			         phi1_np1[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
+//			         phi1_n[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
+//			         phi1_nm1[ind]=1000*(x[i]*x[i]*y[j]*y[j]*y[j]*y[j]*z[k]*z[k]*z[k]*z[k]*z[k]+
+//			         				x[i]*y[j]*z[k]*z[k]*z[k]);
+//			        }
+//			       }
+//			      }
+//			   }
+            sqrt_phienangmom_densities_(sqrtphiendensity_np1,sqrtphiangmomdensity_np1,
+                    gb_tt_np1,gb_tt_n,gb_tt_nm1,
+                    gb_tx_np1,gb_tx_n,gb_tx_nm1,
+                    gb_ty_np1,gb_ty_n,gb_ty_nm1,
+                    gb_tz_np1,gb_tz_n,gb_tz_nm1,
+                    gb_xx_np1,gb_xx_n,gb_xx_nm1,
+                    gb_xy_np1,gb_xy_n,gb_xy_nm1,
+                    gb_xz_np1,gb_xz_n,gb_xz_nm1,
+                    gb_yy_np1,gb_yy_n,gb_yy_nm1,
+                    gb_yz_np1,gb_yz_n,gb_yz_nm1,
+                    gb_zz_np1,gb_zz_n,gb_zz_nm1,
+                    Hb_t_np1,Hb_t_n,Hb_t_nm1,
+                    Hb_x_np1,Hb_x_n,Hb_x_nm1,
+                    Hb_y_np1,Hb_y_n,Hb_y_nm1,
+                    Hb_z_np1,Hb_z_n,Hb_z_nm1,
+                    phi1_np1,phi1_n,phi1_nm1,
+		            AH_R[0],AH_xc[0],
+        			&AH_Nchi[0],&AH_Nphi[0],
                     x,y,z,&dt,&ct,chr,&AdS_L,&AMRD_ex,&Nx,&Ny,&Nz,phys_bdy,ghost_width,
                     &ief_bh_r0,&a_rot0,&kerrads_background);
     }
