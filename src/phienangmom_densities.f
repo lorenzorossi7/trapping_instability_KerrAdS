@@ -377,7 +377,7 @@ c-----------------------------------------------------------------------
 
              do a=1,4
                do b=1,4
-                set_ul_qssph(a,b)=0.0d0
+                set_ll_qssph(a,b)=0.0d0
                 do c=1,4
                  do d=1,4
                   set_ll_qssph(a,b)=set_ll_qssph(a,b)
