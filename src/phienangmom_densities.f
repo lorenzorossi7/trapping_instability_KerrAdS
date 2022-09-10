@@ -409,7 +409,7 @@ c-----------------------------------------------------------------------
 
      		phiendensity=sqrt(detgamma)*(-lapse*set_ul_qssph(1,1))
      		phiangmomdensity=(-1.0d0/2.0d0)*
-     &				sqrt(detgamma)*(-lapse*set_ul_qssph(4,1))
+     &				sqrt(detgamma)*(-lapse*set_ul_qssph(1,4))
 
 
              sqrtphiendensity(i,j,k)=sqrt(phiendensity)
