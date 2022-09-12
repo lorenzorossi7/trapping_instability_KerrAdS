@@ -1,6 +1,6 @@
 c-----------------------------------------------------------------------
 c Calculate energy density and angular momentum density of the (bulk) scalar field, that is, respectively
-c sqrt(gamma) rhoEphi=sqrt(gamma)(-alpha T^t_t) and sqrt(gamma) rhoJphi=sqrt(gamma)(-(1/2))(-alpha T^phi_t),
+c sqrt(gamma) rhoEphi=sqrt(gamma)(-alpha T^t_t) and sqrt(gamma) rhoJphi=sqrt(gamma)(-(1/2))(-alpha T^t_phi),
 c where gamma is the determinant of the metric on t=const. slices in Cartesian coordinates.
 c These give a measure of the energy and angular momentum of the scalar field 
 c when integrated over dx dy dz. 
@@ -57,6 +57,7 @@ c-----------------------------------------------------------------------
         real*8 dahtheta,dahphi
         real*8 ft,fp
         real*8 AH_Rp,rhostop
+        real*8 k_u(4),m3_u(4)
         real*8 sqrtphiendensity(Nx,Ny,Nz)
         real*8 sqrtphiangmomdensity(Nx,Ny,Nz)
         real*8 phiendensity,phiangmomdensity
@@ -122,6 +123,7 @@ c-----------------------------------------------------------------------
         real*8 detg0_qssph0,detgamma,lapse
         real*8 g0_ll_qssph(4,4),g0_uu_qssph(4,4)
         real*8 set_ll_qssph(4,4),set_ul_qssph(4,4)
+        real*8 set_ul(4,4)
 
 
 
@@ -158,6 +160,7 @@ c-----------------------------------------------------------------------
         data g0_uu_qssph/16*0.0/
         data set_ll_qssph/16*0.0/
         data set_ul_qssph/16*0.0/
+        data set_ul/16*0.0/
 
 
 
@@ -312,108 +315,163 @@ c-----------------------------------------------------------------------
      &                ief_bh_r0,a_rot,kerrads_background,
      &                calc_der,calc_adv_quant)
 
-
-		!define transformation matrix between Cartesian coordinates to compactified (quasi-)spherical coordinates, 
-		!        !e.g. dxcar_dxqssph(3,2)=dy/drho=sin(theta0)*cos(phi0)
-
-             dxcar_dxqssph(1,1)=1
-             dxcar_dxqssph(1,2)=0
-             dxcar_dxqssph(1,3)=0
-             dxcar_dxqssph(1,4)=0
-             dxcar_dxqssph(2,1)=0
-             dxcar_dxqssph(2,2)=cos(theta0)
-             dxcar_dxqssph(2,3)=-rho0*sin(theta0)
-             dxcar_dxqssph(2,4)=0
-             dxcar_dxqssph(3,1)=0
-             dxcar_dxqssph(3,2)=sin(theta0)*cos(phi0)
-             dxcar_dxqssph(3,3)=rho0*cos(theta0)*cos(phi0)
-             dxcar_dxqssph(3,4)=-rho0*sin(theta0)*sin(phi0)
-             dxcar_dxqssph(4,1)=0
-             dxcar_dxqssph(4,2)=sin(theta0)*sin(phi0)
-             dxcar_dxqssph(4,3)=rho0*cos(theta0)*sin(phi0)
-             dxcar_dxqssph(4,4)=rho0*sin(theta0)*cos(phi0)
-
              do a=1,4
                do b=1,4
-                g0_ll_qssph(a,b)=0.0d0
+                set_ul(a,b)=0.0d0
                 do c=1,4
-                 do d=1,4
-                  g0_ll_qssph(a,b)=g0_ll_qssph(a,b)
-     &                        +dxcar_dxqssph(c,a)*dxcar_dxqssph(d,b)
-     &                          *g0_ll(c,d)
-                 end do
+                  set_ul(a,b)=set_ul(a,b)
+     &                    +g0_uu(a,c)*set_ll(c,b)
                 end do
                end do
              end do
 
-                call calc_g0uu(g0_ll_qssph(1,1),
-     &              g0_ll_qssph(1,2),
-     &              g0_ll_qssph(1,3),
-     &              g0_ll_qssph(1,4),
-     &              g0_ll_qssph(2,2),
-     &              g0_ll_qssph(2,3),
-     &              g0_ll_qssph(2,4),
-     &              g0_ll_qssph(3,3),
-     &              g0_ll_qssph(3,4),
-     &              g0_ll_qssph(4,4),
-     &              g0_uu_qssph(1,1),
-     &              g0_uu_qssph(1,2),
-     &              g0_uu_qssph(1,3),
-     &              g0_uu_qssph(1,4),
-     &              g0_uu_qssph(2,2),
-     &              g0_uu_qssph(2,3),
-     &              g0_uu_qssph(2,4),
-     &              g0_uu_qssph(3,3),
-     &              g0_uu_qssph(3,4),
-     &              g0_uu_qssph(4,4),
-     &              detg0_qssph0)
-
-             do a=1,3
-               do b=a+1,4
-                 g0_uu_qssph(b,a)=g0_uu_qssph(a,b) 
-               end do
-             end do
+             lapse=1/sqrt(-g0_uu(1,1))
 
 
-             do a=1,4
-               do b=1,4
-                set_ll_qssph(a,b)=0.0d0
-                do c=1,4
-                 do d=1,4
-                  set_ll_qssph(a,b)=set_ll_qssph(a,b)
-     &                        +dxcar_dxqssph(c,a)*dxcar_dxqssph(d,b)
-     &                          *set_ll(c,d)
-                 end do
-                end do
-               end do
-             end do
+            !define generators of asymptotic time translations and asymptotic rotations around the x-axis: d/dt, d/dphi=-z(d/dy)+y(d/dz)
+            k_u(1)=1
+            k_u(2)=0
+            k_u(3)=0
+            k_u(4)=0
 
-              do a=1,4
-               do b=1,4
-                set_ul_qssph(a,b)=0.0d0
-                do c=1,4
-                  set_ul_qssph(a,b)=set_ul_qssph(a,b)
-     &                        +g0_uu_qssph(a,c)
-     &                          *set_ll_qssph(c,b)
-                end do
-               end do
-             end do
+            m3_u(1)=0
+            m3_u(2)=0
+            m3_u(3)=-z0
+            m3_u(4)=y0
 
-     		 detgamma=-g0_ll(2,4)**2*g0_ll(3,3)
-     &  		+2*g0_ll(2,3)*g0_ll(2,4)*g0_ll(3,4) 
-     &			-g0_ll(2,2)*g0_ll(3,4)**2
-     &  		-g0_ll(2,3)**2*g0_ll(4,4)
-     &			+g0_ll(2,2)*g0_ll(3,3)*g0_ll(4,4)
-
-     		lapse=1/sqrt(-g0_uu(1,1))
-
-     		phiendensity=sqrt(detgamma)*(-lapse*set_ul_qssph(1,1))
-     		phiangmomdensity=(-1.0d0)*
-     &				sqrt(detgamma)*(-lapse*set_ul_qssph(1,4))
+            phiendensity=0.0d0
+            phiangmomdensity=0.0d0
+            do a=1,4
+                phiendensity=(-lapse)*set_ul(1,a)*k_u(a)
+                phiangmomdensity=-(-lapse)*set_ul(1,a)*m3_u(a)
+            end do
 
 
-             sqrtphiendensity(i,j,k)=sqrt(phiendensity)
-             sqrtphiangmomdensity(i,j,k)=phiangmomdensity
+             detgamma=-g0_ll(2,4)**2*g0_ll(3,3)
+     &          +2*g0_ll(2,3)*g0_ll(2,4)*g0_ll(3,4) 
+     &          -g0_ll(2,2)*g0_ll(3,4)**2
+     &          -g0_ll(2,3)**2*g0_ll(4,4)
+     &          +g0_ll(2,2)*g0_ll(3,3)*g0_ll(4,4)
+
+
+
+            phiendensity=sqrt(detgamma)*phiendensity
+            phiangmomdensity=sqrt(detgamma)*phiangmomdensity
+
+!!!!Calculation of densities in quasi-spherical coordinates. Spherical coordinates are not well-defined at y=z=0.
+! We can set the densities to 0 at those points, but the calculation in these coordinates is not ideal.
+!
+!
+!		!define transformation matrix between Cartesian coordinates to compactified (quasi-)spherical coordinates, 
+!		!        !e.g. dxcar_dxqssph(3,2)=dy/drho=sin(theta0)*cos(phi0)
+!
+!             dxcar_dxqssph(1,1)=1
+!             dxcar_dxqssph(1,2)=0
+!             dxcar_dxqssph(1,3)=0
+!             dxcar_dxqssph(1,4)=0
+!             dxcar_dxqssph(2,1)=0
+!             dxcar_dxqssph(2,2)=cos(theta0)
+!             dxcar_dxqssph(2,3)=-rho0*sin(theta0)
+!             dxcar_dxqssph(2,4)=0
+!             dxcar_dxqssph(3,1)=0
+!             dxcar_dxqssph(3,2)=sin(theta0)*cos(phi0)
+!             dxcar_dxqssph(3,3)=rho0*cos(theta0)*cos(phi0)
+!             dxcar_dxqssph(3,4)=-rho0*sin(theta0)*sin(phi0)
+!             dxcar_dxqssph(4,1)=0
+!             dxcar_dxqssph(4,2)=sin(theta0)*sin(phi0)
+!             dxcar_dxqssph(4,3)=rho0*cos(theta0)*sin(phi0)
+!             dxcar_dxqssph(4,4)=rho0*sin(theta0)*cos(phi0)
+!
+!             do a=1,4
+!               do b=1,4
+!                g0_ll_qssph(a,b)=0.0d0
+!                do c=1,4
+!                 do d=1,4
+!                  g0_ll_qssph(a,b)=g0_ll_qssph(a,b)
+!     &                        +dxcar_dxqssph(c,a)*dxcar_dxqssph(d,b)
+!     &                          *g0_ll(c,d)
+!                 end do
+!                end do
+!               end do
+!             end do
+!
+!                call calc_g0uu(g0_ll_qssph(1,1),
+!     &              g0_ll_qssph(1,2),
+!     &              g0_ll_qssph(1,3),
+!     &              g0_ll_qssph(1,4),
+!     &              g0_ll_qssph(2,2),
+!     &              g0_ll_qssph(2,3),
+!     &              g0_ll_qssph(2,4),
+!     &              g0_ll_qssph(3,3),
+!     &              g0_ll_qssph(3,4),
+!     &              g0_ll_qssph(4,4),
+!     &              g0_uu_qssph(1,1),
+!     &              g0_uu_qssph(1,2),
+!     &              g0_uu_qssph(1,3),
+!     &              g0_uu_qssph(1,4),
+!     &              g0_uu_qssph(2,2),
+!     &              g0_uu_qssph(2,3),
+!     &              g0_uu_qssph(2,4),
+!     &              g0_uu_qssph(3,3),
+!     &              g0_uu_qssph(3,4),
+!     &              g0_uu_qssph(4,4),
+!     &              detg0_qssph0)
+!
+!             do a=1,3
+!               do b=a+1,4
+!                 g0_uu_qssph(b,a)=g0_uu_qssph(a,b) 
+!               end do
+!             end do
+!
+!
+!             do a=1,4
+!               do b=1,4
+!                set_ll_qssph(a,b)=0.0d0
+!                do c=1,4
+!                 do d=1,4
+!                  set_ll_qssph(a,b)=set_ll_qssph(a,b)
+!     &                        +dxcar_dxqssph(c,a)*dxcar_dxqssph(d,b)
+!     &                          *set_ll(c,d)
+!                 end do
+!                end do
+!               end do
+!             end do
+!
+!              do a=1,4
+!               do b=1,4
+!                set_ul_qssph(a,b)=0.0d0
+!                do c=1,4
+!                  set_ul_qssph(a,b)=set_ul_qssph(a,b)
+!     &                        +g0_uu_qssph(a,c)
+!     &                          *set_ll_qssph(c,b)
+!                end do
+!               end do
+!             end do
+!
+!     		 detgamma=-g0_ll(2,4)**2*g0_ll(3,3)
+!     &  		+2*g0_ll(2,3)*g0_ll(2,4)*g0_ll(3,4) 
+!     &			-g0_ll(2,2)*g0_ll(3,4)**2
+!     &  		-g0_ll(2,3)**2*g0_ll(4,4)
+!     &			+g0_ll(2,2)*g0_ll(3,3)*g0_ll(4,4)
+!
+!     		lapse=1/sqrt(-g0_uu(1,1))
+!
+!     		phiendensity=sqrt(detgamma)*(-lapse*set_ul_qssph(1,1))
+!     		phiangmomdensity=(-1.0d0)*
+!     &				sqrt(detgamma)*(-lapse*set_ul_qssph(1,4))
+!
+!
+!             sqrtphiendensity(i,j,k)=sqrt(phiendensity)
+!             sqrtphiangmomdensity(i,j,k)=phiangmomdensity
+!             !the phi coordinate is not defined at y=z=0, i.e., theta=0,PI 
+!             !(not surprising since spherical coordinates are not valid everywhere on the sphere), 
+!             !hence we set the densities to 0 at these points
+!
+!             if ((abs(y0).lt.10.0d0**(-10)).and.
+!     &          (abs(z0).lt.10.0d0**(-10))) then
+!                 sqrtphiendensity(i,j,k)=0.0d0
+!                 sqrtphiangmomdensity(i,j,k)=0.0d0
+!             end if
 
 
      		else !i.e., the point is either excised or inside the apparent horizon
