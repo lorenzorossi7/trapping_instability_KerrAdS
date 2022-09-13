@@ -357,6 +357,9 @@ c-----------------------------------------------------------------------
             phiendensity=sqrt(detgamma)*phiendensity
             phiangmomdensity=sqrt(detgamma)*phiangmomdensity
 
+            sqrtphiendensity(i,j,k)=sqrt(phiendensity)
+            sqrtphiangmomdensity(i,j,k)=phiangmomdensity
+
 !!!!Calculation of densities in quasi-spherical coordinates. Spherical coordinates are not well-defined at y=z=0.
 ! We can set the densities to 0 at those points, but the calculation in these coordinates is not ideal.
 !
