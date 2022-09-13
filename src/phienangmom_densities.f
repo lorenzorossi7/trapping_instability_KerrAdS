@@ -342,18 +342,17 @@ c-----------------------------------------------------------------------
             phiendensity=0.0d0
             phiangmomdensity=0.0d0
             do a=1,4
-                phiendensity=(-lapse)*set_ul(1,a)*k_u(a)
-                phiangmomdensity=-(-lapse)*set_ul(1,a)*m3_u(a)
+                phiendensity=phiendensity+
+     &           (-lapse)*set_ul(1,a)*k_u(a)
+                phiangmomdensity=phiangmomdensity+
+     &           (-1.0d0)*(-lapse)*set_ul(1,a)*m3_u(a)
             end do
-
 
              detgamma=-g0_ll(2,4)**2*g0_ll(3,3)
      &          +2*g0_ll(2,3)*g0_ll(2,4)*g0_ll(3,4) 
      &          -g0_ll(2,2)*g0_ll(3,4)**2
      &          -g0_ll(2,3)**2*g0_ll(4,4)
      &          +g0_ll(2,2)*g0_ll(3,3)*g0_ll(4,4)
-
-
 
             phiendensity=sqrt(detgamma)*phiendensity
             phiangmomdensity=sqrt(detgamma)*phiangmomdensity
