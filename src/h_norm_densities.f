@@ -228,7 +228,7 @@ c-----------------------------------------------------------------------
 
 
             if (
-     &          (rho0.ge.rhostop).and.
+     &          (rho0.gt.rhostop).and.
      &          (chr(i,j,k).ne.ex)
      &          ) then
 
@@ -641,7 +641,7 @@ c-----------------------------------------------------------------------
 
 
 
-            if ((rho0.ge.rhostop).and.
+            if ((rho0.gt.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 ! set f1 value
@@ -1286,7 +1286,7 @@ c-----------------------------------------------------------------------
 
 
 
-            if ((rho0.ge.rhostop).and.
+            if ((rho0.gt.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 ! set f1 value
@@ -1963,7 +1963,7 @@ c-----------------------------------------------------------------------
 
 
 
-            if ((rho0.ge.rhostop).and.
+            if ((rho0.gt.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 en1dens_f0=sqrth10normdensity_f(i,j,k)**2
@@ -2386,7 +2386,7 @@ c-----------------------------------------------------------------------
 
 
 
-            if ((rho0.ge.rhostop).and.
+            if ((rho0.gt.rhostop).and.
      &         (chr(i,j,k).ne.ex)) then
 
                 en2dens_f0=sqrth20normdensity_f(i,j,k)**2
