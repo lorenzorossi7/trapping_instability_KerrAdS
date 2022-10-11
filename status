@@ -1,9 +1,7 @@
 STATUS OF THIS BRANCH:
-3+1 Cartesian code for study of non-linear instability of Kerr-AdS4D below the Hawking-Reall bound (so no superradiance) with no symmetries. The first commit is taken from the KerrAdS-addperturb-norelKR3-cleanmemalloc branch of the Kerr_AdS4D code.
-Implemented analytic Kerr-AdS (and Schwarzschild-AdS) initial data in Kerr-Schild Cartesian coordinates non-rotating at the boundary.
+2+1 Cartesian code for study of instability of black string in AdS5D. The first version is taken from the LR_ID_norms_BHphiquants branch of the stability_KerrAdS code.
 
-Implemented the option to use Kerr-AdS (or Schwarzschild-AdS) in Kerr-Schild Cartesian coordinates non-rotating at the boundary as background metric.
-NOTE: the option of solving the constraints on black hole backgrounds is not implemented. Before implementing this, a momentum constraint solver is needed: black hole metrics in horizon penetrating-coordinates (needed to ensure we can excise a region well-inside the event horizon, and thus not lose convergence) have g_ti!=0, so they do not trivially satisfy the momentum constraint. If you wish to use a black hole background, perturbations can only be added without solving the constraints. Set skip_constraints=0 to skip the Hamiltonian constraint solver.
+NOTE: the option of solving the constraints is not implemented. Set skip_constraints=0 to skip the Hamiltonian constraint solver.
 (* 
 Notes from the Kerr_AdS4D code (the one used to study superradiance). The following features are not fully implemented because not needed at the moment, but have been implemented in a very similar code so they can be added to this one easily.
 Implemented spherical harmonics perturbations with l=2,m=2 that follow the ones used in arXiv:1801.09711 (Chesler,Lowe). Adding these to initial data makes the data violate the constraints, so only small perturbations can be used and one needs to check that the constraint-damping terms take the evolution back to a solution of the Einstein equations.
@@ -17,26 +15,13 @@ Implemented the calculation and output of Generalised Harmonic constraints.
 
 Implemented AH-shaped excision and spherical excision with radius given by the minimum of the AH radius (times (1-ex_rbuf)).
 
-New derivative stencils in z have been tested.
-Convergence at t=0 is good as expected for analytic Schwarzschild-AdS initial data. At later times, we obtain convergence of the independent residual, i.e., the maximum value of all the components of the equations of motion. We saw that convergence of grid functions is lost in the runs used for 2011.12970. The resolutions are 145,217 and 325 (separated by a factor of 3/2) and a black hole is formed. Loss of convergence might arise from the excision surface. Further testing is needed to ensure convergence Long time stability of runs has been checked for several initial data parameters.
-The solver of Hamiltonian constraint has been generalised to 3+1, so it is now possible to use time-symmetric initial data that solves the Hamiltonian constraint with a non-vanishing scalar field. Convergence at t=0 has been tested for this type of data.
-Convergence and stability at later times, higher resolutions and different values of the parameters needs to be tested.
-The AH finder has been implemented and tested by checking that the finder gives the expected position of the AH for analytic Schwarzschild-AdS BH initial data. However it does not seem to find black holes after one or more bounces. TO SOLVE
 It is possible to deactivate the AH finder and have fixed excision radius by just setting a value for ex_rbuf or to use the AH finder for scalar field and analytic BH initial data.
 We've implemented the possibility of producing sdf files with the values of the metric components on the apparent horizon.
 
-We implemented the possibility of producing an ascii file with the value of the kretschmann scalar at the centre of the grid at the corresponding time of evolution. We have also implemented the possibility of outputting the Kretschmann and Riemann cube scalars in the bulk as sdf files. We have also implemented the possibility of outputting the Kretschmann scalar and Riemann cube scalar at the AH, both
-in sdf and ascii form.
+We implemented the possibility of producing an ascii file with the value of the kretschmann scalar at the centre of the grid at the corresponding time of evolution. We have also implemented the possibility of outputting the Kretschmann and Riemann cube scalars in the bulk as sdf files. We have also implemented the possibility of outputting the Kretschmann scalar and Riemann cube scalar at the AH, both in sdf and ascii form.
 
-We implemented the quasilocal boundary stress-energy tensor and total mass density, x/y/z-components of the angular momentum density calculation in terms of the deviations from pure AdS (even when using a different background for the evolution!!), and tested that it gives the expected value in the case of analytic Kerr-AdS initial data, i.e. E=M/(1-a^2)^2 and J=M*a/(1-a^2)^2. This works also with checkpointing. Then we wrote the expressions in terms of derivatives of metric components w.r.t. rho. We checked convergence for such expressions for L1,L2 and L3 resolution at t=0.
-We implemented first and second order boundary extrapolation along the radial direction. This needs to be tested.
+We implemented first and second order boundary extrapolation along the radial direction.
 
 However, the allocation of memory for boundary quantities and their calculation is performed only on the coarsest grid of any hierarchy. SO the boundary extrapolation is now compatible with AMR techniques.
 
-The AdS mass is computed performing a double integral on the S^2 sphere at the boundary of the mass density ONLY IF WE RUN ON 1 CORE, otherwise the numerical approximation for the double integral becomes unreliable. We produce an ascii file with the time of evolution and the AdS mass at that time. We checked that the AdS mass gives the expected value in the case of analytic Schwarzschild initial data (it actually underestimates it a bit, but the accuracy seems to improve with resolution).
-The stress-energy tensor and AdS mass should be tested in the following ways:
-1. convergence in the high resolution limit (DONE for L1,L2,L3 resolution at t=0)
-2. tracelessness (the trace seems to be small for a few test runs, but convergence shows a bad trend at late times for the runs of 2011.12970, that probably comes from the bad convergence trends in the bulk)
-3. conservation (same bad trends at late times).
-We also produce an ascii file with the value of the scalar field at the boundary (namely, the leading order coefficient in the near boundary expansion).
 We implemented the option of producing spatially reduced ascii files, i.e. containing a number of boundary points reduced by a certain parameter, called reduction_factor. This is done to obtain smaller ascii files.
