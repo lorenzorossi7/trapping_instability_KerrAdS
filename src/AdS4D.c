@@ -47,14 +47,15 @@ real kappa_cd,rho_cd;
 //=============================================================================
 
 // gaussians
-real phi1_amp_1,phi1_B_1,phi1_C_1,phi1_r0_1,phi1_delta_1,phi1_x0_1[3],phi1_ecc_1[3];
-real phi1_amp_2,phi1_B_2,phi1_C_2,phi1_r0_2,phi1_delta_2,phi1_x0_2[3],phi1_ecc_2[3];
+real phi1_amp_1,phi1_B_1,phi1_C_1,phi1_r0_1,phi1_delta_1,phi1_den_1,phi1_x0_1[3],phi1_ecc_1[3];
+real phi1_amp_2,phi1_B_2,phi1_C_2,phi1_r0_2,phi1_delta_2,phi1_den_2,phi1_x0_2[3],phi1_ecc_2[3];
 
 //parameters for boosted scalar field gaussian lumps
 real boost_v_1[3];
 real boost_amp_1;
 real boost_r0_1;
 real boost_delta_1;
+real boost_den_1;
 real boost_x0_1[3];
 real boost_ecc_1[3];
 
@@ -62,6 +63,7 @@ real boost_v_2[3];
 real boost_amp_2;
 real boost_r0_2;
 real boost_delta_2;
+real boost_den_2;
 real boost_x0_2[3];
 real boost_ecc_2[3];
 
@@ -2371,6 +2373,7 @@ void AdS4D_var_post_init(char *pfile)
     boost_amp_1=0;
     boost_r0_1=0;
     boost_delta_1=0;
+    boost_den_1=0;
     boost_x0_1[0]=boost_x0_1[1]=boost_x0_1[2]=0;
     boost_ecc_1[0]=boost_ecc_1[1]=boost_ecc_1[2]=0;
 
@@ -2378,6 +2381,7 @@ void AdS4D_var_post_init(char *pfile)
     boost_amp_2=0;
     boost_r0_2=0;
     boost_delta_2=0;
+    boost_den_2=0;
     boost_x0_2[0]=boost_x0_2[1]=boost_x0_2[2]=0;
     boost_ecc_2[0]=boost_ecc_2[1]=boost_ecc_2[2]=0;
 
@@ -2390,6 +2394,7 @@ void AdS4D_var_post_init(char *pfile)
     AMRD_real_param(pfile,"phi1_C_1",&phi1_C_1,1);
     AMRD_real_param(pfile,"phi1_r0_1",&phi1_r0_1,1);
     AMRD_real_param(pfile,"phi1_delta_1",&phi1_delta_1,1);
+    AMRD_real_param(pfile,"phi1_den_1",&phi1_den_1,1);
     AMRD_real_param(pfile,"phi1_x0_1",phi1_x0_1,AMRD_dim);
     AMRD_real_param(pfile,"phi1_ecc_1",phi1_ecc_1,AMRD_dim);    
     AMRD_real_param(pfile,"phi1_amp_2",&phi1_amp_2,1);
@@ -2397,6 +2402,7 @@ void AdS4D_var_post_init(char *pfile)
     AMRD_real_param(pfile,"phi1_C_2",&phi1_C_2,1);
     AMRD_real_param(pfile,"phi1_r0_2",&phi1_r0_2,1);
     AMRD_real_param(pfile,"phi1_delta_2",&phi1_delta_2,1);
+    AMRD_real_param(pfile,"phi1_den_2",&phi1_den_2,1);
     AMRD_real_param(pfile,"phi1_x0_2",phi1_x0_2,AMRD_dim);
     AMRD_real_param(pfile,"phi1_ecc_2",phi1_ecc_2,AMRD_dim);   
 
@@ -2404,6 +2410,7 @@ void AdS4D_var_post_init(char *pfile)
     AMRD_real_param(pfile,"boost_amp_1",&boost_amp_1,1);
     AMRD_real_param(pfile,"boost_r0_1",&boost_r0_1,1);
     AMRD_real_param(pfile,"boost_delta_1",&boost_delta_1,1);
+    AMRD_real_param(pfile,"boost_den_1",&boost_den_1,1);
     AMRD_real_param(pfile,"boost_x0_1",boost_x0_1,AMRD_dim);
     AMRD_real_param(pfile,"boost_ecc_1",boost_ecc_1,AMRD_dim);  
 
@@ -2411,6 +2418,7 @@ void AdS4D_var_post_init(char *pfile)
     AMRD_real_param(pfile,"boost_amp_2",&boost_amp_2,1);
     AMRD_real_param(pfile,"boost_r0_2",&boost_r0_2,1);
     AMRD_real_param(pfile,"boost_delta_2",&boost_delta_2,1);
+    AMRD_real_param(pfile,"boost_den_2",&boost_den_2,1);
     AMRD_real_param(pfile,"boost_x0_2",boost_x0_2,AMRD_dim);
     AMRD_real_param(pfile,"boost_ecc_2",boost_ecc_2,AMRD_dim);
 
@@ -3039,9 +3047,9 @@ void AdS4D_free_data(void)
     ldptr();    
     AdS4D_AMRH_var_clear(); // constrained variables are set post-MG    
     zero_f(phi1_t_n); // holds initial time derivatives for ID  
-    gauss3d_(phi1_n,&phi1_amp_1,&phi1_B_1,&phi1_C_1,&phi1_r0_1,&phi1_delta_1,&phi1_x0_1[0],&phi1_x0_1[1],&phi1_x0_1[2],
+    gauss3d_(phi1_n,&phi1_amp_1,&phi1_B_1,&phi1_C_1,&phi1_r0_1,&phi1_delta_1,&phi1_den_1,&phi1_x0_1[0],&phi1_x0_1[1],&phi1_x0_1[2],
             &phi1_ecc_1[0],&phi1_ecc_1[1],&phi1_ecc_1[2],&AdS_L,x,y,z,&Nx,&Ny,&Nz,&rhoc,&rhod,&stype);  
-    gauss3d_(w1,&phi1_amp_2,&phi1_B_2,&phi1_C_2,&phi1_r0_2,&phi1_delta_2,&phi1_x0_2[0],&phi1_x0_2[1],&phi1_x0_2[2],
+    gauss3d_(w1,&phi1_amp_2,&phi1_B_2,&phi1_C_2,&phi1_r0_2,&phi1_delta_2,&phi1_den_2,&phi1_x0_2[0],&phi1_x0_2[1],&phi1_x0_2[2],
             &phi1_ecc_2[0],&phi1_ecc_2[1],&phi1_ecc_2[2],&AdS_L,x,y,z,&Nx,&Ny,&Nz,&rhoc,&rhod,&stype);  
     for (i=0; i<size; i++) phi1_n[i]+=w1[i];    
 
@@ -12717,25 +12725,31 @@ void AdS4D_pre_io_calc(void)
         	{
 	        	if (my_rank==0) 
 	        	{
-	        		printf("Adding Lorentz-boosted Gaussian perturbation to initial phi1 and gbs\n"
+	        		printf("Adding Lorentz-boosted perturbations to initial phi1 and gbs\n"
 	        			   "WARNING: use of time-asymmetric, constraint-violating initial data\n");
-	        		printf("first boost\n");
+	        		printf("first perturbation parameters\n");
+	        		if (boost_den_1) printf("Boosted modified Gaussian perturbation involving modes with non-zero radial overtone\n");
+	        		else printf("Boosted Gaussian perturbation, all modes involved have zero radial overtone\n");
 	        		printf("boost_velocity components:\n"
 	        			   "boost_v_1[0]=%lf,boost_v_1[1]=%lf,boost_v_1[2]=%lf\n",boost_v_1[0],boost_v_1[1],boost_v_1[2]);
 	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2]));
 	        		printf("perturbation amplitude=%lf\n",boost_amp_1);
 	        		printf("boost_r0_1=%lf\n",boost_r0_1);
 	        		printf("boost_delta_1=%lf\n",boost_delta_1);
+	        		printf("boost_den_1=%lf\n",boost_den_1);
 	        		printf("boost_x0_1[0]=%lf,boost_x0_1[1]=%lf,boost_x0_1[2]=%lf\n",boost_x0_1[0],boost_x0_1[1],boost_x0_1[2]);
 	        		printf("boost_ecc_1[0]=%lf,boost_ecc_1[1]=%lf,boost_ecc_1[2]=%lf\n",boost_ecc_1[0],boost_ecc_1[1],boost_ecc_1[2]);
 	
-	    			printf("\nsecond boost\n");
+	    			printf("\nsecond perturbation parameters\n");
+	    			if (boost_den_2) printf("Boosted modified Gaussian perturbation involving modes with non-zero radial overtone\n");
+	        		else printf("Boosted Gaussian perturbation, all modes involved have zero radial overtone\n");
 	        		printf("boost_velocity components:\n"
 	        			   "boost_v_2[0]=%lf,boost_v_2[1]=%lf,boost_v_2[2]=%lf\n",boost_v_2[0],boost_v_2[1],boost_v_2[2]);
 	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2]));
 	        		printf("perturbation amplitude=%lf\n",boost_amp_2);
 	        		printf("boost_r0_2=%lf\n",boost_r0_2);
 	        		printf("boost_delta_2=%lf\n",boost_delta_2);
+	        		printf("boost_den_2=%lf\n",boost_den_2);
 	        		printf("boost_x0_2[0]=%lf,boost_x0_2[1]=%lf,boost_x0_2[2]=%lf\n",boost_x0_2[0],boost_x0_2[1],boost_x0_2[2]);
 	        		printf("boost_ecc_2[0]=%lf,boost_ecc_2[1]=%lf,boost_ecc_2[2]=%lf\n",boost_ecc_2[0],boost_ecc_2[1],boost_ecc_2[2]);
 	        		if ((sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2])>=1)||
@@ -12760,6 +12774,7 @@ void AdS4D_pre_io_calc(void)
 	                        &boost_amp_1,
 	                        &boost_r0_1,
 	                        &boost_delta_1,
+	                        &boost_den_1,
 	                        &boost_x0_1[0],&boost_x0_1[1],&boost_x0_1[2],
 	            			&boost_ecc_1[0],&boost_ecc_1[1],&boost_ecc_1[2],
 	                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
@@ -12779,6 +12794,7 @@ void AdS4D_pre_io_calc(void)
 	                        &boost_amp_2,
 	                        &boost_r0_2,
 	                        &boost_delta_2,
+	                        &boost_den_2,
 	                        &boost_x0_2[0],&boost_x0_2[1],&boost_x0_2[2],
 	            			&boost_ecc_2[0],&boost_ecc_2[1],&boost_ecc_2[2],
 	                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);
@@ -12789,23 +12805,29 @@ void AdS4D_pre_io_calc(void)
 	        	{
 	        		printf("Substituting Lorentz-boosted Gaussian perturbation to initial phi1\n"
 	        			   "WARNING: use of time-asymmetric, constraint-violating initial data\n");
-	        		printf("first boost\n");
+	        		printf("first perturbation parameters\n");
+	        		if (boost_den_1) printf("Boosted modified Gaussian perturbation involving modes with non-zero radial overtone\n");
+	        		else printf("Boosted Gaussian perturbation, all modes involved have zero radial overtone\n");
 	        		printf("boost_velocity components:\n"
 	        			   "boost_v_1[0]=%lf,boost_v_1[1]=%lf,boost_v_1[2]=%lf\n",boost_v_1[0],boost_v_1[1],boost_v_1[2]);
 	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2]));
 	        		printf("perturbation amplitude=%lf\n",boost_amp_1);
 	        		printf("boost_r0_1=%lf\n",boost_r0_1);
 	        		printf("boost_delta_1=%lf\n",boost_delta_1);
+	        		printf("boost_den_1=%lf\n",boost_den_1);
 	        		printf("boost_x0_1[0]=%lf,boost_x0_1[1]=%lf,boost_x0_1[2]=%lf\n",boost_x0_1[0],boost_x0_1[1],boost_x0_1[2]);
 	        		printf("boost_ecc_1[0]=%lf,boost_ecc_1[1]=%lf,boost_ecc_1[2]=%lf\n",boost_ecc_1[0],boost_ecc_1[1],boost_ecc_1[2]);
 	
-	    			printf("\nsecond boost\n");
+	    			printf("\nsecond perturbation parameters\n");
+	    			if (boost_den_2) printf("Boosted modified Gaussian perturbation involving modes with non-zero radial overtone\n");
+	        		else printf("Boosted Gaussian perturbation, all modes involved have zero radial overtone\n");
 	        		printf("boost_velocity components:\n"
 	        			   "boost_v_2[0]=%lf,boost_v_2[1]=%lf,boost_v_2[2]=%lf\n",boost_v_2[0],boost_v_2[1],boost_v_2[2]);
 	        		printf("boost_v_norm=%lf\n",sqrt(boost_v_2[0]*boost_v_2[0]+boost_v_2[1]*boost_v_2[1]+boost_v_2[2]*boost_v_2[2]));
 	        		printf("perturbation amplitude=%lf\n",boost_amp_2);
 	        		printf("boost_r0_2=%lf\n",boost_r0_2);
 	        		printf("boost_delta_2=%lf\n",boost_delta_2);
+	        		printf("boost_den_2=%lf\n",boost_den_2);
 	        		printf("boost_x0_2[0]=%lf,boost_x0_2[1]=%lf,boost_x0_2[2]=%lf\n",boost_x0_2[0],boost_x0_2[1],boost_x0_2[2]);
 	        		printf("boost_ecc_2[0]=%lf,boost_ecc_2[1]=%lf,boost_ecc_2[2]=%lf\n",boost_ecc_2[0],boost_ecc_2[1],boost_ecc_2[2]);
 	        		if ((sqrt(boost_v_1[0]*boost_v_1[0]+boost_v_1[1]*boost_v_1[1]+boost_v_1[2]*boost_v_1[2])>=1)||
@@ -12819,6 +12841,7 @@ void AdS4D_pre_io_calc(void)
     		       			&boost_amp_1,
 	                        &boost_r0_1,
 	                        &boost_delta_1,
+	                        &boost_den_1,
 	                        &boost_x0_1[0],&boost_x0_1[1],&boost_x0_1[2],
 	            			&boost_ecc_1[0],&boost_ecc_1[1],&boost_ecc_1[2],
 	                    	&AdS_L,x,y,z,&dt,chr,&AMRD_ex,&Nx,&Ny,&Nz);

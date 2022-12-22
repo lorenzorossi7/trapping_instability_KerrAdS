@@ -7,7 +7,7 @@ c----------------------------------------------------------------------
      &                     f_np1,f_n,f_nm1,f_t_n,
      &                     boost_vx,boost_vy,boost_vz,
      &                     boost_amp,
-     &                     boost_r0,boost_delta,
+     &                     boost_r0,boost_delta,boost_den,
      &                     boost_xu0,boost_yu0,boost_zu0,
      &                     boost_ex,boost_ey,boost_ez,
      &                     L,x,y,z,dt,chr,exc,Nx,Ny,Nz)
@@ -17,7 +17,7 @@ c----------------------------------------------------------------------
         real*8 f_n(Nx,Ny,Nz),f_t_n(Nx,Ny,Nz)
         real*8 f_np1(Nx,Ny,Nz),f_nm1(Nx,Ny,Nz)
         real*8 x(Nx),y(Ny),z(Nz),dt,L
-        real*8 boost_amp,boost_r0,boost_delta
+        real*8 boost_amp,boost_r0,boost_delta,boost_den
         real*8 boost_ex,boost_ey,boost_ez,boost_xu0,boost_yu0,boost_zu0
         real*8 chr(Nx,Ny,Nz),exc
 
@@ -368,9 +368,19 @@ c----------------------------------------------------------------------
      &           -boost_ey**2*yb_invboost**2
      &           -boost_ez**2*zb_invboost**2)
 
-               f_n(i,j,k)=
+               if (abs(boost_den).lt.10.0d0**(-10)) then
+
+                  f_n(i,j,k)=
      &             boost_amp*
      &             exp(-((r_invboost-boost_r0)/boost_delta)**2)
+
+               else
+                  f_n(i,j,k)=
+     &             boost_amp*
+     &             cos((r_invboost-boost_r0)/boost_den)*
+     &             exp(-((r_invboost-boost_r0)/boost_delta)**2)
+
+               end if
 
 
 
@@ -1531,7 +1541,15 @@ c----------------------------------------------------------------------
               derexp0=(-1/boost_delta**2)*2*
      &         (r_invboost-boost_r0)*r_invboost_t
 
-               f_t_n(i,j,k)=f_n(i,j,k)*derexp0
+               if (abs(boost_den).lt.10.0d0**(-10)) then
+                  f_t_n(i,j,k)=f_n(i,j,k)*derexp0
+               else
+                  f_t_n(i,j,k)=f_n(i,j,k)*derexp0
+     &               +boost_amp*
+     &             (-1/boost_den)*sin((r_invboost-boost_r0)/boost_den)*
+     &             r_invboost_t*
+     &             exp(-((r_invboost-boost_r0)/boost_delta)**2)
+               end if
 
                if (rho0.lt.10.0d0**(-10)) then
                 f_t_n(i,j,k)=0

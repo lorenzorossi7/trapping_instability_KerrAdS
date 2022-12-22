@@ -3458,13 +3458,13 @@ c   = A , r < r0
 c
 c where r = sqrt ( (1-ex^2)*(x)^2 + (1-ey^2)*(y)^2 )
 c----------------------------------------------------------------------
-        subroutine gauss3d(f,A,B,C,r0,delta,xu0,yu0,zu0,ex,ey,ez,
+        subroutine gauss3d(f,A,B,C,r0,delta,den,xu0,yu0,zu0,ex,ey,ez,
      &                     L,x,y,z,Nx,Ny,Nz,
      &                     rhoc,rhod,stype)
         implicit none
         integer Nx,Ny,Nz
         real*8 f(Nx,Ny,Nz),x(Nx),y(Ny),z(Nz)
-        real*8 A,B,C,r0,delta,ex,ey,ez,xu0,yu0,zu0,L
+        real*8 A,B,C,r0,delta,den,ex,ey,ez,xu0,yu0,zu0,L
 
         integer i,j,k
         integer stype
@@ -3579,6 +3579,23 @@ c----------------------------------------------------------------------
      &              A*(1-f1)/(1-rho0**2)**2
      &             +B*cos(chi0)*4*f1*(1-f1)/(1-rho0**2)**2
      &             +C*cos(xi0)*4*f1*(1-f1)/(1-rho0**2)**2
+                 end if
+
+              else if (stype.eq.3) then !modified Gaussian, including non-zero radial overtone modes
+                 if (den.eq.0.0) then
+                    write(*,*) "gauss3d: for stype 3, i.e., modified Gaussian,
+     &               den must be non zero"
+                    stop
+                 end if
+                 if (rho0.ge.1) then
+                    f(i,j,k)=0
+                 else 
+                    if (rho0.ne.0.0d0) then
+                        f(i,j,k)=
+     &                  A*cos((r-r0)/den)*exp(-((r-r0)/delta)**2)
+                    else
+                        f(i,j,k)=A
+                    end if
                  end if
 
               end if
