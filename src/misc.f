@@ -3583,9 +3583,9 @@ c----------------------------------------------------------------------
 
               else if (stype.eq.3) then !modified Gaussian, including non-zero radial overtone modes
                  if (den.eq.0.0) then
-       write(*,*) "In gauss3d:"
-       write(*,*) "for stype 3 (modified Gaussian), den must be non zero"
-       write(*,*) "setting initial scalar field profile to 0"
+      write(*,*) "In gauss3d:"
+      write(*,*) "for stype 3 (modified Gaussian), den must be non zero"
+      write(*,*) "setting initial scalar field profile to 0"
                     f(i,j,k)=0
                  end if
                  if (rho0.ge.1) then
