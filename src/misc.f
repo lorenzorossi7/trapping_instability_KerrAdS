@@ -3516,7 +3516,7 @@ c----------------------------------------------------------------------
               ! NOTE: compactified coordinate here is: rho
 
               if (stype.eq.0) then
-
+                if (abs(den).lt.10.0d0**(-10)) then
                  if (rho0.ge.1) then
                     f(i,j,k)=0
                  else if (r.gt.r0) then
@@ -3539,6 +3539,20 @@ c----------------------------------------------------------------------
      &             A
                   end if
                  end if
+                else
+                 if (rho0.ge.1) then
+                    f(i,j,k)=0
+                 else 
+                    if (abs(rho0).gt.10.0d0**(-10)) then
+                        f(i,j,k)=
+     &                  A*cos((r-r0)/den)*exp(-((r-r0)/delta)**2)
+                    else
+                        f(i,j,k)=A
+                    end if
+                 end if
+
+                end if
+
 
               else if (stype.eq.1) then
 
@@ -3580,25 +3594,6 @@ c----------------------------------------------------------------------
      &             +B*cos(chi0)*4*f1*(1-f1)/(1-rho0**2)**2
      &             +C*cos(xi0)*4*f1*(1-f1)/(1-rho0**2)**2
                  end if
-
-              else if (stype.eq.3) then !modified Gaussian, including non-zero radial overtone modes
-                 if (den.eq.0.0) then
-      write(*,*) "In gauss3d:"
-      write(*,*) "for stype 3 (modified Gaussian), den must be non zero"
-      write(*,*) "setting initial scalar field profile to 0"
-                    f(i,j,k)=0
-                 end if
-                 if (rho0.ge.1) then
-                    f(i,j,k)=0
-                 else 
-                    if (rho0.ne.0.0d0) then
-                        f(i,j,k)=
-     &                  A*cos((r-r0)/den)*exp(-((r-r0)/delta)**2)
-                    else
-                        f(i,j,k)=A
-                    end if
-                 end if
-
               end if
             end do
            end do

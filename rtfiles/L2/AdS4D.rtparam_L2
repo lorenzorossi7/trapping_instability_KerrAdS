@@ -10,7 +10,8 @@ kerrads_background := 1
 phi1_amp_1 := 0.0
 phi1_r0_1 := 0.0
 phi1_delta_1 := 0.2
-#phi1_den_1 only used if stype=3 below
+#if stype = 0 below, then
+#uses purely Gaussian profile if boost_den_1 is 0, otherwise modified Gaussian
 phi1_den_1 := 0.05
 phi1_x0_1 := [0.0 0.7 0.0]
 phi1_ecc_1 := [0.2 0.2 0.2]
@@ -19,8 +20,6 @@ phi1_C_1 := 0.0
 
 rhoc := 0.4
 rhod := 0.8
-#stype=3 to use initial modified Gaussian (with non-zero radial overtone modes) scalar field profile.
-#In that case, also set phi1_den to a non-zero value.
 stype := 0
 
 #Lorent boost parameters
