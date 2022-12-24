@@ -10,7 +10,8 @@ kerrads_background := 1
 phi1_amp_1 := 0.0
 phi1_r0_1 := 0.0
 phi1_delta_1 := 0.2
-phi1_den_1 := 0.05 #only used if stype=3 below
+#phi1_den_1 only used if stype=3 below
+phi1_den_1 := 0.05
 phi1_x0_1 := [0.0 0.7 0.0]
 phi1_ecc_1 := [0.2 0.2 0.2]
 phi1_B_1 := 0.0
@@ -27,7 +28,8 @@ boost_v_1 := [0.0 0.0 0.0]
 boost_amp_1 := 0.0
 boost_r0_1 := 0.0
 boost_delta_1 := 0.2
-boost_den_1 := 0.05 #uses purely Gaussian profile if this is 0, otherwise modified Gaussian
+#uses purely Gaussian profile if boost_den_1 is 0, otherwise modified Gaussian
+boost_den_1 := 0.05
 boost_x0_1 := [0.0 -0.6 0.0]
 boost_ecc_1 := [0.2 0.2 0.2]
 
@@ -35,7 +37,8 @@ boost_v_2 := [0.0 0.0 0.0]
 boost_amp_2 := 0.0
 boost_r0_2 := 0.0
 boost_delta_2 := 0.2
-boost_den_2 := 0.05  #uses purely Gaussian profile if this is 0, otherwise modified Gaussian
+#uses purely Gaussian profile if boost_den_2 is 0, otherwise modified Gaussian
+boost_den_2 := 0.05
 boost_x0_2 := [0.0 -0.3 -0.2]
 boost_ecc_2 := [0.2 0.2 0.2]
 

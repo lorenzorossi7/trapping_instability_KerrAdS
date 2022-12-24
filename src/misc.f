@@ -3585,7 +3585,8 @@ c----------------------------------------------------------------------
                  if (den.eq.0.0) then
                     write(*,*) "gauss3d: for stype 3, i.e., modified Gaussian,
      &               den must be non zero"
-                    stop
+                    write(*,*) "setting initial scalar field profile to 0"
+                    f(i,j,k)=0
                  end if
                  if (rho0.ge.1) then
                     f(i,j,k)=0
